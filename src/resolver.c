@@ -217,7 +217,7 @@ resolver_resolve_print (struct resolver *resolver, struct tree *tree)
 static struct tree *
 resolver_resolve_cast (struct resolver *resolver, struct tree *tree)
 {
-  tree->child = resolver_resolve (resolver, tree->child);
+  tree->child = resolver_resolve_rvalue (resolver, tree->child);
 
   return tree;
 }

@@ -531,13 +531,6 @@ cg_write_load_local_address (struct cg *cg, register_t r, size_t offset)
 }
 
 
-// static void
-// cg_write_store_local (struct cg *cg, register_t r, size_t offset)
-// {
-//   cg_write (cg, "\tmov\t[rbp-%zu], %s\n", offset, register_string (r));
-// }
-
-
 static void
 cg_write_test (struct cg *cg, register_t a)
 {

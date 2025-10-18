@@ -12,13 +12,34 @@ main:
 	; Enter
 	push	rbp
 	mov	rbp, rsp
-	sub	rsp, 0
+	sub	rsp, 32
 	; Program
-	mov	r10, 0
+	lea	r10, [rbp-32]
 	mov	r11, 0
-	mov	byte [r11], r10b
+	imul	r11, 1
+	add	r10, r11
+	mov	rdi, r10
+	call	printi
+	lea	r10, [rbp-32]
+	mov	r11, 1
+	imul	r11, 1
+	add	r10, r11
+	mov	rdi, r10
+	call	printi
+	lea	r10, [rbp-32]
+	mov	r11, 2
+	imul	r11, 1
+	add	r10, r11
+	mov	rdi, r10
+	call	printi
+	lea	r10, [rbp-32]
+	mov	r11, 3
+	imul	r11, 1
+	add	r10, r11
+	mov	rdi, r10
+	call	printi
 	; Leave
-	add	rsp, 0
+	add	rsp, 32
 	pop	rbp
 	mov	eax, 0
 	ret
