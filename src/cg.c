@@ -44,6 +44,14 @@ register_create (register_id id, enum type_width width)
 }
 
 
+static register_t
+register_modify (register_t r, enum type_width width)
+{
+  r.width = width;
+  return r;
+}
+
+
 static const char *const REGISTER_STRING[] = {
   "r10b",
   "r11b",
@@ -122,6 +130,25 @@ register_id_string (register_id i)
 
 
 // CG
+
+
+static const char *
+operand_size_string (enum type_width width)
+{
+  switch (width)
+    {
+    case WIDTH_8:
+      return "byte";
+    case WIDTH_16:
+      return "word";
+    case WIDTH_32:
+      return "dword";
+    case WIDTH_64:
+      return "qword";
+    default:
+      return "";
+    }
+}
 
 
 static void
@@ -449,10 +476,28 @@ cg_write_ucompare_ge (struct cg *cg, register_t a, register_t b)
 }
 
 
+// static void
+// cg_write_mov (struct cg *cg, register_t a, register_t b)
+// {
+//   cg_write (cg, "\tmov\t%s, %s\n", register_string (a), register_string (b));
+// }
+
+
 static void
-cg_write_mov (struct cg *cg, register_t a, register_t b)
+cg_write_load (struct cg *cg, register_t a, register_t b)
 {
-  cg_write (cg, "\tmov\t%s, %s\n", register_string (a), register_string (b));
+  const char *s = operand_size_string (a.width);
+
+  cg_write (cg, "\tmov\t%s, %s [%s]\n", register_string (a), s, register_string (b));
+}
+
+
+static void
+cg_write_store (struct cg *cg, register_t a, register_t b)
+{
+  const char *s = operand_size_string (b.width);
+
+  cg_write (cg, "\tmov\t%s [%s], %s\n", s, register_string (a), register_string (b));
 }
 
 
@@ -473,7 +518,9 @@ cg_write_sext (struct cg *cg, register_t a, register_t b)
 static void
 cg_write_load_local (struct cg *cg, register_t r, size_t offset)
 {
-  cg_write (cg, "\tmov\t%s, [rbp-%zu]\n", register_string (r), offset);
+  const char *s = operand_size_string (r.width);
+
+  cg_write (cg, "\tmov\t%s, %s [rbp-%zu]\n", register_string (r), s, offset);
 }
 
 
@@ -845,38 +892,23 @@ cg_generate_cast (struct cg *cg, struct tree *tree)
   // Truncation
   if (wa < wb)
     {
-      register_t ra = cg_register_allocate (cg, wa);
-      register_t rb = register_create (r.id, wa);
-
-      cg_write_mov (cg, ra, rb);
-
-      cg_register_free (cg, r);
-
-      return ra;
+      return register_modify (r, wa);
     }
 
   // Extension
   if (wa > wb)
     {
-      register_t ra = cg_register_allocate (cg, wa);
+      register_t s = register_modify (r, wa);
 
       if (sa && sb)
-        cg_write_sext (cg, ra, r);
+        cg_write_sext (cg, s, r);
       else
         {
           if (wb < 32)
-            cg_write_zext (cg, ra, r);
-          else
-            {
-              register_t a = register_create (ra.id, r.width);
-
-              cg_write_mov (cg, a, r);
-            }
+            cg_write_zext (cg, s, r);
         }
 
-      cg_register_free (cg, r);
-
-      return ra;
+      return s;
     }
 
   return r;
@@ -892,25 +924,10 @@ cg_generate_assignment (struct cg *cg, struct tree *tree)
   register_t b = cg_generate (cg, node_b);
   register_t a = cg_generate_left_value (cg, node_a);
 
-  const char *s;
+  cg_write_store (cg, a, b);
 
-  switch (b.width)
-    {
-    case WIDTH_8:
-      s = "byte";
-      break;
-    case WIDTH_16:
-      s = "word";
-      break;
-    case WIDTH_32:
-      s = "dword";
-      break;
-    case WIDTH_64:
-      s = "qword";
-      break;
-    }
-
-  cg_write (cg, "\tmov\t%s [%s], %s\n", s, register_string (a), register_string (b));
+  // cg_write (cg, "\tmov\t%s [%s], %s\n", operand_size_string (b.width), register_string (a),
+  //          register_string (b));
 
   cg_register_free (cg, a);
 
@@ -1043,13 +1060,12 @@ cg_generate_reference (struct cg *cg, struct tree *tree)
 static register_t
 cg_generate_dereference (struct cg *cg, struct tree *tree)
 {
-  register_t r = cg_generate (cg, tree->child);
+  register_t b = cg_generate (cg, tree->child);
+  register_t a = register_modify (b, type_width (tree->type));
 
-  register_t s = register_create (r.id, type_width (tree->type));
+  cg_write_load (cg, a, b);
 
-  cg_write (cg, "\tmov\t%s, [%s]\n", register_string (s), register_string (r));
-
-  return s;
+  return a;
 }
 
 

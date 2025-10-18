@@ -19,7 +19,6 @@ static const char *const TREE_KIND_STRING[] = {
   "binary",
   "reference",
   "dereference",
-  "scale",
   "integer",
   "identifier",
 

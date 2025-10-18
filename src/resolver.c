@@ -345,16 +345,6 @@ resolver_resolve_binary (struct resolver *resolver, struct tree *tree)
 
           tree_set_type (tree, type_a);
 
-          // size_t w = type_element_size (type_a);
-
-          // struct tree *scale;
-
-          // scale = tree_create
-
-          // tree->child->next = scale;
-
-          // fprintf (stderr, "LLL :: :: : : %zu\n", type_element_size (type_a));
-
           return tree;
         }
 
