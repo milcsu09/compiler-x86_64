@@ -54,17 +54,6 @@ checker_check_function_definition (struct checker *checker, struct tree *tree)
 {
   for (struct tree *current = tree->child; current; current = current->next)
     checker_check (checker, current);
-
-  // struct tree *current = tree->child;
-
-  // while (current->next)
-  //   {
-  //     checker_check (checker, current);
-
-  //     current = current->next;
-  //   }
-
-  // checker_check (checker, current);
 }
 
 
@@ -305,8 +294,6 @@ checker_check_type (struct checker *checker, struct tree *type)
 {
   if (type == TYPE_ERROR)
     return;
-
-  fprintf (stderr, "checker_check_type () : %s\n", type_kind_string (type->type_kind));
 
   if (!type_is_complete (type))
     {

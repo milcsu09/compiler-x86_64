@@ -482,7 +482,7 @@ resolver_resolve_program (struct resolver *resolver, struct tree *tree)
 struct tree *
 resolver_resolve (struct resolver *resolver, struct tree *tree)
 {
-  fprintf (stderr, "resolver_resolve () : %s\n", tree_kind_string (tree->tree_kind));
+  // fprintf (stderr, "resolver_resolve () : %s\n", tree_kind_string (tree->tree_kind));
 
   switch (tree->tree_kind)
     {

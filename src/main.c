@@ -53,7 +53,7 @@ main (void)
 
   tree = parser_parse (parser);
 
-  tree_debug_print (tree);
+  // tree_debug_print (tree);
   // exit (0);
 
   // PASS 1
@@ -61,7 +61,7 @@ main (void)
 
   tree = resolver_resolve (resolver, tree);
 
-  tree_debug_print (tree);
+  // tree_debug_print (tree);
   // exit (0);
 
   // PASS 2
@@ -69,7 +69,7 @@ main (void)
 
   checker_check (checker, tree);
 
-  exit (0);
+  // exit (0);
 
   // GENERATE
   struct cg *cg = cg_create (stdout);

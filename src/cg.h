@@ -7,29 +7,67 @@
 #include <stdio.h>
 
 
-enum
+enum register_id
 {
-  REGISTER_N = 4,
+  REGISTER_RAX,
+  REGISTER_RBX,
+  REGISTER_RCX,
+  REGISTER_RDX,
+  REGISTER_RSI,
+  REGISTER_RDI,
+  REGISTER_RSP,
+  REGISTER_RBP,
+  REGISTER_R8,
+  REGISTER_R9,
+  REGISTER_R10,
+  REGISTER_R11,
+  REGISTER_R12,
+  REGISTER_R13,
+  REGISTER_R14,
+  REGISTER_R15,
+
+  REGISTER_COUNT,
 };
 
 
-typedef size_t register_id;
+enum
+{
+  REGISTERA_START = REGISTER_R10,
+  REGISTERA_END   = REGISTER_R15,
+
+  REGISTERA_COUNT = REGISTERA_START - REGISTERA_END,
+};
+
+
+// typedef size_t register_id;
+
+
+struct function
+{
+  char *name;
+
+  size_t stack_offset;
+  size_t stack_usage;
+};
 
 
 struct cg
 {
   FILE *f;
 
+  struct function function;
+
   struct scope *scope;
 
-  size_t stack_offset;
+  // size_t stack_offset;
   // size_t stack_head;
-  size_t stack_usage;
+  // size_t stack_usage;
 
   size_t label_count;
 
-  bool register_free[REGISTER_N];
-  register_id register_spill;
+  bool register_free[REGISTER_COUNT];
+
+  size_t register_spill;
 };
 
 

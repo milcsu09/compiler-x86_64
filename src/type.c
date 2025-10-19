@@ -335,6 +335,40 @@ type_size (struct tree *type)
 
 
 size_t
+type_alignment (struct tree *type)
+{
+  if (type == TYPE_ERROR)
+    return 0;
+
+  switch (type->type_kind)
+    {
+    case TYPE_I8:
+      return 1;
+    case TYPE_I16:
+      return 2;
+    case TYPE_I32:
+      return 4;
+    case TYPE_I64:
+      return 8;
+    case TYPE_U8:
+      return 1;
+    case TYPE_U16:
+      return 2;
+    case TYPE_U32:
+      return 4;
+    case TYPE_U64:
+      return 8;
+    case TYPE_POINTER:
+      return 8;
+    case TYPE_ARRAY:
+      return type_alignment (type->type);
+    default:
+      return 0;
+    }
+}
+
+
+size_t
 type_element_size (struct tree *type)
 {
   if (type == TYPE_ERROR)

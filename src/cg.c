@@ -18,7 +18,7 @@ typedef size_t label_t;
 
 typedef struct
 {
-  register_id id;
+  enum register_id id;
 
   enum type_width width;
 } register_t;
@@ -31,10 +31,8 @@ static const register_t register_none = {
 
 
 static register_t
-register_create (register_id id, enum type_width width)
+register_create (enum register_id id, enum type_width width)
 {
-  assert (id < REGISTER_N);
-
   register_t r;
 
   r.id = id;
@@ -53,53 +51,101 @@ register_modify (register_t r, enum type_width width)
 
 
 static const char *const REGISTER_STRING[] = {
+  "al",
+  "bl",
+  "cl",
+  "dl",
+  "sil",
+  "dil",
+  "spl",
+  "bpl",
+  "r8b",
+  "r9b",
   "r10b",
   "r11b",
   "r12b",
   "r13b",
+  "r14b",
+  "r15b",
 
+  "ax",
+  "bx",
+  "cx",
+  "dx",
+  "si",
+  "di",
+  "sp",
+  "bp",
+  "r8w",
+  "r9w",
   "r10w",
   "r11w",
   "r12w",
   "r13w",
+  "r14w",
+  "r15w",
 
+  "eax",
+  "ebx",
+  "ecx",
+  "edx",
+  "esi",
+  "edi",
+  "esp",
+  "ebp",
+  "r8d",
+  "r9d",
   "r10d",
   "r11d",
   "r12d",
   "r13d",
+  "r14d",
+  "r15d",
 
+  "rax",
+  "rbx",
+  "rcx",
+  "rdx",
+  "rsi",
+  "rdi",
+  "rsp",
+  "rbp",
+  "r8" ,
+  "r9" ,
   "r10",
   "r11",
   "r12",
   "r13",
+  "r14",
+  "r15",
 };
 
 
 static const char *
 register_b_string (register_t r)
 {
-  return REGISTER_STRING[r.id + REGISTER_N * 0];
+  return REGISTER_STRING[r.id + REGISTER_COUNT * 0];
 }
 
 
 static const char *
 register_w_string (register_t r)
 {
-  return REGISTER_STRING[r.id + REGISTER_N * 1];
+  return REGISTER_STRING[r.id + REGISTER_COUNT * 1];
 }
 
 
 static const char *
 register_d_string (register_t r)
 {
-  return REGISTER_STRING[r.id + REGISTER_N * 2];
+  return REGISTER_STRING[r.id + REGISTER_COUNT * 2];
 }
 
 
 static const char *
 register_q_string (register_t r)
 {
-  return REGISTER_STRING[r.id + REGISTER_N * 3];
+  return REGISTER_STRING[r.id + REGISTER_COUNT * 3];
 }
 
 
@@ -123,9 +169,9 @@ register_string (register_t r)
 
 
 const char *
-register_id_string (register_id i)
+register_id_string (enum register_id i)
 {
-  return REGISTER_STRING[i + REGISTER_N * 3];
+  return REGISTER_STRING[i + REGISTER_COUNT * 3];
 }
 
 
@@ -181,9 +227,9 @@ cg_create (FILE *f)
 
   cg_scope_push (cg);
 
-  cg->stack_offset = 0;
+  // cg->stack_offset = 0;
   // cg->stack_head = 0;
-  cg->stack_usage = 0;
+  // cg->stack_usage = 0;
 
   cg->label_count = 0;
 
@@ -213,9 +259,10 @@ cg_compute (struct cg *cg, struct tree *tree)
     case TREE_VARIABLE_DECLARATION:
       {
         size_t size = type_size (tree->type);
+        size_t alignment = type_alignment (tree->type);
 
-        cg->stack_offset = next_multiple (cg->stack_offset, size);
-        cg->stack_offset = cg->stack_offset + size;
+        cg->function.stack_offset = next_multiple (cg->function.stack_offset, alignment);
+        cg->function.stack_offset = cg->function.stack_offset + size;
       }
       break;
     default:
@@ -227,6 +274,26 @@ cg_compute (struct cg *cg, struct tree *tree)
 
   if (tree->next)
     cg_compute (cg, tree->next);
+
+  // switch (tree->tree_kind)
+  //   {
+  //   case TREE_VARIABLE_DECLARATION:
+  //     {
+  //       size_t size = type_size (tree->type);
+
+  //       cg->stack_offset = next_multiple (cg->stack_offset, size);
+  //       cg->stack_offset = cg->stack_offset + size;
+  //     }
+  //     break;
+  //   default:
+  //     break;
+  //   }
+
+  // if (tree->child)
+  //   cg_compute (cg, tree->child);
+
+  // if (tree->next)
+  //   cg_compute (cg, tree->next);
 }
 
 
@@ -250,7 +317,7 @@ static void
 cg_write_begin (struct cg *cg)
 {
   cg_write (cg, "section .text\n");
-  cg_write (cg, "\tglobal\tmain\n");
+  // cg_write (cg, "\tglobal\tmain\n");
   cg_write (cg, "\textern\tprintf\n");
 
   cg_write (cg, "\n");
@@ -263,26 +330,26 @@ cg_write_begin (struct cg *cg)
 
   cg_write (cg, "\n");
 
-  cg_write (cg, "main:\n");
+  // cg_write (cg, "main:\n");
 
-  cg_write (cg, "\t; Enter\n");
-  cg_write (cg, "\tpush\trbp\n");
-  cg_write (cg, "\tmov\trbp, rsp\n");
-  cg_write (cg, "\tsub\trsp, %zu\n", cg->stack_usage);
-  cg_write (cg, "\t; Program\n");
+  // cg_write (cg, "\t; Enter\n");
+  // cg_write (cg, "\tpush\trbp\n");
+  // cg_write (cg, "\tmov\trbp, rsp\n");
+  // cg_write (cg, "\tsub\trsp, %zu\n", cg->stack_usage);
+  // cg_write (cg, "\t; Program\n");
 }
 
 
 static void
 cg_write_end (struct cg *cg)
 {
-  cg_write (cg, "\t; Leave\n");
-  cg_write (cg, "\tadd\trsp, %zu\n", cg->stack_usage);
-  cg_write (cg, "\tpop\trbp\n");
-  cg_write (cg, "\tmov\teax, 0\n");
-  cg_write (cg, "\tret\n");
+  // cg_write (cg, "\t; Leave\n");
+  // cg_write (cg, "\tadd\trsp, %zu\n", cg->stack_usage);
+  // cg_write (cg, "\tpop\trbp\n");
+  // cg_write (cg, "\tmov\teax, 0\n");
+  // cg_write (cg, "\tret\n");
 
-  cg_write (cg, "\n");
+  // cg_write (cg, "\n");
 
   cg_write (cg, "section .data\n");
   cg_write (cg, "\tprinti_s: db \"%%ld\", 10, 0\n");
@@ -295,6 +362,12 @@ cg_write_end (struct cg *cg)
 }
 
 
+// static void
+// cg_write_function_begin (struct cg *cg)
+// {
+// 
+// }
+
 
 static void
 cg_write_nop (struct cg *cg)
@@ -304,14 +377,14 @@ cg_write_nop (struct cg *cg)
 
 
 static void
-cg_write_push_register (struct cg *cg, register_id r)
+cg_write_push_register (struct cg *cg, enum register_id r)
 {
   cg_write (cg, "\tpush\t%s\n", register_id_string (r));
 }
 
 
 static void
-cg_write_pop_register (struct cg *cg, register_id r)
+cg_write_pop_register (struct cg *cg, enum register_id r)
 {
   cg_write (cg, "\tpop\t%s\n", register_id_string (r));
 }
@@ -579,7 +652,7 @@ cg_write_label (struct cg *cg, label_t a)
 static register_t
 cg_register_allocate (struct cg *cg, enum type_width width)
 {
-  for (register_id i = 0; i < REGISTER_N; ++i)
+  for (size_t i = REGISTERA_START; i <= REGISTERA_END; ++i)
     {
       if (cg->register_free[i] == 1)
         {
@@ -589,7 +662,7 @@ cg_register_allocate (struct cg *cg, enum type_width width)
         }
     }
 
-  register_id i = cg->register_spill++ % REGISTER_N;
+  enum register_id i = REGISTERA_START + cg->register_spill++ % REGISTERA_COUNT;
 
   cg_write_push_register (cg, i);
 
@@ -606,7 +679,7 @@ cg_register_free (struct cg *cg, register_t r)
     cg->register_free[r.id] = 1;
   else
     {
-      register_id i = --cg->register_spill % REGISTER_N;
+      enum register_id i = REGISTERA_START + --cg->register_spill % REGISTERA_COUNT;
 
       cg_write_pop_register (cg, i);
 
@@ -620,14 +693,14 @@ cg_register_free_all (struct cg *cg)
 {
   while (cg->register_spill > 0)
     {
-      register_id i = --cg->register_spill % REGISTER_N;
+      enum register_id i = REGISTERA_START + --cg->register_spill % REGISTERA_COUNT;
 
       cg_write_pop_register (cg, i);
 
       // cg->stack_head -= 8;
     }
 
-  for (register_id i = 0; i < REGISTER_N; ++i)
+  for (enum register_id i = 0; i < REGISTER_COUNT; ++i)
     cg->register_free[i] = 1;
 }
 
@@ -635,6 +708,9 @@ cg_register_free_all (struct cg *cg)
 /// GENERATE
 
 static register_t cg_generate (struct cg *, struct tree *);
+
+
+static void cg_generate_function_definition (struct cg *, struct tree *);
 
 
 static void cg_generate_empty (struct cg *, struct tree *);
@@ -693,6 +769,141 @@ cg_generate_left_value (struct cg *cg, struct tree *tree)
     default:
       return register_none;
     }
+}
+
+
+static void
+cg_generate_function_definition (struct cg *cg, struct tree *tree)
+{
+  cg->function.name = tree->child->token->data.s;
+  cg->function.stack_offset = 0;
+  cg->function.stack_usage = 0;
+
+  struct tree *current;
+
+  cg_scope_push (cg);
+
+  // size_t arity = 0;
+
+  for (current = tree->child->next; current->next; current = current->next)
+    {
+      size_t size = type_size (current->type);
+      size_t alignment = type_alignment (current->type);
+
+      cg->function.stack_offset = next_multiple (cg->function.stack_offset, alignment);
+      cg->function.stack_offset = cg->function.stack_offset + size;
+
+      // size_t size = type_size (current->type);
+      // size_t alignment = type_alignment (current->type);
+
+      // cg->function.stack_offset = next_multiple (cg->function.stack_offset, alignment);
+
+      // size_t offset = cg->function.stack_offset + size;
+
+      // struct symbol symbol;
+
+      // symbol.key = current->child->token->data.s;
+
+      // symbol.offset = offset;
+
+      // symbol.type = current->type;
+
+      // scope_set2 (cg->scope, symbol, current->location);
+
+      // cg->function.stack_offset = offset;
+
+      // arity++;
+    }
+
+  size_t stack_offset = cg->function.stack_offset;
+
+  cg_compute (cg, current);
+
+  cg->function.stack_usage = next_multiple (cg->function.stack_offset, 16);
+  cg->function.stack_offset = 0;
+
+  cg_write (cg, "\tglobal %s\n", cg->function.name);
+  cg_write (cg, "%s:\n", cg->function.name);
+  cg_write (cg, "\tpush\trbp\n");
+  cg_write (cg, "\tmov\trbp, rsp\n");
+  cg_write (cg, "\tsub\trsp, %zu\n", cg->function.stack_usage);
+
+  cg_write (cg, "\t;\n");
+
+  size_t p_count = 0;
+
+  enum register_id p_registers[] = {
+    REGISTER_RDI,
+    REGISTER_RSI,
+    REGISTER_RDX,
+    REGISTER_RCX,
+    REGISTER_R8,
+    REGISTER_R9,
+  };
+
+  for (struct tree *p = tree->child->next; p->next; p = p->next)
+    {
+      size_t size = type_size (p->type);
+      size_t alignment = type_alignment (p->type);
+
+      cg->function.stack_offset = next_multiple (cg->function.stack_offset, alignment);
+
+      size_t offset = cg->function.stack_offset + size;
+
+      struct symbol symbol;
+
+      symbol.key = p->child->token->data.s;
+      symbol.offset = offset;
+      symbol.type = p->type;
+
+      scope_set2 (cg->scope, symbol, current->location);
+
+      cg->function.stack_offset = offset;
+
+      enum type_width w = type_width (p->type);
+      const char *s = operand_size_string (w);
+
+      if (p_count < 6)
+        {
+          register_t r = register_create (p_registers[p_count], w);
+
+          cg_write (cg, "\tmov\t%s [rbp-%zu], %s\n", s, offset, register_string (r));
+        }
+      else
+        {
+          register_t r = register_create (REGISTER_R10, w);
+
+          cg_write (cg, "\tmov\t%s, %s [rbp+%zu]\n", register_string (r), s, (p_count - 5 + 1) * 8);
+          cg_write (cg, "\tmov\t%s [rbp-%zu], %s\n", s, offset, register_string (r));
+
+          // cg_write (cg, "\tmov\t%s [rbp-%zu], [rbp+%zu]\n", s, offset, (p_count - 5 + 1) * 8);
+        }
+
+      p_count++;
+    }
+
+  cg->function.stack_offset = stack_offset;
+
+  cg_write (cg, "\t;\n");
+
+  // Bypass generating compound
+  for (struct tree *child = current->child; child; child = child->next)
+    {
+      cg_generate (cg, child);
+
+      cg_register_free_all (cg);
+    }
+
+  cg_write (cg, "\t;\n");
+
+  cg_write (cg, "\tadd\trsp, %zu\n", cg->function.stack_usage);
+  cg_write (cg, "\tpop\trbp\n");
+  cg_write (cg, "\txor\trax, rax\n");
+  cg_write (cg, "\tret\n");
+
+  cg_write (cg, "\n");
+
+  cg_scope_pop (cg);
 }
 
 
@@ -836,10 +1047,11 @@ cg_generate_variable_declaration (struct cg *cg, struct tree *tree)
   struct tree *type = tree->type;
 
   size_t size = type_size (type);
+  size_t alignment = type_alignment (type);
 
-  cg->stack_offset = next_multiple (cg->stack_offset, size);
+  cg->function.stack_offset = next_multiple (cg->function.stack_offset, alignment);
 
-  size_t offset = cg->stack_offset + size;
+  size_t offset = cg->function.stack_offset + size;
 
   struct symbol symbol;
 
@@ -851,7 +1063,7 @@ cg_generate_variable_declaration (struct cg *cg, struct tree *tree)
 
   scope_set (cg->scope, symbol);
 
-  cg->stack_offset = offset;
+  cg->function.stack_offset = offset;
 }
 
 
@@ -1107,6 +1319,9 @@ cg_generate (struct cg *cg, struct tree *tree)
 {
   switch (tree->tree_kind)
     {
+    case TREE_FUNCTION_DEFINITION:
+      cg_generate_function_definition (cg, tree);
+      return register_none;
     case TREE_EMPTY:
       cg_generate_empty (cg, tree);
       return register_none;
@@ -1156,9 +1371,9 @@ cg_emit (struct cg *cg, struct tree *tree)
 {
   cg_compute (cg, tree);
 
-  cg->stack_usage = next_multiple (cg->stack_offset, 16);
+  // cg->stack_usage = next_multiple (cg->stack_offset, 16);
 
-  cg->stack_offset = 0;
+  // cg->stack_offset = 0;
 
   cg_write_begin (cg);
 

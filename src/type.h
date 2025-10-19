@@ -76,6 +76,8 @@ bool type_match (struct tree *, enum type_kind);
 
 size_t type_size (struct tree *);
 
+size_t type_alignment (struct tree *);
+
 size_t type_element_size (struct tree *);
 
 enum type_width type_width (struct tree *);
