@@ -19,21 +19,50 @@ fn square (n : i64) i64
   return n * n;
 }
 
+fn factorial (n : i64) i64
+{
+  i : i64;
+
+  for i = n - 1; i > 1; i = i - 1
+    {
+      n = n * i;
+    }
+
+  return n;
+}
+
+fn power (n : i64) i64
+{
+  m : i64;
+  m = n;
+
+  i : i64;
+
+  for i = 1; i < m; i = i + 1
+    {
+      n = n * m;
+    }
+
+  return n;
+}
+
 fn main () i32
 {
-  fs : [4]fn (i64) i64;
+  fs : [6]fn (i64) i64;
 
   fs[0] = identity;
   fs[1] = successor;
   fs[2] = double;
   fs[3] = square;
+  fs[4] = factorial;
+  fs[5] = power;
 
   N : i64;
   N = 5;
 
   i : i64;
 
-  for i = 0; i < 4; i = i + 1
+  for i = 0; i < 6; i = i + 1
     {
       print fs[i] (N);
     }
