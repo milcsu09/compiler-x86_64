@@ -761,6 +761,8 @@ static void cg_generate_print (struct cg *, struct tree *);
 
 static register_t cg_generate_cast (struct cg *, struct tree *);
 
+static register_t cg_generate_call (struct cg *, struct tree *);
+
 static register_t cg_generate_assignment (struct cg *, struct tree *);
 
 static register_t cg_generate_binary (struct cg *, struct tree *);
@@ -1169,6 +1171,57 @@ cg_generate_cast (struct cg *cg, struct tree *tree)
 
 
 static register_t
+cg_generate_call (struct cg *cg, struct tree *tree)
+{
+  struct tree *current;
+
+  size_t arity = 0;
+
+  enum register_id p_registers[] = {
+    REGISTER_RDI,
+    REGISTER_RSI,
+    REGISTER_RDX,
+    REGISTER_RCX,
+    REGISTER_R8,
+    REGISTER_R9,
+  };
+
+  for (current = tree->child->next; current; current = current->next)
+    {
+      // TODO: Call functions with more than 6 arguments
+      if (arity >= 6)
+        break;
+
+      register_t a = cg_generate (cg, current->child);
+      register_t b = register_create (p_registers[arity], a.width);
+
+      cg_write (cg, "\tmov\t%s, %s\n", register_string (b), register_string (a));
+
+      cg_register_free (cg, a);
+
+      arity++;
+    }
+
+  register_t a = cg_generate (cg, tree->child);
+
+  for (size_t i = REGISTERA_START; i <= REGISTERA_END; ++i)
+    cg_write_push_register (cg, i);
+
+  // TODO: SUPPORT DIRECT CALLS
+  cg_write (cg, "\tcall\t%s\n", register_string (a));
+
+  for (size_t i = REGISTERA_END; i >= REGISTERA_START; --i)
+    cg_write_pop_register (cg, i);
+
+  register_t r = register_create (REGISTER_RAX, type_width (tree->type));
+
+  cg_write (cg, "\tmov\t%s, %s\n", register_string (a), register_string (r));
+
+  return a;
+}
+
+
+static register_t
 cg_generate_assignment (struct cg *cg, struct tree *tree)
 {
   struct tree *node_a = tree->child;
@@ -1177,10 +1230,10 @@ cg_generate_assignment (struct cg *cg, struct tree *tree)
   register_t b = cg_generate (cg, node_b);
   register_t a = cg_generate_left_value (cg, node_a);
 
-  cg_write_store (cg, a, b);
+  // TODO: Handle both local and global variables.
+  //       Though that requires the implementation of global variables first.
 
-  // cg_write (cg, "\tmov\t%s [%s], %s\n", operand_size_string (b.width), register_string (a),
-  //          register_string (b));
+  cg_write_store (cg, a, b);
 
   cg_register_free (cg, a);
 
@@ -1405,6 +1458,8 @@ cg_generate (struct cg *cg, struct tree *tree)
       return register_none;
     case TREE_CAST:
       return cg_generate_cast (cg, tree);
+    case TREE_CALL:
+      return cg_generate_call (cg, tree);
     case TREE_ASSIGNMENT:
       return cg_generate_assignment (cg, tree);
     case TREE_BINARY:

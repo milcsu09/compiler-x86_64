@@ -36,6 +36,8 @@ static void checker_check_print (struct checker *, struct tree *);
 
 static void checker_check_cast (struct checker *, struct tree *);
 
+static void checker_check_call (struct checker *, struct tree *);
+
 static void checker_check_assignment (struct checker *, struct tree *);
 
 static void checker_check_binary (struct checker *, struct tree *);
@@ -154,6 +156,7 @@ checker_check_cast (struct checker *checker, struct tree *tree)
   struct tree *type = tree->type;
 
   checker_check_type (checker, type);
+  checker_check_type (checker, tree->child->type);
 
   if (!type_is_scalar (type))
     {
@@ -165,6 +168,21 @@ checker_check_cast (struct checker *checker, struct tree *tree)
     }
 
   checker_check (checker, tree->child);
+}
+
+
+static void
+checker_check_call (struct checker *checker, struct tree *tree)
+{
+  for (struct tree *current = tree->child; current; current = current->next)
+    checker_check (checker, current);
+
+  if (!type_is_callable (tree->child->type))
+    {
+      error (tree->location, "expression is not callable");
+
+      exit (1);
+    }
 }
 
 
@@ -388,6 +406,9 @@ checker_check (struct checker *checker, struct tree *tree)
       break;
     case TREE_CAST:
       checker_check_cast (checker, tree);
+      break;
+    case TREE_CALL:
+      checker_check_call (checker, tree);
       break;
     case TREE_ASSIGNMENT:
       checker_check_assignment (checker, tree);

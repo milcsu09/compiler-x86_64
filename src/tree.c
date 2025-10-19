@@ -18,6 +18,7 @@ static const char *const TREE_KIND_STRING[] = {
   "print",
 
   "cast",
+  "call",
   "assignment",
   "binary",
   "reference",
@@ -150,7 +151,7 @@ tree_wrap (struct tree *root, struct tree *target, struct tree *wrapper)
 }
 
 
-void
+struct tree *
 tree_wrap_cast (struct tree *root, struct tree *target, struct tree *type)
 {
   struct tree *cast;
@@ -160,17 +161,19 @@ tree_wrap_cast (struct tree *root, struct tree *target, struct tree *type)
   tree_set_type (cast, type);
 
   tree_wrap (root, target, cast);
+
+  return cast;
 }
 
 
-void
+struct tree *
 tree_wrap_cast_p (struct tree *root, struct tree *target, enum type_kind type_kind)
 {
   struct tree *type;
 
   type = type_create (target->location, type_kind);
 
-  tree_wrap_cast (root, target, type);
+  return tree_wrap_cast (root, target, type);
 }
 
 

@@ -193,6 +193,19 @@ type_kind_is_complete (enum type_kind kind)
 }
 
 
+bool
+type_kind_is_callable (enum type_kind kind)
+{
+  switch (kind)
+    {
+    case TYPE_FUNCTION:
+      return true;
+    default:
+      return false;
+    }
+}
+
+
 enum type_kind
 type_kind_promote_integer (enum type_kind ka, enum type_kind kb)
 {
@@ -450,6 +463,19 @@ type_is_pointer (struct tree *type)
 
 
 bool
+type_is_pointer_to (struct tree *type, enum type_kind kind)
+{
+  if (type == TYPE_ERROR)
+    return false;
+
+  if (type_kind_is_pointer (type->type_kind))
+    return type->type->type_kind == kind;
+
+  return false;
+}
+
+
+bool
 type_is_array (struct tree *type)
 {
   if (type == TYPE_ERROR)
@@ -476,6 +502,19 @@ type_is_complete (struct tree *type)
     return false;
 
   return type_kind_is_complete (type->type_kind);
+}
+
+
+bool
+type_is_callable (struct tree *type)
+{
+  if (type == TYPE_ERROR)
+    return false;
+
+  if (type_is_pointer_to (type, TYPE_FUNCTION))
+    return true;
+
+  return type_kind_is_callable (type->type_kind);
 }
 
 

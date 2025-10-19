@@ -153,6 +153,8 @@ static struct tree *parser_parse_expression_binary (struct parser *);
 
 static struct tree *parser_parse_expression_cast (struct parser *);
 
+static struct tree *parser_parse_expression_call (struct parser *);
+
 static struct tree *parser_parse_expression_access (struct parser *);
 
 
@@ -605,7 +607,7 @@ parser_parse_expression_cast (struct parser *parser)
 {
   struct tree *left;
 
-  left = parser_parse_expression_access (parser);
+  left = parser_parse_expression_call (parser);
 
   if (!parser_match (parser, TOKEN_COLON))
     return left;
@@ -625,6 +627,68 @@ parser_parse_expression_cast (struct parser *parser)
   tree_set_type (cast, type);
 
   return cast;
+}
+
+
+static struct tree *
+parser_parse_expression_call (struct parser *parser)
+{
+  struct tree *a;
+
+  a = parser_parse_expression_access (parser);
+
+  while (parser_match (parser, TOKEN_LPAREN))
+    {
+      struct tree *call;
+
+      call = tree_create (a->location, TREE_CALL);
+
+      tree_append (call, a);
+
+      parser_advance (parser);
+
+      while (!parser_match (parser, TOKEN_RPAREN))
+        {
+          struct tree *p;
+
+          p = parser_parse_expression_assignment (parser);
+
+          tree_append (call, p);
+
+          if (parser_match (parser, TOKEN_COMMA))
+            parser_advance (parser);
+          else
+            parser_expect (parser, TOKEN_RPAREN);
+        }
+
+      parser_expect_advance (parser, TOKEN_RPAREN);
+
+      a = call;
+
+
+      // struct tree *b;
+
+      // b = parser_parse_expression_assignment (parser);
+
+      // parser_expect_advance (parser, TOKEN_RBRACKET);
+
+      // struct tree *binary;
+
+      // binary = tree_create_token_kind (a->location, TREE_BINARY, TOKEN_PLUS);
+
+      // tree_append (binary, a);
+      // tree_append (binary, b);
+
+      // struct tree *deref;
+
+      // deref = tree_create (a->location, TREE_DEREFERENCE);
+
+      // tree_append (deref, binary);
+
+      // a = deref;
+    }
+
+  return a;
 }
 
 

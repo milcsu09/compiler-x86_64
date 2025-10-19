@@ -113,6 +113,8 @@ static struct tree *resolver_resolve_print (struct resolver *, struct tree *);
 
 static struct tree *resolver_resolve_cast (struct resolver *, struct tree *);
 
+static struct tree *resolver_resolve_call (struct resolver *, struct tree *);
+
 static struct tree *resolver_resolve_assignment (struct resolver *, struct tree *);
 
 static struct tree *resolver_resolve_binary (struct resolver *, struct tree *);
@@ -269,6 +271,47 @@ static struct tree *
 resolver_resolve_cast (struct resolver *resolver, struct tree *tree)
 {
   tree->child = resolver_resolve_rvalue (resolver, tree->child);
+
+  return tree;
+}
+
+
+static struct tree *
+resolver_resolve_call (struct resolver *resolver, struct tree *tree)
+{
+  tree->child = resolver_resolve_rvalue (resolver, tree->child);
+
+  struct tree *type = tree->child->type;
+
+  if (!type_is_pointer_to (type, TYPE_FUNCTION))
+    return tree;
+
+  struct tree *function = type->type;
+
+  struct tree *a = tree->child->next;
+  struct tree *b = function->child;
+
+  while (a && b)
+    {
+      struct tree *n = resolver_resolve_rvalue (resolver, tree_wrap_cast (tree, a, b));
+
+      a = n->next;
+      b = b->next;
+    }
+
+  if (a)
+    {
+      error (tree->location, "too many arguments to function");
+      exit (1);
+    }
+
+  if (b)
+    {
+      error (tree->location, "too few arguments to function");
+      exit (1);
+    }
+
+  tree_set_type (tree, function->type);
 
   return tree;
 }
@@ -519,6 +562,8 @@ resolver_resolve (struct resolver *resolver, struct tree *tree)
       return resolver_resolve_print (resolver, tree);
     case TREE_CAST:
       return resolver_resolve_cast (resolver, tree);
+    case TREE_CALL:
+      return resolver_resolve_call (resolver, tree);
     case TREE_ASSIGNMENT:
       return resolver_resolve_assignment (resolver, tree);
     case TREE_BINARY:

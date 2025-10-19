@@ -1,16 +1,35 @@
 
-fn square (n : i64) i64
+fn fib (n : i64) i64
 {
-  return n * n;
+  a : i64;
+  b : i64;
+
+  a = 0;
+  b = 1;
+
+  while n > 0
+  {
+    c : i64;
+    c = a + b;
+
+    a = b;
+    b = c;
+
+    n = n - 1;
+  }
+
+  return a;
 }
+
 
 fn main () i32
 {
-  print square;
-  print &square;
-  print *square;
-  print *&square;
-  print &*square;
+  n : i64;
+
+  for n = 0; n <= 92; n = n + 1
+  {
+    print fib (n);
+  }
 
   return 0;
 }

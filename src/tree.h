@@ -24,6 +24,7 @@ enum tree_kind
 
   // Expressions
   TREE_CAST,
+  TREE_CALL,
   TREE_ASSIGNMENT,
   TREE_BINARY,
   TREE_REFERENCE,
@@ -73,9 +74,9 @@ void tree_set_type (struct tree *, struct tree *);
 
 void tree_wrap (struct tree *, struct tree *, struct tree *);
 
-void tree_wrap_cast (struct tree *, struct tree *, struct tree *);
+struct tree *tree_wrap_cast (struct tree *, struct tree *, struct tree *);
 
-void tree_wrap_cast_p (struct tree *root, struct tree *target, enum type_kind);
+struct tree *tree_wrap_cast_p (struct tree *root, struct tree *target, enum type_kind);
 
 bool tree_wrap_cast_p_if (struct tree *root, struct tree *target, enum type_kind);
 

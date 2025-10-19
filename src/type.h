@@ -57,6 +57,8 @@ bool type_kind_is_scalar (enum type_kind);
 
 bool type_kind_is_complete (enum type_kind);
 
+bool type_kind_is_callable (enum type_kind);
+
 enum type_kind type_kind_promote_integer (enum type_kind, enum type_kind);
 
 
@@ -92,11 +94,15 @@ bool type_is_signed (struct tree *);
 
 bool type_is_pointer (struct tree *);
 
+bool type_is_pointer_to (struct tree *, enum type_kind);
+
 bool type_is_array (struct tree *);
 
 bool type_is_scalar (struct tree *);
 
 bool type_is_complete (struct tree *);
+
+bool type_is_callable (struct tree *);
 
 struct tree *type_decay (struct tree *);
 
