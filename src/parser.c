@@ -126,6 +126,10 @@ parser_expect_advance (struct parser *parser, enum token_kind kind)
 }
 
 
+static struct tree *parser_parse_top (struct parser *);
+
+static struct tree *parser_parse_top_function_definition (struct parser *);
+
 static struct tree *parser_parse_statement (struct parser *);
 
 static struct tree *parser_parse_statement_if (struct parser *);
@@ -196,6 +200,7 @@ parser_parse_body (struct parser *parser, enum token_kind kind_until, enum tree_
 
       switch (child->tree_kind)
         {
+        case TREE_FUNCTION_DEFINITION:
         case TREE_IF:
         case TREE_WHILE:
         case TREE_FOR:
@@ -206,6 +211,81 @@ parser_parse_body (struct parser *parser, enum token_kind kind_until, enum tree_
           break;
         }
     }
+}
+
+
+static struct tree *
+parser_parse_top (struct parser *parser)
+{
+  if (parser_match (parser, TOKEN_FN))
+    return parser_parse_top_function_definition (parser);
+
+  const char *b = token_kind_string (parser->current->kind);
+
+  parser_error_expect (parser, "top-level declaration", b);
+
+  exit (1);
+}
+
+
+static struct tree *
+parser_parse_top_function_definition (struct parser *parser)
+{
+  struct location location = parser->current->location;
+
+  parser_expect_advance (parser, TOKEN_FN);
+
+  struct tree *result;
+
+  result = tree_create (location, TREE_FUNCTION_DEFINITION);
+
+  struct tree *f_type;
+
+  f_type = type_create (location, TYPE_FUNCTION);
+
+  tree_set_type (result, f_type);
+
+  struct tree *f_name;
+
+  f_name = parser_parse_primary_identifier (parser);
+
+  tree_append (result, f_name);
+
+  parser_expect_advance (parser, TOKEN_LPAREN);
+
+  while (!parser_match (parser, TOKEN_RPAREN))
+    {
+      struct tree *p;
+
+      p = parser_parse_statement_variable_declaration (parser);
+
+      tree_append (result, p);
+
+      tree_set_type (p, type_decay (p->type));
+
+      tree_append (f_type, p->type);
+
+      if (parser_match (parser, TOKEN_COMMA))
+        parser_advance (parser);
+      else
+        parser_expect (parser, TOKEN_RPAREN);
+    }
+
+  parser_expect_advance (parser, TOKEN_RPAREN);
+
+  struct tree *r_type;
+
+  r_type = parser_parse_type (parser);
+
+  tree_append (f_type, r_type);
+
+  struct tree *body;
+
+  body = parser_parse_statement_compound (parser);
+
+  tree_append (result, body);
+
+  return result;
 }
 
 
@@ -681,7 +761,7 @@ parser_parse_primary_identifier (struct parser *parser)
 static struct tree *
 parser_parse_program (struct parser *parser)
 {
-  return parser_parse_body (parser, TOKEN_EOF, TREE_PROGRAM, parser_parse_statement);
+  return parser_parse_body (parser, TOKEN_EOF, TREE_PROGRAM, parser_parse_top);
 }
 
 
@@ -692,6 +772,9 @@ parser_parse_type_primary (struct parser *parser)
 
   switch (parser->current->kind)
     {
+    case TOKEN_VOID:
+      parser_advance (parser);
+      return type_create (location, TYPE_VOID);
     case TOKEN_I8:
       parser_advance (parser);
       return type_create (location, TYPE_I8);

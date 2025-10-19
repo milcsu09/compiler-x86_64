@@ -4,6 +4,7 @@
 
 #include <assert.h>
 #include <string.h>
+#include <stdlib.h>
 
 
 struct scope *
@@ -62,43 +63,36 @@ scope_get (struct scope *scope, const char *key, struct symbol *symbol)
 }
 
 
-/*
-bool
-scope_load (struct scope *scope, const char *key, struct symbol *symbol)
+
+void
+scope_set2 (struct scope *scope, struct symbol symbol, struct location location)
 {
-  while (scope)
+  enum scope_set_result result = scope_set (scope, symbol);
+
+  switch (result)
     {
-      for (size_t i = 0; i < scope->size; ++i)
-        {
-          struct symbol current = scope->data[i];
-
-          if (strcmp (current.key, key) == 0)
-            {
-              if (symbol)
-                {
-                  symbol->type = current.type;
-                  symbol->offset = current.offset;
-                  symbol->key = current.key;
-                }
-
-              return true;
-            }
-        }
-
-      scope = scope->parent;
+    case SCOPE_SET_OK:
+      break;
+    case SCOPE_SET_REDEFINED:
+      error (location, "redefined %s", symbol.key);
+      exit (1);
     }
-
-  return false;
 }
 
 
-bool
-scope_exists (struct scope *scope, const char *key)
+void
+scope_get2 (struct scope *scope, const char *key, struct symbol *symbol, struct location location)
 {
-  for (size_t i = 0; i < scope->size; ++i)
-    if (strcmp (scope->data[i].key, key) == 0)
-      return true;
-  return false;
+  enum scope_get_result result = scope_get (scope, key, symbol);
+
+  switch (result)
+    {
+    case SCOPE_GET_OK:
+      break;
+    case SCOPE_GET_UNDEFINED:
+      error (location, "undefined %s", key);
+      exit (1);
+    }
 }
-*/
+
 

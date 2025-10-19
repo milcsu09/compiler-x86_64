@@ -2,6 +2,8 @@
 #define SCOPE_H
 
 
+#include "error.h"
+
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -51,7 +53,9 @@ enum scope_set_result scope_set (struct scope *, struct symbol);
 
 enum scope_get_result scope_get (struct scope *, const char *, struct symbol *);
 
-bool scope_exists (struct scope *, const char *);
+void scope_set2 (struct scope *, struct symbol, struct location);
+
+void scope_get2 (struct scope *, const char *, struct symbol *, struct location);
 
 
 #endif // SCOPE_H

@@ -6,6 +6,8 @@
 
 
 static const char *const TREE_KIND_STRING[] = {
+  "function_definition",
+
   "empty",
   "if",
   "while",
@@ -186,7 +188,7 @@ tree_wrap_cast_p_if (struct tree *root, struct tree *target, enum type_kind type
 
 
 void
-tree_debug_print_base (struct tree *tree, size_t previous_line, size_t indent)
+tree_debug_print_base (struct tree *tree, size_t previous_line, bool has_previous, size_t indent)
 {
   if (!tree)
     return;
@@ -194,7 +196,11 @@ tree_debug_print_base (struct tree *tree, size_t previous_line, size_t indent)
   size_t line = tree->location.line;
 
   if (previous_line != line)
-    fprintf (stderr, "%*zu ", (int)indent + 4, line);
+    {
+      if (has_previous)
+        fprintf (stderr, "\n");
+      fprintf (stderr, "%*zu ", (int)indent + 4, line);
+    }
   else
     fprintf (stderr, "%*s ", (int)indent + 4, "");
 
@@ -223,20 +229,20 @@ tree_debug_print_base (struct tree *tree, size_t previous_line, size_t indent)
 
   if (tree->type != TYPE_ERROR)
     {
-      tree_debug_print_base (tree->type, line, indent + 4);
+      tree_debug_print_base (tree->type, line, 0, indent + 4);
       fprintf (stderr, "%*s ", (int)indent + 8, "");
       fprintf (stderr, "\033[90m//\033[0m\n");
     }
 
-  tree_debug_print_base (tree->child, line, indent + 4);
-  tree_debug_print_base (tree->next, line, indent);
+  tree_debug_print_base (tree->child, line, 0, indent + 4);
+  tree_debug_print_base (tree->next, line, 1, indent);
 }
 
 
 void
 tree_debug_print (struct tree *tree)
 {
-  tree_debug_print_base (tree, 0, 0);
+  tree_debug_print_base (tree, 0, 0, 0);
 }
 
 

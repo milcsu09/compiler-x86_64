@@ -13,6 +13,7 @@ static const char *const TOKEN_KIND_STRING[] = {
   "'<='",
   "'>='",
 
+  "','",
   "':'",
   "';'",
 
@@ -33,20 +34,22 @@ static const char *const TOKEN_KIND_STRING[] = {
 
   "identifier",
 
+  "'fn'",
   "'if'",
   "'else'",
   "'while'",
   "'for'",
   "'print'",
 
-  "i8",
-  "i16",
-  "i32",
-  "i64",
-  "u8",
-  "u16",
-  "u32",
-  "u64",
+  "'void'",
+  "'i8'",
+  "'i16'",
+  "'i32'",
+  "'i64'",
+  "'u8'",
+  "'u16'",
+  "'u32'",
+  "'u64'",
 };
 
 

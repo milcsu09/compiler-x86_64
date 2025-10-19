@@ -6,6 +6,8 @@
 
 
 static const char *const TYPE_KIND_STRING[] = {
+  "void",
+
   "i8",
   "i16",
   "i32",
@@ -18,6 +20,8 @@ static const char *const TYPE_KIND_STRING[] = {
 
   "pointer",
   "array",
+
+  "function",
 };
 
 
@@ -169,6 +173,19 @@ type_kind_is_scalar (enum type_kind kind)
       return true;
     default:
       return false;
+    }
+}
+
+
+bool
+type_kind_is_complete (enum type_kind kind)
+{
+  switch (kind)
+    {
+    case TYPE_VOID:
+      return false;
+    default:
+      return true;
     }
 }
 
@@ -412,6 +429,16 @@ type_is_scalar (struct tree *type)
     return false;
 
   return type_kind_is_scalar (type->type_kind);
+}
+
+
+bool
+type_is_complete (struct tree *type)
+{
+  if (type == TYPE_ERROR)
+    return false;
+
+  return type_kind_is_complete (type->type_kind);
 }
 
 

@@ -94,6 +94,8 @@ resolver_resolve_all (struct resolver *resolver, struct tree *tree,
 }
 
 
+static struct tree *resolver_resolve_function_definition (struct resolver *, struct tree *);
+
 static struct tree *resolver_resolve_if (struct resolver *, struct tree *);
 
 static struct tree *resolver_resolve_while (struct resolver *, struct tree *);
@@ -123,6 +125,38 @@ static struct tree *resolver_resolve_identifier (struct resolver *, struct tree 
 
 
 static struct tree *resolver_resolve_program (struct resolver *, struct tree *);
+
+
+static struct tree *
+resolver_resolve_function_definition (struct resolver *resolver, struct tree *tree)
+{
+  resolver_scope_push (resolver);
+
+  // TODO: store function inside it's own scope
+
+  struct tree *prev = tree->child;
+  struct tree *curr = tree->child->next;
+
+  while (curr->next)
+    {
+      struct tree *new = resolver_resolve (resolver, curr);
+
+      if (prev)
+        prev->next = new;
+      else
+        tree->child = new;
+
+      prev = new;
+      curr = new->next;
+    }
+
+  // NOTE: resolve compound expression without it's own scope.
+  resolver_resolve_all (resolver, curr, resolver_resolve_lvalue);
+
+  resolver_scope_pop (resolver);
+
+  return tree;
+}
 
 
 static struct tree *
@@ -187,17 +221,19 @@ resolver_resolve_variable_declaration (struct resolver *resolver, struct tree *t
   symbol.key = key;
   symbol.type = tree->type;
 
-  enum scope_set_result result = scope_set (resolver->scope, symbol);
+  scope_set2 (resolver->scope, symbol, tree->location);
 
-  switch (result)
-    {
-    case SCOPE_SET_OK:
-      break;
+  // enum scope_set_result result = scope_set (resolver->scope, symbol);
 
-    case SCOPE_SET_REDEFINED:
-      error (tree->location, "redefined %s", key);
-      exit (1);
-    }
+  // switch (result)
+  //   {
+  //   case SCOPE_SET_OK:
+  //     break;
+
+  //   case SCOPE_SET_REDEFINED:
+  //     error (tree->location, "redefined %s", key);
+  //     exit (1);
+  //   }
 
   return tree;
 }
@@ -426,18 +462,9 @@ resolver_resolve_identifier (struct resolver *resolver, struct tree *tree)
 
   struct symbol symbol;
 
-  enum scope_get_result result = scope_get (resolver->scope, key, &symbol);
+  scope_get2 (resolver->scope, key, &symbol, tree->location);
 
-  switch (result)
-    {
-    case SCOPE_GET_OK:
-      tree_set_type (tree, symbol.type);
-      break;
-
-    case SCOPE_GET_UNDEFINED:
-      error (tree->location, "undefined %s", key);
-      exit (1);
-    }
+  tree_set_type (tree, symbol.type);
 
   return tree;
 }
@@ -455,8 +482,12 @@ resolver_resolve_program (struct resolver *resolver, struct tree *tree)
 struct tree *
 resolver_resolve (struct resolver *resolver, struct tree *tree)
 {
+  fprintf (stderr, "resolver_resolve () : %s\n", tree_kind_string (tree->tree_kind));
+
   switch (tree->tree_kind)
     {
+    case TREE_FUNCTION_DEFINITION:
+      return resolver_resolve_function_definition (resolver, tree);
     case TREE_IF:
       return resolver_resolve_if (resolver, tree);
     case TREE_WHILE:

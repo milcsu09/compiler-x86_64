@@ -8,6 +8,10 @@
 
 enum tree_kind
 {
+  // Top-level
+  // TODO: TREE_FUNCTION_DECLARATION,
+  TREE_FUNCTION_DEFINITION,
+
   // Statements
   TREE_EMPTY,
   TREE_IF,

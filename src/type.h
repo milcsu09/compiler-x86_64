@@ -18,6 +18,8 @@ enum type_width
 
 enum type_kind
 {
+  TYPE_VOID,
+
   TYPE_I8,
   TYPE_I16,
   TYPE_I32,
@@ -30,6 +32,8 @@ enum type_kind
 
   TYPE_POINTER,
   TYPE_ARRAY,
+
+  TYPE_FUNCTION,
 };
 
 
@@ -50,6 +54,8 @@ bool type_kind_is_pointer (enum type_kind);
 bool type_kind_is_array (enum type_kind);
 
 bool type_kind_is_scalar (enum type_kind);
+
+bool type_kind_is_complete (enum type_kind);
 
 enum type_kind type_kind_promote_integer (enum type_kind, enum type_kind);
 
@@ -87,6 +93,8 @@ bool type_is_pointer (struct tree *);
 bool type_is_array (struct tree *);
 
 bool type_is_scalar (struct tree *);
+
+bool type_is_complete (struct tree *);
 
 struct tree *type_decay (struct tree *);
 

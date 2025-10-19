@@ -99,12 +99,14 @@ struct keyword
 
 
 static struct keyword KEYWORD_TABLE[] = {
+  { "fn",    TOKEN_FN },
   { "if",    TOKEN_IF },
   { "else",  TOKEN_ELSE },
   { "while", TOKEN_WHILE },
   { "for",   TOKEN_FOR },
   { "print", TOKEN_PRINT },
 
+  { "void", TOKEN_VOID },
   { "i8",   TOKEN_I8 },
   { "i16",  TOKEN_I16 },
   { "i32",  TOKEN_I32 },
@@ -209,6 +211,8 @@ lexer_next (struct lexer *lexer)
             return lexer_advance_n_token (lexer, 2, TOKEN_GTEQUAL);
           return lexer_advance_token (lexer, TOKEN_GT);
 
+        case ',':
+          return lexer_advance_token (lexer, TOKEN_COMMA);
         case ':':
           return lexer_advance_token (lexer, TOKEN_COLON);
         case ';':

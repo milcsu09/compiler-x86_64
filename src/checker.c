@@ -2,6 +2,7 @@
 #include "memory.h"
 #include "tree.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 
 
@@ -16,6 +17,8 @@ checker_create (void)
 }
 
 
+static void checker_check_function_definition (struct checker *, struct tree *);
+
 static void checker_check_if (struct checker *, struct tree *);
 
 static void checker_check_while (struct checker *, struct tree *);
@@ -23,6 +26,8 @@ static void checker_check_while (struct checker *, struct tree *);
 static void checker_check_for (struct checker *, struct tree *);
 
 static void checker_check_compound (struct checker *, struct tree *);
+
+static void checker_check_variable_declaration (struct checker *, struct tree *);
 
 static void checker_check_print (struct checker *, struct tree *);
 
@@ -38,7 +43,29 @@ static void checker_check_reference (struct checker *, struct tree *);
 static void checker_check_dereference (struct checker *, struct tree *);
 
 
+static void checker_check_type (struct checker *, struct tree *);
+
+
 static void checker_check_program (struct checker *, struct tree *);
+
+
+static void
+checker_check_function_definition (struct checker *checker, struct tree *tree)
+{
+  for (struct tree *current = tree->child; current; current = current->next)
+    checker_check (checker, current);
+
+  // struct tree *current = tree->child;
+
+  // while (current->next)
+  //   {
+  //     checker_check (checker, current);
+
+  //     current = current->next;
+  //   }
+
+  // checker_check (checker, current);
+}
 
 
 static void
@@ -91,6 +118,13 @@ checker_check_compound (struct checker *checker, struct tree *tree)
 
 
 static void
+checker_check_variable_declaration (struct checker *checker, struct tree *tree)
+{
+  checker_check_type (checker, tree->type);
+}
+
+
+static void
 checker_check_print (struct checker *checker, struct tree *tree)
 {
   checker_check (checker, tree->child);
@@ -101,6 +135,8 @@ static void
 checker_check_cast (struct checker *checker, struct tree *tree)
 {
   struct tree *type = tree->type;
+
+  checker_check_type (checker, type);
 
   if (!type_is_scalar (type))
     {
@@ -125,6 +161,8 @@ checker_check_assignment (struct checker *checker, struct tree *tree)
   checker_check (checker, node_b);
 
   struct tree *type = node_a->type;
+
+  checker_check_type (checker, type);
 
   if (!type_is_assignable (type))
     {
@@ -158,6 +196,9 @@ checker_check_binary (struct checker *checker, struct tree *tree)
 
   struct tree *type_a = node_a->type;
   struct tree *type_b = node_b->type;
+
+  checker_check_type (checker, type_a);
+  checker_check_type (checker, type_b);
 
   enum token_kind o = tree->token->kind;
 
@@ -231,6 +272,7 @@ static void
 checker_check_reference (struct checker *checker, struct tree *tree)
 {
   checker_check (checker, tree->child);
+  checker_check_type  (checker, tree->type);
 
   if (!tree_is_left_value (tree->child))
     {
@@ -245,6 +287,7 @@ static void
 checker_check_dereference (struct checker *checker, struct tree *tree)
 {
   checker_check (checker, tree->child);
+  checker_check_type (checker, tree->type);
 
   struct tree *type = tree->child->type;
 
@@ -253,6 +296,40 @@ checker_check_dereference (struct checker *checker, struct tree *tree)
       error (tree->child->location, "expression is not dereferenceable");
 
       exit (1);
+    }
+}
+
+
+static void
+checker_check_type (struct checker *checker, struct tree *type)
+{
+  if (type == TYPE_ERROR)
+    return;
+
+  fprintf (stderr, "checker_check_type () : %s\n", type_kind_string (type->type_kind));
+
+  if (!type_is_complete (type))
+    {
+      const char *name = type_kind_string (type->type_kind);
+
+      error (type->location, "type '%s' is incomplete", name);
+
+      exit (1);
+    }
+
+  switch (type->type_kind)
+    {
+    case TYPE_ARRAY:
+      if (type->child->token->data.i <= 0)
+        {
+          error (type->location, "zero-sized 'array' is invalid");
+
+          exit (1);
+        }
+      checker_check_type (checker, type->type);
+      break;
+    default:
+      break;
     }
 }
 
@@ -270,6 +347,9 @@ checker_check (struct checker *checker, struct tree *tree)
 {
   switch (tree->tree_kind)
     {
+    case TREE_FUNCTION_DEFINITION:
+      checker_check_function_definition (checker, tree);
+      break;
     case TREE_IF:
       checker_check_if (checker, tree);
       break;
@@ -281,6 +361,9 @@ checker_check (struct checker *checker, struct tree *tree)
       break;
     case TREE_COMPOUND:
       checker_check_compound (checker, tree);
+      break;
+    case TREE_VARIABLE_DECLARATION:
+      checker_check_variable_declaration (checker, tree);
       break;
     case TREE_PRINT:
       checker_check_print (checker, tree);

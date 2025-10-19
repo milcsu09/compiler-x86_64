@@ -1,8 +1,5 @@
 
-a : [4]i64;
-
-print (a : *i8 + 0);
-print (a : *i8 + 1);
-print (a : *i8 + 2);
-print (a : *i8 + 3);
+fn main (argc : i32, argv : **u8) void
+{
+}
 
