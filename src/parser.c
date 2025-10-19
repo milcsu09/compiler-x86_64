@@ -664,28 +664,6 @@ parser_parse_expression_call (struct parser *parser)
       parser_expect_advance (parser, TOKEN_RPAREN);
 
       a = call;
-
-
-      // struct tree *b;
-
-      // b = parser_parse_expression_assignment (parser);
-
-      // parser_expect_advance (parser, TOKEN_RBRACKET);
-
-      // struct tree *binary;
-
-      // binary = tree_create_token_kind (a->location, TREE_BINARY, TOKEN_PLUS);
-
-      // tree_append (binary, a);
-      // tree_append (binary, b);
-
-      // struct tree *deref;
-
-      // deref = tree_create (a->location, TREE_DEREFERENCE);
-
-      // tree_append (deref, binary);
-
-      // a = deref;
     }
 
   return a;
@@ -924,6 +902,42 @@ parser_parse_type (struct parser *parser)
         parser_expect_advance (parser, TOKEN_RBRACKET);
 
         return type_create_array (location, parser_parse_type (parser), n);
+      }
+      break;
+    case TOKEN_FN:
+      {
+        parser_advance (parser);
+
+        struct tree *fn;
+
+        fn = type_create (location, TYPE_FUNCTION);
+
+        parser_expect_advance (parser, TOKEN_LPAREN);
+
+        while (!parser_match (parser, TOKEN_RPAREN))
+          {
+            struct tree *t;
+
+            t = parser_parse_type (parser);
+
+            tree_append (fn, t);
+
+            if (parser_match (parser, TOKEN_COMMA))
+              parser_advance (parser);
+            else
+              parser_expect (parser, TOKEN_RPAREN);
+          }
+
+        parser_expect_advance (parser, TOKEN_RPAREN);
+
+        struct tree *t;
+
+        t = parser_parse_type (parser);
+
+        tree_set_type (fn, t);
+
+        // NOTE: Function type is always a pointer to a function object.
+        return type_create_pointer (location, fn);
       }
       break;
     default:

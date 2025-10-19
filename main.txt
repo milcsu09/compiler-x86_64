@@ -1,54 +1,41 @@
 
-
-fn bubblesort (p : *i64, N : i64) void
+fn identity (n : i64) i64
 {
-  i : i64;
-  j : i64;
-
-  for i = 0; i < N; i = i + 1
-    {
-      for j = 0; j < N - i - 1; j = j + 1
-        {
-          if p[j] > p[j + 1]
-            {
-              temp : i64;
-              temp = p[j];
-
-              p[j] = p[j + 1];
-              p[j + 1] = temp;
-            }
-        }
-    }
+  return n;
 }
 
+fn successor (n : i64) i64
+{
+  return n + 1;
+}
+
+fn double (n : i64) i64
+{
+  return n * 2;
+}
+
+fn square (n : i64) i64
+{
+  return n * n;
+}
 
 fn main () i32
 {
-  p : [15]i64;
+  fs : [4]fn (i64) i64;
 
-  p[0] = 43;
-  p[1] = 60;
-  p[2] = 54;
-  p[3] = 5;
-  p[4] = 0;
-  p[5] = 88;
-  p[6] = 91;
-  p[7] = 15;
-  p[8] = 80;
-  p[9] = 45;
-  p[10] = 26;
-  p[11] = 72;
-  p[12] = 37;
-  p[13] = 15;
-  p[14] = 69;
+  fs[0] = identity;
+  fs[1] = successor;
+  fs[2] = double;
+  fs[3] = square;
 
-  bubblesort (p, 15);
+  N : i64;
+  N = 5;
 
   i : i64;
 
-  for i = 0; i < 15; i = i + 1
+  for i = 0; i < 4; i = i + 1
     {
-      print p[i];
+      print fs[i] (N);
     }
 
   return 0;
