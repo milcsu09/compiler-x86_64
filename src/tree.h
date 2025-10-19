@@ -19,6 +19,7 @@ enum tree_kind
   TREE_FOR,
   TREE_COMPOUND,
   TREE_VARIABLE_DECLARATION,
+  TREE_RETURN,
   TREE_PRINT,
 
   // Expressions

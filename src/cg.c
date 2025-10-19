@@ -13,9 +13,6 @@ next_multiple (size_t i, size_t n)
 }
 
 
-typedef size_t label_t;
-
-
 typedef struct
 {
   enum register_id id;
@@ -725,6 +722,8 @@ static void cg_generate_compound (struct cg *, struct tree *);
 
 static void cg_generate_variable_declaration (struct cg *, struct tree *);
 
+static void cg_generate_return (struct cg *, struct tree *);
+
 static void cg_generate_print (struct cg *, struct tree *);
 
 
@@ -776,14 +775,15 @@ static void
 cg_generate_function_definition (struct cg *cg, struct tree *tree)
 {
   cg->function.name = tree->child->token->data.s;
+
   cg->function.stack_offset = 0;
   cg->function.stack_usage = 0;
+
+  cg->function.label_return = cg_label (cg);
 
   struct tree *current;
 
   cg_scope_push (cg);
-
-  // size_t arity = 0;
 
   for (current = tree->child->next; current->next; current = current->next)
     {
@@ -792,27 +792,6 @@ cg_generate_function_definition (struct cg *cg, struct tree *tree)
 
       cg->function.stack_offset = next_multiple (cg->function.stack_offset, alignment);
       cg->function.stack_offset = cg->function.stack_offset + size;
-
-      // size_t size = type_size (current->type);
-      // size_t alignment = type_alignment (current->type);
-
-      // cg->function.stack_offset = next_multiple (cg->function.stack_offset, alignment);
-
-      // size_t offset = cg->function.stack_offset + size;
-
-      // struct symbol symbol;
-
-      // symbol.key = current->child->token->data.s;
-
-      // symbol.offset = offset;
-
-      // symbol.type = current->type;
-
-      // scope_set2 (cg->scope, symbol, current->location);
-
-      // cg->function.stack_offset = offset;
-
-      // arity++;
     }
 
   size_t stack_offset = cg->function.stack_offset;
@@ -871,12 +850,12 @@ cg_generate_function_definition (struct cg *cg, struct tree *tree)
         }
       else
         {
-          register_t r = register_create (REGISTER_R10, w);
+          register_t r = cg_register_allocate (cg, w);
 
           cg_write (cg, "\tmov\t%s, %s [rbp+%zu]\n", register_string (r), s, (p_count - 5 + 1) * 8);
           cg_write (cg, "\tmov\t%s [rbp-%zu], %s\n", s, offset, register_string (r));
 
-          // cg_write (cg, "\tmov\t%s [rbp-%zu], [rbp+%zu]\n", s, offset, (p_count - 5 + 1) * 8);
+          cg_register_free (cg, r);
         }
 
       p_count++;
@@ -896,9 +875,9 @@ cg_generate_function_definition (struct cg *cg, struct tree *tree)
 
   cg_write (cg, "\t;\n");
 
+  cg_write_label (cg, cg->function.label_return);
   cg_write (cg, "\tadd\trsp, %zu\n", cg->function.stack_usage);
   cg_write (cg, "\tpop\trbp\n");
-  cg_write (cg, "\txor\trax, rax\n");
   cg_write (cg, "\tret\n");
 
   cg_write (cg, "\n");
@@ -1064,6 +1043,21 @@ cg_generate_variable_declaration (struct cg *cg, struct tree *tree)
   scope_set (cg->scope, symbol);
 
   cg->function.stack_offset = offset;
+}
+
+
+static void
+cg_generate_return (struct cg *cg, struct tree *tree)
+{
+  if (tree->child)
+    {
+      register_t a = cg_generate (cg, tree->child);
+      register_t b = register_create (REGISTER_RAX, a.width);
+
+      cg_write (cg, "\tmov\t%s, %s\n", register_string (b), register_string (a));
+    }
+
+  cg_write_jmp (cg, cg->function.label_return);
 }
 
 
@@ -1339,6 +1333,9 @@ cg_generate (struct cg *cg, struct tree *tree)
       return register_none;
     case TREE_VARIABLE_DECLARATION:
       cg_generate_variable_declaration (cg, tree);
+      return register_none;
+    case TREE_RETURN:
+      cg_generate_return (cg, tree);
       return register_none;
     case TREE_PRINT:
       cg_generate_print (cg, tree);

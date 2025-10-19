@@ -7,81 +7,23 @@ printi:
 	mov	edi, printi_s
 	jmp	printf
 
-	global takemany
-takemany:
+	global square
+square:
 	push	rbp
 	mov	rbp, rsp
-	sub	rsp, 48
+	sub	rsp, 16
 	;
-	mov	byte [rbp-1], dil
-	mov	word [rbp-4], si
-	mov	dword [rbp-8], edx
-	mov	qword [rbp-16], rcx
-	mov	dword [rbp-20], r8d
-	mov	word [rbp-22], r9w
-	mov	r10b, byte [rbp+16]
-	mov	byte [rbp-23], r10b
-	mov	r10w, word [rbp+24]
-	mov	word [rbp-26], r10w
-	mov	r10d, dword [rbp+32]
-	mov	dword [rbp-32], r10d
-	mov	r10, qword [rbp+40]
-	mov	qword [rbp-40], r10
-	mov	r10d, dword [rbp+48]
-	mov	dword [rbp-44], r10d
-	mov	r10w, word [rbp+56]
-	mov	word [rbp-46], r10w
+	mov	qword [rbp-8], rdi
 	;
-	mov	r10b, byte [rbp-1]
-	movsx	r10, r10b
-	mov	rdi, r10
-	call	printi
-	mov	r10w, word [rbp-4]
-	movsx	r10, r10w
-	mov	rdi, r10
-	call	printi
-	mov	r10d, dword [rbp-8]
-	movsx	r10, r10d
-	mov	rdi, r10
-	call	printi
-	mov	r10, qword [rbp-16]
-	mov	rdi, r10
-	call	printi
-	mov	r10d, dword [rbp-20]
-	movsx	r10, r10d
-	mov	rdi, r10
-	call	printi
-	mov	r10w, word [rbp-22]
-	movsx	r10, r10w
-	mov	rdi, r10
-	call	printi
-	mov	r10b, byte [rbp-23]
-	movsx	r10, r10b
-	mov	rdi, r10
-	call	printi
-	mov	r10w, word [rbp-26]
-	movsx	r10, r10w
-	mov	rdi, r10
-	call	printi
-	mov	r10d, dword [rbp-32]
-	movsx	r10, r10d
-	mov	rdi, r10
-	call	printi
-	mov	r10, qword [rbp-40]
-	mov	rdi, r10
-	call	printi
-	mov	r10d, dword [rbp-44]
-	movsx	r10, r10d
-	mov	rdi, r10
-	call	printi
-	mov	r10w, word [rbp-46]
-	movsx	r10, r10w
-	mov	rdi, r10
-	call	printi
+	mov	r10, qword [rbp-8]
+	mov	r11, qword [rbp-8]
+	imul	r10, r11
+	mov	rax, r10
+	jmp	.L0
 	;
-	add	rsp, 48
+.L0:
+	add	rsp, 16
 	pop	rbp
-	xor	rax, rax
 	ret
 
 	global main
@@ -95,15 +37,22 @@ main:
 	;
 	mov	r10d, dword [rbp-4]
 	movsx	r10, r10d
-	mov	rdi, r10
-	call	printi
-	mov	r10, qword [rbp-16]
-	mov	rdi, r10
-	call	printi
+	mov	r11, 2
+	cmp	r10, r11
+	sete	r10b
+	test	r10b, r10b
+	jz	.L2
+	mov	r10, 1
+	mov	eax, r10d
+	jmp	.L1
+.L2:
+	mov	r10, 0
+	mov	eax, r10d
+	jmp	.L1
 	;
+.L1:
 	add	rsp, 16
 	pop	rbp
-	xor	rax, rax
 	ret
 
 section .data

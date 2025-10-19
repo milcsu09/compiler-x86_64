@@ -29,6 +29,8 @@ static void checker_check_compound (struct checker *, struct tree *);
 
 static void checker_check_variable_declaration (struct checker *, struct tree *);
 
+static void checker_check_return (struct checker *, struct tree *);
+
 static void checker_check_print (struct checker *, struct tree *);
 
 
@@ -52,6 +54,8 @@ static void checker_check_program (struct checker *, struct tree *);
 static void
 checker_check_function_definition (struct checker *checker, struct tree *tree)
 {
+  checker->function = tree;
+
   for (struct tree *current = tree->child; current; current = current->next)
     checker_check (checker, current);
 }
@@ -110,6 +114,30 @@ static void
 checker_check_variable_declaration (struct checker *checker, struct tree *tree)
 {
   checker_check_type (checker, tree->type);
+}
+
+
+static void
+checker_check_return (struct checker *checker, struct tree *tree)
+{
+  struct tree *r_type = checker->function->type->type;
+
+  if (tree->child && r_type->type_kind == TYPE_VOID)
+    {
+      error (tree->location, "function marked as 'void' should not return a value");
+
+      exit (1);
+    }
+
+  if (!tree->child && r_type->type_kind != TYPE_VOID)
+    {
+      error (tree->location, "function marked as non-'void' should return a value");
+
+      exit (1);
+    }
+
+  if (tree->child)
+    checker_check (checker, tree->child);
 }
 
 
@@ -351,6 +379,9 @@ checker_check (struct checker *checker, struct tree *tree)
       break;
     case TREE_VARIABLE_DECLARATION:
       checker_check_variable_declaration (checker, tree);
+      break;
+    case TREE_RETURN:
+      checker_check_return (checker, tree);
       break;
     case TREE_PRINT:
       checker_check_print (checker, tree);

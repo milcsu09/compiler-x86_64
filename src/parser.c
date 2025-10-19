@@ -142,6 +142,8 @@ static struct tree *parser_parse_statement_compound (struct parser *);
 
 static struct tree *parser_parse_statement_variable_declaration (struct parser *);
 
+static struct tree *parser_parse_statement_return (struct parser *);
+
 static struct tree *parser_parse_statement_print (struct parser *);
 
 
@@ -277,7 +279,7 @@ parser_parse_top_function_definition (struct parser *parser)
 
   r_type = parser_parse_type (parser);
 
-  tree_append (f_type, r_type);
+  tree_set_type (f_type, r_type);
 
   struct tree *body;
 
@@ -316,6 +318,9 @@ parser_parse_statement (struct parser *parser)
 
       return parser_parse_statement_variable_declaration (parser);
     }
+
+  if (parser_match (parser, TOKEN_RETURN))
+    return parser_parse_statement_return (parser);
 
   if (parser_match (parser, TOKEN_PRINT))
     return parser_parse_statement_print (parser);
@@ -466,6 +471,30 @@ parser_parse_statement_variable_declaration (struct parser *parser)
 
 
 static struct tree *
+parser_parse_statement_return (struct parser *parser)
+{
+  struct location location = parser->current->location;
+
+  parser_expect_advance (parser, TOKEN_RETURN);
+
+  struct tree *result;
+
+  result = tree_create (location, TREE_RETURN);
+
+  if (parser_match (parser, TOKEN_SEMICOLON))
+    return result;
+
+  struct tree *child;
+
+  child = parser_parse_expression_assignment (parser);
+
+  tree_append (result, child);
+
+  return result;
+}
+
+
+static struct tree *
 parser_parse_statement_print (struct parser *parser)
 {
   struct location location = parser->current->location;
@@ -476,13 +505,13 @@ parser_parse_statement_print (struct parser *parser)
 
   child = parser_parse_expression_assignment (parser);
 
-  struct tree *print;
+  struct tree *result;
 
-  print = tree_create (location, TREE_PRINT);
+  result = tree_create (location, TREE_PRINT);
 
-  tree_append (print, child);
+  tree_append (result, child);
 
-  return print;
+  return result;
 }
 
 

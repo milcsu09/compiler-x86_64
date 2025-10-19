@@ -14,6 +14,7 @@ static const char *const TREE_KIND_STRING[] = {
   "for",
   "compound",
   "variable_declaration",
+  "return",
   "print",
 
   "cast",

@@ -35,6 +35,7 @@ static const char *const TOKEN_KIND_STRING[] = {
   "identifier",
 
   "'fn'",
+  "'return'",
   "'if'",
   "'else'",
   "'while'",

@@ -39,7 +39,7 @@ enum
 };
 
 
-// typedef size_t register_id;
+typedef size_t label_t;
 
 
 struct function
@@ -48,6 +48,8 @@ struct function
 
   size_t stack_offset;
   size_t stack_usage;
+
+  label_t label_return;
 };
 
 

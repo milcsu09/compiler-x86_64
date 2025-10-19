@@ -7,7 +7,7 @@ struct tree;
 
 struct checker
 {
-  char UNUSED;
+  struct tree *function;
 };
 
 

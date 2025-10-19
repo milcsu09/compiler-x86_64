@@ -49,6 +49,7 @@ enum token_kind
   TOKEN_IDENTIFIER,
 
   TOKEN_FN,
+  TOKEN_RETURN,
   TOKEN_IF,
   TOKEN_ELSE,
   TOKEN_WHILE,

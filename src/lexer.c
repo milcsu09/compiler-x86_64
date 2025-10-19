@@ -99,12 +99,13 @@ struct keyword
 
 
 static struct keyword KEYWORD_TABLE[] = {
-  { "fn",    TOKEN_FN },
-  { "if",    TOKEN_IF },
-  { "else",  TOKEN_ELSE },
-  { "while", TOKEN_WHILE },
-  { "for",   TOKEN_FOR },
-  { "print", TOKEN_PRINT },
+  { "fn",     TOKEN_FN },
+  { "return", TOKEN_RETURN },
+  { "if",     TOKEN_IF },
+  { "else",   TOKEN_ELSE },
+  { "while",  TOKEN_WHILE },
+  { "for",    TOKEN_FOR },
+  { "print",  TOKEN_PRINT },
 
   { "void", TOKEN_VOID },
   { "i8",   TOKEN_I8 },

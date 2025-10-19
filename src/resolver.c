@@ -106,6 +106,8 @@ static struct tree *resolver_resolve_compound (struct resolver *, struct tree *)
 
 static struct tree *resolver_resolve_variable_declaration (struct resolver *, struct tree *);
 
+static struct tree *resolver_resolve_return (struct resolver *, struct tree *);
+
 static struct tree *resolver_resolve_print (struct resolver *, struct tree *);
 
 
@@ -131,6 +133,8 @@ static struct tree *
 resolver_resolve_function_definition (struct resolver *resolver, struct tree *tree)
 {
   resolver_scope_push (resolver);
+
+  resolver->function = tree;
 
   // TODO: store function inside it's own scope
 
@@ -223,17 +227,21 @@ resolver_resolve_variable_declaration (struct resolver *resolver, struct tree *t
 
   scope_set2 (resolver->scope, symbol, tree->location);
 
-  // enum scope_set_result result = scope_set (resolver->scope, symbol);
+  return tree;
+}
 
-  // switch (result)
-  //   {
-  //   case SCOPE_SET_OK:
-  //     break;
 
-  //   case SCOPE_SET_REDEFINED:
-  //     error (tree->location, "redefined %s", key);
-  //     exit (1);
-  //   }
+static struct tree *
+resolver_resolve_return (struct resolver *resolver, struct tree *tree)
+{
+  struct tree *r_type = resolver->function->type->type;
+
+  if (tree->child && r_type->type_kind != TYPE_VOID)
+    {
+      tree->child = resolver_resolve_rvalue (resolver, tree->child);
+
+      tree_wrap_cast (tree, tree->child, r_type);
+    }
 
   return tree;
 }
@@ -498,6 +506,8 @@ resolver_resolve (struct resolver *resolver, struct tree *tree)
       return resolver_resolve_compound (resolver, tree);
     case TREE_VARIABLE_DECLARATION:
       return resolver_resolve_variable_declaration (resolver, tree);
+    case TREE_RETURN:
+      return resolver_resolve_return (resolver, tree);
     case TREE_PRINT:
       return resolver_resolve_print (resolver, tree);
     case TREE_CAST:

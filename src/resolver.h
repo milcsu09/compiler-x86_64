@@ -7,6 +7,8 @@ struct tree;
 
 struct resolver
 {
+  struct tree *function;
+
   struct scope *scope;
 };
 
