@@ -4,12 +4,13 @@ fn square (n : i64) i64
   return n * n;
 }
 
-fn main (argc : i32, argv : **u8) i32
+fn main () i32
 {
-  if argc == 2
-  {
-    return 1;
-  }
+  print square;
+  print &square;
+  print *square;
+  print *&square;
+  print &*square;
 
   return 0;
 }

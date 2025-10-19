@@ -68,6 +68,7 @@ type_kind_is_assignable (enum type_kind kind)
   switch (kind)
     {
     case TYPE_ARRAY:
+    case TYPE_FUNCTION:
       return false;
     default:
       return true;
@@ -81,6 +82,7 @@ type_kind_is_label (enum type_kind kind)
   switch (kind)
     {
     case TYPE_ARRAY:
+    case TYPE_FUNCTION:
       return true;
     default:
       return false;
@@ -136,6 +138,7 @@ type_kind_is_pointer (enum type_kind kind)
     {
     case TYPE_POINTER:
     case TYPE_ARRAY:
+    case TYPE_FUNCTION:
       return true;
     default:
       return false;
@@ -484,12 +487,14 @@ type_decay (struct tree *type)
 
   switch (type->type_kind)
     {
+    // []T -> *T
     case TYPE_ARRAY:
-      {
-        struct tree *pointer = type_create_pointer (type->location, type->type);
+      return type_create_pointer (type->location, type->type);
 
-        return pointer;
-      }
+    // fn ... -> *fn ...
+    case TYPE_FUNCTION:
+      return type_create_pointer (type->location, type);
+
     default:
       return type;
     }

@@ -30,28 +30,30 @@ square:
 main:
 	push	rbp
 	mov	rbp, rsp
-	sub	rsp, 16
+	sub	rsp, 0
 	;
-	mov	dword [rbp-4], edi
-	mov	qword [rbp-16], rsi
 	;
-	mov	r10d, dword [rbp-4]
-	movsx	r10, r10d
-	mov	r11, 2
-	cmp	r10, r11
-	sete	r10b
-	test	r10b, r10b
-	jz	.L2
-	mov	r10, 1
-	mov	eax, r10d
-	jmp	.L1
-.L2:
+	lea	r10, [rel square]
+	mov	rdi, r10
+	call	printi
+	lea	r10, [rel square]
+	mov	rdi, r10
+	call	printi
+	lea	r10, [rel square]
+	mov	rdi, r10
+	call	printi
+	lea	r10, [rel square]
+	mov	rdi, r10
+	call	printi
+	lea	r10, [rel square]
+	mov	rdi, r10
+	call	printi
 	mov	r10, 0
 	mov	eax, r10d
 	jmp	.L1
 	;
 .L1:
-	add	rsp, 16
+	add	rsp, 0
 	pop	rbp
 	ret
 

@@ -132,11 +132,17 @@ static struct tree *resolver_resolve_program (struct resolver *, struct tree *);
 static struct tree *
 resolver_resolve_function_definition (struct resolver *resolver, struct tree *tree)
 {
+  struct symbol symbol;
+
+  symbol.key = tree->child->token->data.s;
+  symbol.storage = STORAGE_GLOBAL;
+  symbol.type = tree->type;
+
+  scope_set2 (resolver->scope, symbol, tree->location);
+
   resolver_scope_push (resolver);
 
   resolver->function = tree;
-
-  // TODO: store function inside it's own scope
 
   struct tree *prev = tree->child;
   struct tree *curr = tree->child->next;
@@ -223,6 +229,7 @@ resolver_resolve_variable_declaration (struct resolver *resolver, struct tree *t
   struct symbol symbol;
 
   symbol.key = key;
+  symbol.storage = STORAGE_LOCAL;
   symbol.type = tree->type;
 
   scope_set2 (resolver->scope, symbol, tree->location);

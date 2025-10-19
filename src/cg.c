@@ -585,6 +585,22 @@ cg_write_sext (struct cg *cg, register_t a, register_t b)
 }
 
 
+// static void
+// cg_write_load_local (struct cg *cg, register_t r, size_t offset)
+// {
+//   const char *s = operand_size_string (r.width);
+// 
+//   cg_write (cg, "\tmov\t%s, %s [rbp-%zu]\n", register_string (r), s, offset);
+// }
+// 
+// 
+// static void
+// cg_write_load_local_address (struct cg *cg, register_t r, size_t offset)
+// {
+//   cg_write (cg, "\tlea\t%s, [rbp-%zu]\n", register_string (r), offset);
+// }
+
+
 static void
 cg_write_load_local (struct cg *cg, register_t r, size_t offset)
 {
@@ -598,6 +614,22 @@ static void
 cg_write_load_local_address (struct cg *cg, register_t r, size_t offset)
 {
   cg_write (cg, "\tlea\t%s, [rbp-%zu]\n", register_string (r), offset);
+}
+
+
+static void
+cg_write_load_global (struct cg *cg, register_t r, const char *id)
+{
+  const char *s = operand_size_string (r.width);
+
+  cg_write (cg, "\tmov\t%s, %s [rel %s]\n", register_string (r), s, id);
+}
+
+
+static void
+cg_write_load_global_address (struct cg *cg, register_t r, const char *id)
+{
+  cg_write (cg, "\tlea\t%s, [rel %s]\n", register_string (r), id);
 }
 
 
@@ -757,11 +789,22 @@ cg_generate_left_value (struct cg *cg, struct tree *tree)
       {
         struct symbol symbol;
 
-        scope_get (cg->scope, tree->token->data.s, &symbol);
+        scope_get2 (cg->scope, tree->token->data.s, &symbol, tree->location);
 
         register_t r = cg_register_allocate (cg, WIDTH_64);
 
-        cg_write_load_local_address (cg, r, symbol.offset);
+        switch (symbol.storage)
+          {
+          case STORAGE_LOCAL:
+            cg_write_load_local_address (cg, r, symbol.offset);
+            break;
+
+          case STORAGE_GLOBAL:
+            cg_write_load_global_address (cg, r, symbol.key);
+            break;
+          }
+
+        // cg_write_load_local_address (cg, r, symbol.offset);
 
         return r;
       }
@@ -780,6 +823,14 @@ cg_generate_function_definition (struct cg *cg, struct tree *tree)
   cg->function.stack_usage = 0;
 
   cg->function.label_return = cg_label (cg);
+
+  struct symbol symbol;
+
+  symbol.key = cg->function.name;
+  symbol.storage = STORAGE_GLOBAL;
+  symbol.type = tree->type;
+
+  scope_set2 (cg->scope, symbol, tree->location);
 
   struct tree *current;
 
@@ -832,6 +883,7 @@ cg_generate_function_definition (struct cg *cg, struct tree *tree)
       struct symbol symbol;
 
       symbol.key = p->child->token->data.s;
+      symbol.storage = STORAGE_LOCAL;
       symbol.offset = offset;
       symbol.type = p->type;
 
@@ -1038,9 +1090,11 @@ cg_generate_variable_declaration (struct cg *cg, struct tree *tree)
 
   symbol.offset = offset;
 
+  symbol.storage = STORAGE_LOCAL;
+
   symbol.type = type;
 
-  scope_set (cg->scope, symbol);
+  scope_set2 (cg->scope, symbol, tree->location);
 
   cg->function.stack_offset = offset;
 }
@@ -1286,11 +1340,20 @@ cg_generate_identifier (struct cg *cg, struct tree *tree)
 {
   struct symbol symbol;
 
-  scope_get (cg->scope, tree->token->data.s, &symbol);
+  scope_get2 (cg->scope, tree->token->data.s, &symbol, tree->location);
 
   register_t r = cg_register_allocate (cg, type_width (tree->type));
 
-  cg_write_load_local (cg, r, symbol.offset);
+  switch (symbol.storage)
+    {
+    case STORAGE_LOCAL:
+      cg_write_load_local (cg, r, symbol.offset);
+      break;
+
+    case STORAGE_GLOBAL:
+      cg_write_load_global (cg, r, symbol.key);
+      break;
+    }
 
   return r;
 }

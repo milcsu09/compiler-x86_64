@@ -51,6 +51,7 @@ scope_get (struct scope *scope, const char *key, struct symbol *symbol)
         {
           symbol->type = current.type;
           symbol->offset = current.offset;
+          symbol->storage = current.storage;
           symbol->key = current.key;
           return SCOPE_GET_OK;
         }

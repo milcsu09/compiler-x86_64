@@ -11,11 +11,20 @@
 struct tree;
 
 
+enum symbol_storage
+{
+  STORAGE_LOCAL,
+  STORAGE_GLOBAL,
+};
+
+
 struct symbol
 {
   const char *key;
 
   size_t offset;
+
+  enum symbol_storage storage;
 
   struct tree *type;
 };
