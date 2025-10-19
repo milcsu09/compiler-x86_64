@@ -411,7 +411,10 @@ parser_parse_statement_for (struct parser *parser)
   struct tree *c;
   struct tree *body;
 
-  a = parser_parse_expression_assignment (parser);
+  if (parser_match (parser, TOKEN_SEMICOLON))
+    a = tree_create (location, TREE_EMPTY);
+  else
+    a = parser_parse_expression_assignment (parser);
 
   parser_expect_advance (parser, TOKEN_SEMICOLON);
 
@@ -419,7 +422,10 @@ parser_parse_statement_for (struct parser *parser)
 
   parser_expect_advance (parser, TOKEN_SEMICOLON);
 
-  c = parser_parse_expression_assignment (parser);
+  if (parser_match (parser, TOKEN_LBRACE))
+    c = tree_create (location, TREE_EMPTY);
+  else
+    c = parser_parse_expression_assignment (parser);
 
   body = parser_parse_statement_compound (parser);
 

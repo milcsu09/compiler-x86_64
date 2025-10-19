@@ -1,70 +1,32 @@
 
-fn identity (n : i64) i64
-{
-  return n;
-}
-
-fn successor (n : i64) i64
-{
-  return n + 1;
-}
-
-fn double (n : i64) i64
-{
-  return n * 2;
-}
-
 fn square (n : i64) i64
 {
   return n * n;
 }
 
-fn factorial (n : i64) i64
+fn map (a : *i64, i : i64, f : fn (i64) i64) void
 {
-  i : i64;
-
-  for i = n - 1; i > 1; i = i - 1
+  for ; i >= 0; i = i - 1
     {
-      n = n * i;
+      a[i] = f (a[i]);
     }
-
-  return n;
-}
-
-fn power (n : i64) i64
-{
-  m : i64;
-  m = n;
-
-  i : i64;
-
-  for i = 1; i < m; i = i + 1
-    {
-      n = n * m;
-    }
-
-  return n;
 }
 
 fn main () i32
 {
-  fs : [6]fn (i64) i64;
-
-  fs[0] = identity;
-  fs[1] = successor;
-  fs[2] = double;
-  fs[3] = square;
-  fs[4] = factorial;
-  fs[5] = power;
-
-  N : i64;
-  N = 5;
-
+  a : [10]i64;
   i : i64;
 
-  for i = 0; i < 6; i = i + 1
+  for i = 0; i < 10; i = i + 1
     {
-      print fs[i] (N);
+      a[i] = i + 1;
+    }
+
+  map (a, 10, square);
+
+  for i = 0; i < 10; i = i + 1
+    {
+      print a[i];
     }
 
   return 0;

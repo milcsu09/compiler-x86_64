@@ -366,11 +366,11 @@ cg_write_end (struct cg *cg)
 // }
 
 
-static void
-cg_write_nop (struct cg *cg)
-{
-  cg_write (cg, "\tnop\n");
-}
+// static void
+// cg_write_nop (struct cg *cg)
+// {
+//   cg_write (cg, "\tnop\n");
+// }
 
 
 static void
@@ -742,7 +742,7 @@ static register_t cg_generate (struct cg *, struct tree *);
 static void cg_generate_function_definition (struct cg *, struct tree *);
 
 
-static void cg_generate_empty (struct cg *, struct tree *);
+// static void cg_generate_empty (struct cg *, struct tree *);
 
 static void cg_generate_if (struct cg *, struct tree *);
 
@@ -940,13 +940,13 @@ cg_generate_function_definition (struct cg *cg, struct tree *tree)
 }
 
 
-static void
-cg_generate_empty (struct cg *cg, struct tree *tree)
-{
-  (void)cg, (void)tree;
-
-  cg_write_nop (cg);
-}
+// static void
+// cg_generate_empty (struct cg *cg, struct tree *tree)
+// {
+//   (void)cg, (void)tree;
+// 
+//   // cg_write_nop (cg);
+// }
 
 
 static void
@@ -1442,9 +1442,9 @@ cg_generate (struct cg *cg, struct tree *tree)
     case TREE_FUNCTION_DEFINITION:
       cg_generate_function_definition (cg, tree);
       return register_none;
-    case TREE_EMPTY:
-      cg_generate_empty (cg, tree);
-      return register_none;
+    // case TREE_EMPTY:
+    //   cg_generate_empty (cg, tree);
+    //   return register_none;
     case TREE_IF:
       cg_generate_if (cg, tree);
       return register_none;
@@ -1486,7 +1486,7 @@ cg_generate (struct cg *cg, struct tree *tree)
       cg_generate_program (cg, tree);
       return register_none;
     default:
-      abort ();
+      return register_none;
     }
 }
 
