@@ -1,5 +1,5 @@
 
-fn fib (n : i64) i64
+fn fib_iterative (n : i64) i64
 {
   a : i64;
   b : i64;
@@ -22,13 +22,25 @@ fn fib (n : i64) i64
 }
 
 
+fn fib_recursive (n : i64) i64
+{
+  if n <= 1
+  {
+    return n;
+  }
+
+  return fib_recursive (n - 1) + fib_recursive (n - 2);
+}
+
+
 fn main () i32
 {
   n : i64;
 
   for n = 0; n <= 92; n = n + 1
   {
-    print fib (n);
+    // print fib_iterative (n);
+    print fib_recursive (n);
   }
 
   return 0;

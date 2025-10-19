@@ -61,7 +61,7 @@ main (void)
 
   tree = resolver_resolve (resolver, tree);
 
-  tree_debug_print (tree);
+  // tree_debug_print (tree);
   // exit (0);
 
   // PASS 2
