@@ -1213,11 +1213,21 @@ cg_generate_call (struct cg *cg, struct tree *tree)
   for (size_t i = REGISTERA_END; i >= REGISTERA_START; --i)
     cg_write_pop_register (cg, i);
 
-  register_t r = register_create (REGISTER_RAX, type_width (tree->type));
+  size_t w = type_width (tree->type);
 
-  cg_write (cg, "\tmov\t%s, %s\n", register_string (a), register_string (r));
+  // NOTE: Quick hack to check for void type.
+  if (w != 0)
+    {
+      register_t r = register_create (REGISTER_RAX, type_width (tree->type));
 
-  return a;
+      cg_write (cg, "\tmov\t%s, %s\n", register_string (a), register_string (r));
+
+      return a;
+    }
+
+  cg_register_free (cg, a);
+
+  return register_none;
 }
 
 
