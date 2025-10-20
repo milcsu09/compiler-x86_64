@@ -353,12 +353,20 @@ checker_check_type (struct checker *checker, struct tree *type)
   switch (type->type_kind)
     {
     case TYPE_ARRAY:
+      // if (!type->child)
+      //   {
+      //     error (type->location, "unknown-sized 'array' is invalid");
+
+      //     exit (1);
+      //   }
+
       if (type->child->token->data.i <= 0)
         {
           error (type->location, "zero-sized 'array' is invalid");
 
           exit (1);
         }
+
       checker_check_type (checker, type->type);
       break;
     default:

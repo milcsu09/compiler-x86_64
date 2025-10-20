@@ -769,7 +769,7 @@ parser_parse_primary_reference (struct parser *parser)
 
   struct tree *child;
 
-  child = parser_parse_expression_access (parser);
+  child = parser_parse_expression_call (parser);
 
   struct tree *result;
 
@@ -790,7 +790,7 @@ parser_parse_primary_dereference (struct parser *parser)
 
   struct tree *child;
 
-  child = parser_parse_expression_access (parser);
+  child = parser_parse_expression_call (parser);
 
   struct tree *result;
 
@@ -903,7 +903,13 @@ parser_parse_type (struct parser *parser)
       {
         parser_expect_advance (parser, TOKEN_LBRACKET);
 
-        struct tree *n = parser_parse_primary_integer (parser);
+        struct tree *n;
+        n = parser_parse_primary_integer (parser);
+
+        // if (parser_match (parser, TOKEN_RBRACKET))
+        //   n = NULL;
+        // else
+        //   n = parser_parse_primary_integer (parser);
 
         parser_expect_advance (parser, TOKEN_RBRACKET);
 

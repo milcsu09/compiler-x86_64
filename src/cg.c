@@ -1218,11 +1218,13 @@ cg_generate_call (struct cg *cg, struct tree *tree)
   // NOTE: Quick hack to check for void type.
   if (w != 0)
     {
-      register_t r = register_create (REGISTER_RAX, type_width (tree->type));
+      register_t r = register_create (REGISTER_RAX, w);
 
-      cg_write (cg, "\tmov\t%s, %s\n", register_string (a), register_string (r));
+      register_t s = register_modify (a, w);
 
-      return a;
+      cg_write (cg, "\tmov\t%s, %s\n", register_string (s), register_string (r));
+
+      return s;
     }
 
   cg_register_free (cg, a);

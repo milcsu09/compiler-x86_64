@@ -1,34 +1,36 @@
 
-fn square (n : i64) i64
-{
-  return n * n;
+fn is_even(n : i64) u8 {
+  // No % yet.
+  return n - 2 * (n / 2) == 0;
 }
 
-fn map (a : *i64, i : i64, f : fn (i64) i64) void
-{
-  for ; i >= 0; i = i - 1
-    {
-      a[i] = f (a[i]);
+
+fn main() i32 {
+  // https://projecteuler.net/problem=2
+  a : i64;
+  b : i64;
+
+  a = 1;
+  b = 2;
+
+  s : i64;
+  s = 0;
+
+  while a < 4000000 {
+    if is_even(a) {
+      s = s + a;
     }
-}
 
-fn main () i32
-{
-  a : [10]i64;
-  i : i64;
+    c : i64;
+    c = a + b;
 
-  for i = 0; i < 10; i = i + 1
-    {
-      a[i] = i + 1;
-    }
+    a = b;
+    b = c;
+  }
 
-  map (a, 10, square);
-
-  for i = 0; i < 10; i = i + 1
-    {
-      print a[i];
-    }
+  print s;
 
   return 0;
 }
+
 
