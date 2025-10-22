@@ -19,13 +19,13 @@ enum token_kind
 {
   TOKEN_EOF,
 
-  TOKEN_EQUAL,
-  TOKEN_DEQUAL,
-  TOKEN_NEQUAL,
-  TOKEN_LT,
-  TOKEN_GT,
-  TOKEN_LTEQUAL,
-  TOKEN_GTEQUAL,
+  TOKEN_EQ,
+  TOKEN_DE,
+  TOKEN_NE,
+  TOKEN_L,
+  TOKEN_G,
+  TOKEN_LE,
+  TOKEN_GE,
 
   TOKEN_COMMA,
   TOKEN_COLON,
@@ -77,7 +77,7 @@ struct token
 
   enum token_kind kind;
 
-  union token_data data;
+  union token_data d;
 };
 
 

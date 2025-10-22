@@ -1,8 +1,8 @@
-#include "tree.h"
 #include "type.h"
+#include "tree.h"
+#include "memory.h"
 
-#include <assert.h>
-#include <stddef.h>
+#include <stdio.h>
 
 
 static const char *const TYPE_KIND_STRING[] = {
@@ -32,550 +32,91 @@ type_kind_string (enum type_kind kind)
 }
 
 
-enum type_width
-type_kind_width (enum type_kind kind)
+struct type *
+type_create (enum type_kind kind)
 {
-  switch (kind)
-    {
-    case TYPE_I8:
-      return WIDTH_8;
-    case TYPE_I16:
-      return WIDTH_16;
-    case TYPE_I32:
-      return WIDTH_32;
-    case TYPE_I64:
-      return WIDTH_64;
-    case TYPE_U8:
-      return WIDTH_8;
-    case TYPE_U16:
-      return WIDTH_16;
-    case TYPE_U32:
-      return WIDTH_32;
-    case TYPE_U64:
-      return WIDTH_64;
-    case TYPE_POINTER:
-    case TYPE_ARRAY:
-      return WIDTH_64;
-    default:
-      return 0;
-    }
-}
+  struct type *type;
 
+  type = aa_malloc (sizeof (struct type));
 
-bool
-type_kind_is_assignable (enum type_kind kind)
-{
-  switch (kind)
-    {
-    case TYPE_ARRAY:
-    case TYPE_FUNCTION:
-      return false;
-    default:
-      return true;
-    }
-}
+  type->next = NULL;
 
-
-bool
-type_kind_is_label (enum type_kind kind)
-{
-  switch (kind)
-    {
-    case TYPE_ARRAY:
-    case TYPE_FUNCTION:
-      return true;
-    default:
-      return false;
-    }
-}
-
-
-bool
-type_kind_is_integer (enum type_kind kind)
-{
-  switch (kind)
-    {
-    case TYPE_I8:
-    case TYPE_I16:
-    case TYPE_I32:
-    case TYPE_I64:
-    case TYPE_U8:
-    case TYPE_U16:
-    case TYPE_U32:
-    case TYPE_U64:
-      return true;
-    default:
-      return false;
-    }
-}
-
-
-bool
-type_kind_is_signed (enum type_kind kind)
-{
-  switch (kind)
-    {
-    case TYPE_I8:
-    case TYPE_I16:
-    case TYPE_I32:
-    case TYPE_I64:
-      return true;
-    case TYPE_U8:
-    case TYPE_U16:
-    case TYPE_U32:
-    case TYPE_U64:
-      return false;
-    default:
-      return false;
-    }
-}
-
-
-bool
-type_kind_is_pointer (enum type_kind kind)
-{
-  switch (kind)
-    {
-    case TYPE_POINTER:
-    case TYPE_ARRAY:
-    case TYPE_FUNCTION:
-      return true;
-    default:
-      return false;
-    }
-}
-
-
-bool
-type_kind_is_array (enum type_kind kind)
-{
-  switch (kind)
-    {
-    case TYPE_ARRAY:
-      return true;
-    default:
-      return false;
-    }
-}
-
-
-bool
-type_kind_is_scalar (enum type_kind kind)
-{
-  switch (kind)
-    {
-    case TYPE_I8:
-    case TYPE_I16:
-    case TYPE_I32:
-    case TYPE_I64:
-    case TYPE_U8:
-    case TYPE_U16:
-    case TYPE_U32:
-    case TYPE_U64:
-    case TYPE_POINTER:
-      return true;
-    default:
-      return false;
-    }
-}
-
-
-bool
-type_kind_is_complete (enum type_kind kind)
-{
-  switch (kind)
-    {
-    case TYPE_VOID:
-      return false;
-    default:
-      return true;
-    }
-}
-
-
-bool
-type_kind_is_callable (enum type_kind kind)
-{
-  switch (kind)
-    {
-    case TYPE_FUNCTION:
-      return true;
-    default:
-      return false;
-    }
-}
-
-
-enum type_kind
-type_kind_promote_integer (enum type_kind ka, enum type_kind kb)
-{
-  enum type_width wa = type_kind_width (ka);
-  enum type_width wb = type_kind_width (kb);
-
-  bool sa = type_kind_is_signed (ka);
-  bool sb = type_kind_is_signed (kb);
-
-  bool ua = !sa;
-  bool ub = !sb;
-
-  // Promote small integers to 32-bits.
-  // if (wa < WIDTH_32)
-  //   {
-  //     ka = sa ? TYPE_I32 : TYPE_U32;
-  //     wa = WIDTH_32;
-  //   }
-
-  // if (wb < WIDTH_32)
-  //   {
-  //     kb = sb ? TYPE_I32 : TYPE_U32;
-  //     wb = WIDTH_32;
-  //   }
-
-  if (ka == kb)
-    return ka;
-
-  // Sign same; bigger wins.
-  if (sa == sb)
-    return wa > wb ? ka : kb;
-
-  // Sign mixed
-  if (ua && wa >= wb)
-    return ka;
-
-  if (ub && wb >= wa)
-    return kb;
-
-  if (sa && wa > wb)
-    return ka;
-
-  if (sb && wb > wa)
-    return kb;
-
-  return ka;
-}
-
-
-struct tree *
-type_create (struct location location, enum type_kind type_kind)
-{
-  struct tree *type;
-
-  type = tree_create (location, TREE_TYPE);
-
-  type->type_kind = type_kind;
+  type->kind = kind;
 
   return type;
 }
 
 
-struct tree *
-type_create_pointer (struct location location, struct tree *type)
+void
+type_append (struct type **head, struct type *node)
 {
-  struct tree *pointer;
-
-  pointer = type_create (location, TYPE_POINTER);
-
-  pointer->type = type;
-
-  // tree_append (pointer, type);
-
-  return pointer;
-}
-
-
-struct tree *
-type_create_array (struct location location, struct tree *type, struct tree *n)
-{
-  struct tree *array;
-
-  array = type_create (location, TYPE_ARRAY);
-
-  array->type = type;
-
-  // tree_append (pointer, type);
-  tree_append (array, n);
-
-  return array;
-}
-
-
-bool
-type_match (struct tree *type, enum type_kind kind)
-{
-  if (type == TYPE_ERROR)
-    return false;
-
-  return type->type_kind == kind;
-}
-
-
-size_t
-type_size (struct tree *type)
-{
-  if (type == TYPE_ERROR)
-    return 0;
-
-  switch (type->type_kind)
+  if (*head == NULL)
     {
-    case TYPE_I8:
-      return 1;
-    case TYPE_I16:
-      return 2;
-    case TYPE_I32:
-      return 4;
-    case TYPE_I64:
-      return 8;
-    case TYPE_U8:
-      return 1;
-    case TYPE_U16:
-      return 2;
-    case TYPE_U32:
-      return 4;
-    case TYPE_U64:
-      return 8;
+      *head = node;
+      return;
+    }
+
+  struct type *current = *head;
+
+  while (current->next != NULL)
+    {
+      current = current->next;
+    }
+
+  current->next = node;
+}
+
+
+static void
+type_print_indent (int depth)
+{
+  for (int i = 0; i < depth; ++i)
+    fprintf (stderr, "    ");
+}
+
+
+void
+type_print (struct type *type, int depth)
+{
+  type_print_indent (depth);
+
+  if (!type)
+    {
+      fprintf (stderr, "\033[90mundefined\033[0m\n");
+      return;
+    }
+
+  fprintf (stderr, "\033[93m%s\033[0m\n", type_kind_string (type->kind));
+
+  switch (type->kind)
+    {
     case TYPE_POINTER:
-      return 8;
+      {
+        struct type_node_pointer node = type->d.pointer;
+
+        type_print (node.base, depth + 1);
+      }
+      break;
     case TYPE_ARRAY:
       {
-        struct tree *node_a = type->child;
+        struct type_node_array node = type->d.array;
 
-        size_t w = type_size (type->type);
-        size_t n = node_a->token->data.i;
-
-        return w * n;
+        type_print (node.base, depth + 1);
+        tree_print (node.size, depth + 1);
       }
-    default:
-      return 0;
-    }
-}
-
-
-size_t
-type_alignment (struct tree *type)
-{
-  if (type == TYPE_ERROR)
-    return 0;
-
-  switch (type->type_kind)
-    {
-    case TYPE_I8:
-      return 1;
-    case TYPE_I16:
-      return 2;
-    case TYPE_I32:
-      return 4;
-    case TYPE_I64:
-      return 8;
-    case TYPE_U8:
-      return 1;
-    case TYPE_U16:
-      return 2;
-    case TYPE_U32:
-      return 4;
-    case TYPE_U64:
-      return 8;
-    case TYPE_POINTER:
-      return 8;
-    case TYPE_ARRAY:
-      return type_alignment (type->type);
-    default:
-      return 0;
-    }
-}
-
-
-size_t
-type_element_size (struct tree *type)
-{
-  if (type == TYPE_ERROR)
-    return 0;
-
-  switch (type->type_kind)
-    {
-    case TYPE_POINTER:
-      return type_size (type->type);
-    case TYPE_ARRAY:
-      return type_size (type->type);
-    default:
-      return type_size (type);
-    }
-}
-
-
-enum type_width
-type_width (struct tree *type)
-{
-  if (type == TYPE_ERROR)
-    return 0;
-
-  return type_kind_width (type->type_kind);
-}
-
-
-bool
-type_is_assignable (struct tree *type)
-{
-  if (type == TYPE_ERROR)
-    return false;
-
-  return type_kind_is_assignable (type->type_kind);
-}
-
-
-bool
-type_is_label (struct tree *type)
-{
-  if (type == TYPE_ERROR)
-    return false;
-
-  return type_kind_is_label (type->type_kind);
-}
-
-
-bool
-type_is_integer (struct tree *type)
-{
-  if (type == TYPE_ERROR)
-    return false;
-
-  return type_kind_is_integer (type->type_kind);
-}
-
-
-bool
-type_is_signed (struct tree *type)
-{
-  if (type == TYPE_ERROR)
-    return false;
-
-  return type_kind_is_signed (type->type_kind);
-}
-
-
-bool
-type_is_pointer (struct tree *type)
-{
-  if (type == TYPE_ERROR)
-    return false;
-
-  return type_kind_is_pointer (type->type_kind);
-}
-
-
-bool
-type_is_pointer_to (struct tree *type, enum type_kind kind)
-{
-  if (type == TYPE_ERROR)
-    return false;
-
-  if (type_kind_is_pointer (type->type_kind))
-    return type->type->type_kind == kind;
-
-  return false;
-}
-
-
-bool
-type_is_array (struct tree *type)
-{
-  if (type == TYPE_ERROR)
-    return false;
-
-  return type_kind_is_array (type->type_kind);
-}
-
-
-bool
-type_is_scalar (struct tree *type)
-{
-  if (type == TYPE_ERROR)
-    return false;
-
-  return type_kind_is_scalar (type->type_kind);
-}
-
-
-bool
-type_is_complete (struct tree *type)
-{
-  if (type == TYPE_ERROR)
-    return false;
-
-  return type_kind_is_complete (type->type_kind);
-}
-
-
-bool
-type_is_callable (struct tree *type)
-{
-  if (type == TYPE_ERROR)
-    return false;
-
-  if (type_is_pointer_to (type, TYPE_FUNCTION))
-    return true;
-
-  return type_kind_is_callable (type->type_kind);
-}
-
-
-struct tree *
-type_decay (struct tree *type)
-{
-  if (type == TYPE_ERROR)
-    return type;
-
-  switch (type->type_kind)
-    {
-    // []T -> *T
-    case TYPE_ARRAY:
-      return type_create_pointer (type->location, type->type);
-
-    // fn ... -> *fn ...
+      break;
     case TYPE_FUNCTION:
-      return type_create_pointer (type->location, type);
+      {
+        struct type_node_function node = type->d.function;
 
+        for (struct type *t = node.from1; t; t = t->next)
+          type_print (t, depth + 1);
+
+        type_print (node.to, depth + 1);
+      }
+      break;
     default:
-      return type;
+      break;
     }
-}
-
-
-struct tree *
-type_reference (struct tree *type)
-{
-  if (type == TYPE_ERROR)
-    return type;
-
-  return type_create_pointer (type->location, type);
-
-  // switch (type->type_kind)
-  //   {
-  //   case TYPE_ARRAY:
-  //     // A reference to an array, is a pointer to it's underlying type.
-  //     return type_create_pointer (type->location, type->type);
-  //   default:
-  //     return type_create_pointer (type->location, type);
-  //   }
-}
-
-
-struct tree *
-type_dereference (struct tree *type)
-{
-  if (type == TYPE_ERROR)
-    return type;
-
-  // NOTE: Assume it's valid.
-  return type->type;
-}
-
-
-enum type_kind
-type_promote_integer (struct tree *a, struct tree *b)
-{
-  enum type_kind ka = a->type_kind;
-  enum type_kind kb = b->type_kind;
-
-  return type_kind_promote_integer (ka, kb);
 }
 

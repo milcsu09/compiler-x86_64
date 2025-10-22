@@ -83,7 +83,7 @@ token_create_i (struct location location, enum token_kind kind, long i)
 
   token = token_create (location, kind);
 
-  token->data.i = i;
+  token->d.i = i;
 
   return token;
 }
@@ -96,7 +96,7 @@ token_create_s (struct location location, enum token_kind kind, char *s)
 
   token = token_create (location, kind);
 
-  token->data.s = s;
+  token->d.s = s;
 
   return token;
 }

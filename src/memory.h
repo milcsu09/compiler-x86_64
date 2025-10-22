@@ -12,9 +12,6 @@ enum
 };
 
 
-#define aa_malloc_t(T) aa_malloc (sizeof (T))
-
-
 void *aa_malloc (size_t);
 
 void aa_free (void);

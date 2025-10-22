@@ -2,12 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "parser.h"
-#include "cg.h"
-#include "checker.h"
-#include "resolver.h"
 #include "memory.h"
-#include "scope.h"
+#include "parser.h"
 
 
 char *
@@ -53,28 +49,7 @@ main (void)
 
   tree = parser_parse (parser);
 
-  // tree_debug_print (tree);
-  // exit (0);
-
-  // PASS 1
-  struct resolver *resolver = resolver_create ();
-
-  tree = resolver_resolve (resolver, tree);
-
-  // tree_debug_print (tree);
-  // exit (0);
-
-  // PASS 2
-  struct checker *checker = checker_create ();
-
-  checker_check (checker, tree);
-
-  // exit (0);
-
-  // GENERATE
-  struct cg *cg = cg_create (stdout);
-
-  cg_emit (cg, tree);
+  tree_print (tree, 0);
 
   return 0;
 }

@@ -8,6 +8,8 @@
 
 struct parser
 {
+  struct location location;
+
   struct lexer *lexer;
 
   struct token *current;

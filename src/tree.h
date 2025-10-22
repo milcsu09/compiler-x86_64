@@ -2,27 +2,44 @@
 #define TREE_H
 
 
-#include "token.h"
-#include "type.h"
+#include "error.h"
+
+
+enum binary_operator
+{
+  BINARY_ADD,
+  BINARY_SUB,
+  BINARY_MUL,
+  BINARY_DIV,
+
+  BINARY_CMP_EQ,
+  BINARY_CMP_NE,
+  BINARY_CMP_L,
+  BINARY_CMP_G,
+  BINARY_CMP_LE,
+  BINARY_CMP_GE,
+};
+
+
+const char *binary_operator_string (enum binary_operator);
 
 
 enum tree_kind
 {
   // Top-level
-  // TODO: TREE_FUNCTION_DECLARATION,
-  TREE_FUNCTION_DEFINITION,
+  TREE_FDEFINITION,
 
-  // Statements
+  // Statement
   TREE_EMPTY,
   TREE_IF,
   TREE_WHILE,
   TREE_FOR,
   TREE_COMPOUND,
-  TREE_VARIABLE_DECLARATION,
+  TREE_VDECLARATION,
   TREE_RETURN,
   TREE_PRINT,
 
-  // Expressions
+  // Expression
   TREE_CAST,
   TREE_CALL,
   TREE_ASSIGNMENT,
@@ -33,8 +50,6 @@ enum tree_kind
   TREE_IDENTIFIER,
 
   // Miscellaneous
-  TREE_TYPE,
-
   TREE_PROGRAM,
 };
 
@@ -42,48 +57,188 @@ enum tree_kind
 const char *tree_kind_string (enum tree_kind);
 
 
+struct tree;
+struct type;
+
+
+struct tree_node_fdefinition
+{
+  char *name;
+
+  struct tree *parameter1;
+  struct tree *body;
+
+  struct type *type;
+};
+
+
+struct tree_node_if
+{
+  struct tree *condition;
+  struct tree *branch_a;
+  struct tree *branch_b;
+};
+
+
+struct tree_node_while
+{
+  struct tree *condition;
+  struct tree *body;
+};
+
+
+struct tree_node_for
+{
+  struct tree *init;
+  struct tree *condition;
+  struct tree *increment;
+  struct tree *body;
+};
+
+
+struct tree_node_compound
+{
+  struct tree *statement1;
+};
+
+
+struct tree_node_vdeclaration
+{
+  char *name;
+
+  struct type *type;
+};
+
+
+struct tree_node_return
+{
+  struct tree *value;
+};
+
+
+struct tree_node_print
+{
+  struct tree *value;
+};
+
+
+struct tree_node_cast
+{
+  struct tree *value;
+
+  struct type *type;
+};
+
+
+struct tree_node_call
+{
+  struct tree *callee;
+  struct tree *argument1;
+
+  struct type *type;
+};
+
+
+struct tree_node_assignment
+{
+  struct tree *lhs;
+  struct tree *rhs;
+
+  struct type *type;
+};
+
+
+struct tree_node_binary
+{
+  struct tree *lhs;
+  struct tree *rhs;
+
+  enum binary_operator op;
+
+  struct type *type;
+};
+
+
+struct tree_node_reference
+{
+  struct tree *value;
+
+  struct type *type;
+};
+
+
+struct tree_node_dereference
+{
+  struct tree *value;
+
+  struct type *type;
+};
+
+
+struct tree_node_integer
+{
+  long value;
+
+  struct type *type;
+};
+
+
+struct tree_node_identifier
+{
+  char *value;
+
+  struct type *type;
+};
+
+
+struct tree_node_program
+{
+  struct tree *top_level1;
+};
+
+
+union tree_data
+{
+  struct tree_node_fdefinition fdefinition;
+
+  struct tree_node_if           if_s;
+  struct tree_node_while        while_s;
+  struct tree_node_for          for_s;
+  struct tree_node_compound     compound;
+  struct tree_node_vdeclaration vdeclaration;
+  struct tree_node_return       return_s;
+  struct tree_node_print        print;
+
+  struct tree_node_cast         cast;
+  struct tree_node_call         call;
+  struct tree_node_assignment   assignment;
+  struct tree_node_binary       binary;
+  struct tree_node_reference    reference;
+  struct tree_node_dereference  dereference;
+  struct tree_node_integer      integer;
+  struct tree_node_identifier   identifier;
+
+  struct tree_node_program      program;
+};
+
+
 struct tree
 {
   struct location location;
 
-  struct token *token;
+  union tree_data d;
 
-  struct tree *child;
   struct tree *next;
 
-  struct tree *type;
-
-  enum tree_kind tree_kind;
-  enum type_kind type_kind;
+  enum tree_kind kind;
 };
 
 
 struct tree *tree_create (struct location, enum tree_kind);
 
-struct tree *tree_create_token (struct location, enum tree_kind, struct token *);
+void tree_append (struct tree **, struct tree *);
 
-struct tree *tree_create_token_kind (struct location, enum tree_kind, enum token_kind);
-
-void tree_attach (struct tree *, struct tree *);
-
-void tree_append (struct tree *, struct tree *);
-
-void tree_morph (struct tree *, enum tree_kind);
-
-void tree_set_type (struct tree *, struct tree *);
-
-void tree_wrap (struct tree *, struct tree *, struct tree *);
-
-struct tree *tree_wrap_cast (struct tree *, struct tree *, struct tree *);
-
-struct tree *tree_wrap_cast_p (struct tree *root, struct tree *target, enum type_kind);
-
-bool tree_wrap_cast_p_if (struct tree *root, struct tree *target, enum type_kind);
-
-void tree_debug_print (struct tree *);
-
-
-bool tree_is_left_value (struct tree *);
+void tree_print (struct tree *, int);
 
 
 #endif // TREE_H

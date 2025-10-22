@@ -1,22 +1,41 @@
 #include "tree.h"
+#include "type.h"
 #include "memory.h"
 
 #include <stdio.h>
-#include <stdlib.h>
+
+
+static const char *const BINARY_OPERATOR_STRING[] = {
+  "+",
+  "-",
+  "*",
+  "/",
+  "==",
+  "!=",
+  "<",
+  ">",
+  "<=",
+  ">=",
+};
+
+
+const char *
+binary_operator_string (enum binary_operator operator)
+{
+  return BINARY_OPERATOR_STRING[operator];
+}
 
 
 static const char *const TREE_KIND_STRING[] = {
-  "function_definition",
-
+  "fdefinition",
   "empty",
   "if",
   "while",
   "for",
   "compound",
-  "variable_declaration",
+  "vdeclaration",
   "return",
   "print",
-
   "cast",
   "call",
   "assignment",
@@ -25,9 +44,6 @@ static const char *const TREE_KIND_STRING[] = {
   "dereference",
   "integer",
   "identifier",
-
-  "type",
-
   "program",
 };
 
@@ -40,7 +56,7 @@ tree_kind_string (enum tree_kind kind)
 
 
 struct tree *
-tree_create (struct location location, enum tree_kind tree_kind)
+tree_create (struct location location, enum tree_kind kind)
 {
   struct tree *tree;
 
@@ -48,220 +64,228 @@ tree_create (struct location location, enum tree_kind tree_kind)
 
   tree->location = location;
 
-  tree->child = NULL;
   tree->next = NULL;
 
-  tree->type = NULL;
-
-  tree->tree_kind = tree_kind;
+  tree->kind = kind;
 
   return tree;
-}
-
-
-struct tree *
-tree_create_token (struct location location, enum tree_kind tree_kind, struct token *token)
-{
-  struct tree *tree;
-
-  tree = tree_create (location, tree_kind);
-
-  tree->token = token;
-
-  return tree;
-}
-
-
-struct tree *
-tree_create_token_kind (struct location location, enum tree_kind tree_kind,
-                        enum token_kind token_kind)
-{
-  return tree_create_token (location, tree_kind, token_create (location, token_kind));
 }
 
 
 void
-tree_attach (struct tree *tree, struct tree *node)
+tree_append (struct tree **head, struct tree *node)
 {
-  struct tree *current = tree;
+  if (*head == NULL)
+    {
+      *head = node;
+      return;
+    }
 
-  while (current->next)
-    current = current->next;
+  struct tree *current = *head;
+
+  while (current->next != NULL)
+    {
+      current = current->next;
+    }
 
   current->next = node;
 }
 
 
-void
-tree_append (struct tree *tree, struct tree *node)
+static void
+tree_print_indent (int depth)
 {
-  if (!tree->child)
-    tree->child = node;
-  else
-    tree_attach (tree->child, node);
+  for (int i = 0; i < depth; ++i)
+    fprintf (stderr, "    ");
 }
 
 
 void
-tree_morph (struct tree *tree, enum tree_kind kind)
+tree_print (struct tree *tree, int depth)
 {
-  tree->tree_kind = kind;
-}
+  tree_print_indent (depth);
 
-
-void
-tree_set_type (struct tree *tree, struct tree *type)
-{
-  tree->type = type;
-}
-
-
-void
-tree_truncate (struct tree *tree)
-{
-  tree->next = NULL;
-}
-
-
-void
-tree_wrap (struct tree *root, struct tree *target, struct tree *wrapper)
-{
-  struct tree *prev = NULL;
-  struct tree *curr = root->child;
-
-  while (curr && curr != target)
-    {
-      prev = curr;
-      curr = curr->next;
-    }
-
-  if (curr != target)
-    return;
-
-  if (prev)
-    prev->next = wrapper;
-  else
-    root->child = wrapper;
-
-  wrapper->next = target->next;
-
-  target->next = NULL;
-
-  tree_append (wrapper, target);
-}
-
-
-struct tree *
-tree_wrap_cast (struct tree *root, struct tree *target, struct tree *type)
-{
-  struct tree *cast;
-
-  cast = tree_create (target->location, TREE_CAST);
-
-  tree_set_type (cast, type);
-
-  tree_wrap (root, target, cast);
-
-  return cast;
-}
-
-
-struct tree *
-tree_wrap_cast_p (struct tree *root, struct tree *target, enum type_kind type_kind)
-{
-  struct tree *type;
-
-  type = type_create (target->location, type_kind);
-
-  return tree_wrap_cast (root, target, type);
-}
-
-
-bool
-tree_wrap_cast_p_if (struct tree *root, struct tree *target, enum type_kind type_kind)
-{
-  // if (target->type->type_kind != type_kind)
-  if (!type_match (target->type, type_kind))
-    {
-      tree_wrap_cast_p (root, target, type_kind);
-      return true;
-    }
-
-  return false;
-}
-
-
-void
-tree_debug_print_base (struct tree *tree, size_t previous_line, bool has_previous, size_t indent)
-{
   if (!tree)
-    return;
-
-  size_t line = tree->location.line;
-
-  if (previous_line != line)
     {
-      if (has_previous)
-        fprintf (stderr, "\n");
-      fprintf (stderr, "%*zu ", (int)indent + 4, line);
+      fprintf (stderr, "\033[90mundefined\033[0m\n");
+      return;
     }
-  else
-    fprintf (stderr, "%*s ", (int)indent + 4, "");
 
-  fprintf (stderr, "\033[96m%-11s\033[0m ", tree_kind_string (tree->tree_kind));
+  fprintf (stderr, "%s\n", tree_kind_string (tree->kind));
 
-  if (tree->tree_kind == TREE_TYPE)
-    fprintf (stderr, "(\033[91m%s\033[0m)", type_kind_string (tree->type_kind));
-
-  struct token *token = tree->token;
-
-  if (token)
-    switch (token->kind)
+  switch (tree->kind)
+    {
+    case TREE_FDEFINITION:
       {
-      case TOKEN_INTEGER:
-        fprintf (stderr, "(\033[95m%ld\033[0m)", token->data.i);
-        break;
-      case TOKEN_IDENTIFIER:
-        fprintf (stderr, "(\033[0m%s\033[0m)", token->data.s);
-        break;
-      default:
-        fprintf (stderr, "(\033[0m%s\033[0m)", token_kind_string (token->kind));
-        break;
+        struct tree_node_fdefinition node = tree->d.fdefinition;
+
+        type_print (node.type, depth + 1);
+
+        tree_print_indent (depth + 1);
+
+        fprintf (stderr, "\033[94m%s\033[0m\n", node.name);
+
+        for (struct tree *t = node.parameter1; t; t = t->next)
+          tree_print (t, depth + 1);
+
+        tree_print (node.body, depth + 1);
       }
+      break;
+    case TREE_EMPTY:
+      break;
+    case TREE_IF:
+      {
+        struct tree_node_if node = tree->d.if_s;
 
-  fprintf (stderr, "\n");
+        tree_print (node.condition, depth + 1);
+        tree_print (node.branch_a, depth + 1);
+        tree_print (node.branch_b, depth + 1);
+      }
+      break;
+    case TREE_WHILE:
+      {
+        struct tree_node_while node_while = tree->d.while_s;
 
-  if (tree->type != TYPE_ERROR)
-    {
-      tree_debug_print_base (tree->type, line, 0, indent + 4);
-      fprintf (stderr, "%*s ", (int)indent + 8, "");
-      fprintf (stderr, "\033[90m//\033[0m\n");
-    }
+        tree_print (node_while.condition, depth + 1);
+        tree_print (node_while.body, depth + 1);
+      }
+      break;
+    case TREE_FOR:
+      {
+        struct tree_node_for node = tree->d.for_s;
 
-  tree_debug_print_base (tree->child, line, 0, indent + 4);
-  tree_debug_print_base (tree->next, line, 1, indent);
-}
+        tree_print (node.init, depth + 1);
+        tree_print (node.condition, depth + 1);
+        tree_print (node.increment, depth + 1);
+        tree_print (node.body, depth + 1);
+      }
+      break;
+    case TREE_COMPOUND:
+      {
+        struct tree_node_compound node = tree->d.compound;
 
+        for (struct tree *t = node.statement1; t; t = t->next)
+          tree_print (t, depth + 1);
+      }
+      break;
+    case TREE_VDECLARATION:
+      {
+        struct tree_node_vdeclaration node = tree->d.vdeclaration;
 
-void
-tree_debug_print (struct tree *tree)
-{
-  tree_debug_print_base (tree, 0, 0, 0);
-}
+        type_print (node.type, depth + 1);
 
+        tree_print_indent (depth + 1);
 
-bool
-tree_is_left_value (struct tree *tree)
-{
-  switch (tree->tree_kind)
-    {
-    // case TREE_CAST:
-    //   return tree_is_left_value (tree->child);
+        fprintf (stderr, "\033[91m%s\033[0m\n", node.name);
+      }
+      break;
+    case TREE_RETURN:
+      {
+        struct tree_node_return node = tree->d.return_s;
+
+        tree_print (node.value, depth + 1);
+      }
+      break;
+    case TREE_PRINT:
+      {
+        struct tree_node_print node = tree->d.print;
+
+        tree_print (node.value, depth + 1);
+      }
+      break;
+    case TREE_CAST:
+      {
+        struct tree_node_cast node = tree->d.cast;
+
+        type_print (node.type, depth + 1);
+
+        tree_print (node.value, depth + 1);
+      }
+      break;
+    case TREE_CALL:
+      {
+        struct tree_node_call node = tree->d.call;
+
+        type_print (node.type, depth + 1);
+
+        tree_print (node.callee, depth + 1);
+
+        for (struct tree *t = node.argument1; t; t = t->next)
+          tree_print (t, depth + 1);
+      }
+      break;
+    case TREE_ASSIGNMENT:
+      {
+        struct tree_node_assignment node = tree->d.assignment;
+
+        type_print (node.type, depth + 1);
+
+        tree_print (node.lhs, depth + 1);
+        tree_print (node.rhs, depth + 1);
+      }
+      break;
+    case TREE_BINARY:
+      {
+        struct tree_node_binary node = tree->d.binary;
+
+        type_print (node.type, depth + 1);
+
+        tree_print_indent (depth + 1);
+
+        fprintf (stderr, "%s\n", binary_operator_string (node.op));
+
+        tree_print (node.lhs, depth + 1);
+        tree_print (node.rhs, depth + 1);
+      }
+      break;
+    case TREE_REFERENCE:
+      {
+        struct tree_node_reference node = tree->d.reference;
+
+        type_print (node.type, depth + 1);
+
+        tree_print (node.value, depth + 1);
+      }
+      break;
     case TREE_DEREFERENCE:
+      {
+        struct tree_node_dereference node = tree->d.dereference;
+
+        type_print (node.type, depth + 1);
+
+        tree_print (node.value, depth + 1);
+      }
+      break;
+    case TREE_INTEGER:
+      {
+        struct tree_node_integer node = tree->d.integer;
+
+        type_print (node.type, depth + 1);
+
+        tree_print_indent (depth + 1);
+
+        fprintf (stderr, "\033[38;5;100m%ld\033[0m\n", node.value);
+      }
+      break;
     case TREE_IDENTIFIER:
-      return true;
-    default:
-      return false;
+      {
+        struct tree_node_identifier node = tree->d.identifier;
+
+        type_print (node.type, depth + 1);
+
+        tree_print_indent (depth + 1);
+
+        fprintf (stderr, "\033[91m%s\033[0m\n", node.value);
+      }
+      break;
+    case TREE_PROGRAM:
+      {
+        struct tree_node_program node = tree->d.program;
+
+        for (struct tree *t = node.top_level1; t; t = t->next)
+          tree_print (t, depth + 1);
+      }
+      break;
     }
 }
 

@@ -2,18 +2,7 @@
 #define TYPE_H
 
 
-#include "error.h"
-
-#include <stdbool.h>
-
-
-enum type_width
-{
-  WIDTH_8  = 8,
-  WIDTH_16 = 16,
-  WIDTH_32 = 32,
-  WIDTH_64 = 64,
-};
+struct tree;
 
 
 enum type_kind
@@ -39,78 +28,50 @@ enum type_kind
 
 const char *type_kind_string (enum type_kind);
 
-enum type_width type_kind_width (enum type_kind);
 
-bool type_kind_is_assignable (enum type_kind);
-
-bool type_kind_is_label (enum type_kind);
-
-bool type_kind_is_integer (enum type_kind);
-
-bool type_kind_is_signed (enum type_kind);
-
-bool type_kind_is_pointer (enum type_kind);
-
-bool type_kind_is_array (enum type_kind);
-
-bool type_kind_is_scalar (enum type_kind);
-
-bool type_kind_is_complete (enum type_kind);
-
-bool type_kind_is_callable (enum type_kind);
-
-enum type_kind type_kind_promote_integer (enum type_kind, enum type_kind);
+struct type_node_pointer
+{
+  struct type *base;
+};
 
 
-struct tree;
+struct type_node_array
+{
+  struct type *base;
+  struct tree *size;
+};
 
 
-#define TYPE_ERROR NULL
+struct type_node_function
+{
+  struct type *from1;
+  struct type *to;
+};
 
 
-struct tree *type_create (struct location, enum type_kind);
+union type_data
+{
+  struct type_node_pointer pointer;
+  struct type_node_array array;
+  struct type_node_function function;
+};
 
-struct tree *type_create_pointer (struct location, struct tree *);
 
-struct tree *type_create_array (struct location, struct tree *, struct tree *);
+struct type
+{
+  union type_data d;
 
-bool type_match (struct tree *, enum type_kind);
+  struct type *next;
 
-size_t type_size (struct tree *);
+  enum type_kind kind;
+};
 
-size_t type_alignment (struct tree *);
 
-size_t type_element_size (struct tree *);
+struct type *type_create (enum type_kind);
 
-enum type_width type_width (struct tree *);
+void type_append (struct type **, struct type *);
 
-bool type_is_assignable (struct tree *);
-
-bool type_is_label (struct tree *);
-
-bool type_is_integer (struct tree *);
-
-bool type_is_signed (struct tree *);
-
-bool type_is_pointer (struct tree *);
-
-bool type_is_pointer_to (struct tree *, enum type_kind);
-
-bool type_is_array (struct tree *);
-
-bool type_is_scalar (struct tree *);
-
-bool type_is_complete (struct tree *);
-
-bool type_is_callable (struct tree *);
-
-struct tree *type_decay (struct tree *);
-
-struct tree *type_reference (struct tree *);
-
-struct tree *type_dereference (struct tree *);
-
-enum type_kind type_promote_integer (struct tree *, struct tree *);
+void type_print (struct type *, int);
 
 
 #endif // TYPE_H

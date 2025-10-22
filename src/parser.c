@@ -1,5 +1,6 @@
 #include "parser.h"
 #include "lexer.h"
+#include "type.h"
 #include "memory.h"
 
 #include <stdbool.h>
@@ -18,25 +19,26 @@ enum
 struct operator
 {
   enum token_kind kind;
+  enum binary_operator op;
   int p;
   int a;
 };
 
 
 static struct operator OPERATOR_TABLE[] = {
-  { TOKEN_DEQUAL,  30, ASSOCIATIVITY_NONE },
-  { TOKEN_NEQUAL,  30, ASSOCIATIVITY_NONE },
+  { TOKEN_DE,    BINARY_CMP_EQ,  30, ASSOCIATIVITY_NONE },
+  { TOKEN_NE,    BINARY_CMP_NE,  30, ASSOCIATIVITY_NONE },
 
-  { TOKEN_LT,      40, ASSOCIATIVITY_NONE },
-  { TOKEN_GT,      40, ASSOCIATIVITY_NONE },
-  { TOKEN_LTEQUAL, 40, ASSOCIATIVITY_NONE },
-  { TOKEN_GTEQUAL, 40, ASSOCIATIVITY_NONE },
+  { TOKEN_L,     BINARY_CMP_L,   40, ASSOCIATIVITY_NONE },
+  { TOKEN_G,     BINARY_CMP_G,   40, ASSOCIATIVITY_NONE },
+  { TOKEN_LE,    BINARY_CMP_LE,  40, ASSOCIATIVITY_NONE },
+  { TOKEN_GE,    BINARY_CMP_GE,  40, ASSOCIATIVITY_NONE },
 
-  { TOKEN_PLUS,    50, ASSOCIATIVITY_L },
-  { TOKEN_MINUS,   50, ASSOCIATIVITY_L },
+  { TOKEN_PLUS,  BINARY_ADD,     50, ASSOCIATIVITY_L },
+  { TOKEN_MINUS, BINARY_SUB,     50, ASSOCIATIVITY_L },
 
-  { TOKEN_STAR,    60, ASSOCIATIVITY_L },
-  { TOKEN_SLASH,   60, ASSOCIATIVITY_L },
+  { TOKEN_STAR,  BINARY_MUL,     60, ASSOCIATIVITY_L },
+  { TOKEN_SLASH, BINARY_DIV,     60, ASSOCIATIVITY_L },
 };
 
 
@@ -85,6 +87,8 @@ static void
 parser_advance (struct parser *parser)
 {
   parser->current = lexer_next (parser->lexer);
+
+  parser->location = parser->current->location;
 }
 
 
@@ -98,7 +102,7 @@ parser_match (struct parser *parser, enum token_kind kind)
 static void
 parser_error_expect (struct parser *parser, const char *a, const char *b)
 {
-  error (parser->current->location, "unexpected %s, expected %s", b, a);
+  error (parser->location, "unexpected %s, expected %s", b, a);
 }
 
 
@@ -173,49 +177,50 @@ static struct tree *parser_parse_primary_identifier (struct parser *);
 
 static struct tree *parser_parse_program (struct parser *);
 
-static struct tree *parser_parse_type_primary (struct parser *);
 
-static struct tree *parser_parse_type (struct parser *);
+static struct type *parser_parse_type_primary (struct parser *);
+
+static struct type *parser_parse_type (struct parser *);
 
 
-static struct tree *
-parser_parse_body (struct parser *parser, enum token_kind kind_until, enum tree_kind kind,
-                   struct tree *(*parse_function) (struct parser *))
-{
-  struct tree *result;
-
-  result = tree_create (parser->current->location, kind);
-
-  while (1)
-    {
-      enum token_kind current = parser->current->kind;
-
-      if (current == kind_until)
-        return result;
-
-      if (current == TOKEN_EOF)
-        return result;
-
-      struct tree *child;
-
-      child = parse_function (parser);
-
-      tree_append (result, child);
-
-      switch (child->tree_kind)
-        {
-        case TREE_FUNCTION_DEFINITION:
-        case TREE_IF:
-        case TREE_WHILE:
-        case TREE_FOR:
-        case TREE_COMPOUND:
-          break; // No semicolon!
-        default:
-          parser_expect_advance (parser, TOKEN_SEMICOLON);
-          break;
-        }
-    }
-}
+// static struct tree *
+// parser_parse_body (struct parser *parser, enum token_kind kind_until, enum tree_kind kind,
+//                    struct tree *(*parse_function) (struct parser *))
+// {
+//   struct tree *result;
+// 
+//   result = tree_create (parser->location, kind);
+// 
+//   while (1)
+//     {
+//       enum token_kind current = parser->current->kind;
+// 
+//       if (current == kind_until)
+//         return result;
+// 
+//       if (current == TOKEN_EOF)
+//         return result;
+// 
+//       struct tree *child;
+// 
+//       child = parse_function (parser);
+// 
+//       // tree_append (result, child);
+// 
+//       switch (child->tree_kind)
+//         {
+//         case TREE_FUNCTION_DEFINITION:
+//         case TREE_IF:
+//         case TREE_WHILE:
+//         case TREE_FOR:
+//         case TREE_COMPOUND:
+//           break; // No semicolon!
+//         default:
+//           parser_expect_advance (parser, TOKEN_SEMICOLON);
+//           break;
+//         }
+//     }
+// }
 
 
 static struct tree *
@@ -235,39 +240,33 @@ parser_parse_top (struct parser *parser)
 static struct tree *
 parser_parse_top_function_definition (struct parser *parser)
 {
-  struct location location = parser->current->location;
+  struct tree *result;
+
+  result = tree_create (parser->location, TREE_FDEFINITION);
 
   parser_expect_advance (parser, TOKEN_FN);
 
-  struct tree *result;
+  struct type *type;
 
-  result = tree_create (location, TREE_FUNCTION_DEFINITION);
+  type = type_create (TYPE_FUNCTION);
 
-  struct tree *f_type;
+  parser_expect (parser, TOKEN_IDENTIFIER);
 
-  f_type = type_create (location, TYPE_FUNCTION);
+  char *name = parser->current->d.s;
 
-  tree_set_type (result, f_type);
-
-  struct tree *f_name;
-
-  f_name = parser_parse_primary_identifier (parser);
-
-  tree_append (result, f_name);
+  parser_advance (parser);
 
   parser_expect_advance (parser, TOKEN_LPAREN);
 
   while (!parser_match (parser, TOKEN_RPAREN))
     {
-      struct tree *p;
+      struct tree *parameter;
 
-      p = parser_parse_statement_variable_declaration (parser);
+      parameter = parser_parse_statement_variable_declaration (parser);
 
-      tree_append (result, p);
+      tree_append (&result->d.fdefinition.parameter1, parameter);
 
-      tree_set_type (p, type_decay (p->type));
-
-      tree_append (f_type, p->type);
+      type_append (&type->d.function.from1, parameter->d.vdeclaration.type);
 
       if (parser_match (parser, TOKEN_COMMA))
         parser_advance (parser);
@@ -277,17 +276,13 @@ parser_parse_top_function_definition (struct parser *parser)
 
   parser_expect_advance (parser, TOKEN_RPAREN);
 
-  struct tree *r_type;
+  type->d.function.to = parser_parse_type (parser);
 
-  r_type = parser_parse_type (parser);
+  result->d.fdefinition.name = name;
 
-  tree_set_type (f_type, r_type);
+  result->d.fdefinition.body = parser_parse_statement_compound (parser);
 
-  struct tree *body;
-
-  body = parser_parse_statement_compound (parser);
-
-  tree_append (result, body);
+  result->d.fdefinition.type = type;
 
   return result;
 }
@@ -297,7 +292,7 @@ static struct tree *
 parser_parse_statement (struct parser *parser)
 {
   if (parser_match (parser, TOKEN_SEMICOLON))
-    return tree_create (parser->current->location, TREE_EMPTY);
+    return tree_create (parser->location, TREE_EMPTY);
 
   if (parser_match (parser, TOKEN_IF))
     return parser_parse_statement_if (parser);
@@ -334,37 +329,25 @@ parser_parse_statement (struct parser *parser)
 static struct tree *
 parser_parse_statement_if (struct parser *parser)
 {
-  struct location location = parser->current->location;
+  struct tree *result;
+
+  result = tree_create (parser->location, TREE_IF);
 
   parser_expect_advance (parser, TOKEN_IF);
 
-  struct tree *result;
+  result->d.if_s.condition = parser_parse_expression_assignment (parser);
 
-  result = tree_create (location, TREE_IF);
-
-  struct tree *condition;
-  struct tree *then;
-
-  condition = parser_parse_expression_assignment (parser);
-
-  then = parser_parse_statement_compound (parser);
-
-  tree_append (result, condition);
-  tree_append (result, then);
+  result->d.if_s.branch_a = parser_parse_statement_compound (parser);
 
   if (!parser_match (parser, TOKEN_ELSE))
     return result;
 
   parser_advance (parser);
 
-  struct tree *otherwise;
-
   if (parser_match (parser, TOKEN_IF))
-    otherwise = parser_parse_statement_if (parser);
+    result->d.if_s.branch_b = parser_parse_statement_if (parser);
   else
-    otherwise = parser_parse_statement_compound (parser);
-
-  tree_append (result, otherwise);
+    result->d.if_s.branch_b = parser_parse_statement_compound (parser);
 
   return result;
 }
@@ -373,23 +356,15 @@ parser_parse_statement_if (struct parser *parser)
 static struct tree *
 parser_parse_statement_while (struct parser *parser)
 {
-  struct location location = parser->current->location;
+  struct tree *result;
+
+  result = tree_create (parser->location, TREE_WHILE);
 
   parser_expect_advance (parser, TOKEN_WHILE);
 
-  struct tree *result;
+  result->d.while_s.condition = parser_parse_expression_assignment (parser);
 
-  result = tree_create (location, TREE_WHILE);
-
-  struct tree *condition;
-  struct tree *then;
-
-  condition = parser_parse_expression_assignment (parser);
-
-  then = parser_parse_statement_compound (parser);
-
-  tree_append (result, condition);
-  tree_append (result, then);
+  result->d.while_s.body = parser_parse_statement_compound (parser);
 
   return result;
 }
@@ -398,41 +373,32 @@ parser_parse_statement_while (struct parser *parser)
 static struct tree *
 parser_parse_statement_for (struct parser *parser)
 {
-  struct location location = parser->current->location;
+  struct tree *result;
+
+  result = tree_create (parser->location, TREE_FOR);
 
   parser_expect_advance (parser, TOKEN_FOR);
 
-  struct tree *result;
-
-  result = tree_create (location, TREE_FOR);
-
-  struct tree *a;
-  struct tree *b;
-  struct tree *c;
-  struct tree *body;
-
+  // Optional init
   if (parser_match (parser, TOKEN_SEMICOLON))
-    a = tree_create (location, TREE_EMPTY);
+    result->d.for_s.init = NULL;
   else
-    a = parser_parse_expression_assignment (parser);
+    result->d.for_s.init = parser_parse_expression_assignment (parser);
 
   parser_expect_advance (parser, TOKEN_SEMICOLON);
 
-  b = parser_parse_expression_assignment (parser);
+  // Required condition
+  result->d.for_s.condition = parser_parse_expression_assignment (parser);
 
   parser_expect_advance (parser, TOKEN_SEMICOLON);
 
+  // Optional increment
   if (parser_match (parser, TOKEN_LBRACE))
-    c = tree_create (location, TREE_EMPTY);
+    result->d.for_s.increment = NULL;
   else
-    c = parser_parse_expression_assignment (parser);
+    result->d.for_s.increment = parser_parse_expression_assignment (parser);
 
-  body = parser_parse_statement_compound (parser);
-
-  tree_append (result, a);
-  tree_append (result, b);
-  tree_append (result, c);
-  tree_append (result, body);
+  result->d.for_s.body = parser_parse_statement_compound (parser);
 
   return result;
 }
@@ -441,17 +407,34 @@ parser_parse_statement_for (struct parser *parser)
 static struct tree *
 parser_parse_statement_compound (struct parser *parser)
 {
-  struct location location = parser->current->location;
+  struct tree *result;
+
+  result = tree_create (parser->location, TREE_COMPOUND);
 
   parser_expect_advance (parser, TOKEN_LBRACE);
 
-  struct tree *result;
+  while (!parser_match (parser, TOKEN_RBRACE))
+    {
+      struct tree *statement;
 
-  result = parser_parse_body (parser, TOKEN_RBRACE, TREE_COMPOUND, parser_parse_statement);
+      statement = parser_parse_statement (parser);
 
-  result->location = location;
+      tree_append (&result->d.compound.statement1, statement);
 
-  parser_expect_advance (parser, TOKEN_RBRACE);
+      switch (statement->kind)
+        {
+        case TREE_IF:
+        case TREE_WHILE:
+        case TREE_FOR:
+        case TREE_COMPOUND:
+          break; // No semicolon!
+        default:
+          parser_expect_advance (parser, TOKEN_SEMICOLON);
+          break;
+        }
+    }
+
+  parser_advance (parser);
 
   return result;
 }
@@ -460,19 +443,21 @@ parser_parse_statement_compound (struct parser *parser)
 static struct tree *
 parser_parse_statement_variable_declaration (struct parser *parser)
 {
-  struct tree *id = parser_parse_primary_identifier (parser);
+  parser_expect (parser, TOKEN_IDENTIFIER);
+
+  char *name = parser->current->d.s;
+
+  struct tree *result;
+
+  result = tree_create (parser->location, TREE_VDECLARATION);
+
+  parser_advance (parser);
 
   parser_expect_advance (parser, TOKEN_COLON);
 
-  // parser_expect_advance (parser, TOKEN_I64);
+  result->d.vdeclaration.name = name;
 
-  struct tree *type = parser_parse_type (parser);
-
-  struct tree *result = tree_create (id->location, TREE_VARIABLE_DECLARATION);
-
-  tree_set_type (result, type);
-
-  tree_append (result, id);
+  result->d.vdeclaration.type = parser_parse_type (parser);
 
   return result;
 }
@@ -481,22 +466,16 @@ parser_parse_statement_variable_declaration (struct parser *parser)
 static struct tree *
 parser_parse_statement_return (struct parser *parser)
 {
-  struct location location = parser->current->location;
-
-  parser_expect_advance (parser, TOKEN_RETURN);
-
   struct tree *result;
 
-  result = tree_create (location, TREE_RETURN);
+  result = tree_create (parser->location, TREE_RETURN);
+
+  parser_expect_advance (parser, TOKEN_RETURN);
 
   if (parser_match (parser, TOKEN_SEMICOLON))
     return result;
 
-  struct tree *child;
-
-  child = parser_parse_expression_assignment (parser);
-
-  tree_append (result, child);
+  result->d.return_s.value = parser_parse_expression_assignment (parser);
 
   return result;
 }
@@ -505,19 +484,13 @@ parser_parse_statement_return (struct parser *parser)
 static struct tree *
 parser_parse_statement_print (struct parser *parser)
 {
-  struct location location = parser->current->location;
+  struct tree *result;
+
+  result = tree_create (parser->location, TREE_PRINT);
 
   parser_expect_advance (parser, TOKEN_PRINT);
 
-  struct tree *child;
-
-  child = parser_parse_expression_assignment (parser);
-
-  struct tree *result;
-
-  result = tree_create (location, TREE_PRINT);
-
-  tree_append (result, child);
+  result->d.print.value = parser_parse_expression_assignment (parser);
 
   return result;
 }
@@ -526,41 +499,41 @@ parser_parse_statement_print (struct parser *parser)
 static struct tree *
 parser_parse_expression_assignment (struct parser *parser)
 {
-  struct tree *left;
+  struct tree *lhs;
 
-  left = parser_parse_expression_binary (parser);
+  lhs = parser_parse_expression_binary (parser);
 
-  if (!parser_match (parser, TOKEN_EQUAL))
-    return left;
+  if (!parser_match (parser, TOKEN_EQ))
+    return lhs;
 
   parser_advance (parser);
 
-  struct tree *right;
+  struct tree *rhs;
 
-  right = parser_parse_expression_assignment (parser);
+  rhs = parser_parse_expression_assignment (parser);
 
-  struct tree *assignment;
+  struct tree *result;
 
-  assignment = tree_create (left->location, TREE_ASSIGNMENT);
+  result = tree_create (lhs->location, TREE_ASSIGNMENT);
 
-  tree_append (assignment, left);
-  tree_append (assignment, right);
+  result->d.assignment.lhs = lhs;
+  result->d.assignment.rhs = rhs;
 
-  return assignment;
+  return result;
 }
 
 
 static struct tree *
 parser_parse_expression_binary_base (struct parser *parser, int p)
 {
-  struct tree *left;
+  struct tree *lhs;
 
-  left = parser_parse_expression_cast (parser);
+  lhs = parser_parse_expression_cast (parser);
 
   struct operator operator;
 
   if (!parser_fetch_operator (parser->current, &operator))
-    return left;
+    return lhs;
 
   while ((operator.a == ASSOCIATIVITY_NONE && operator.p > p) ||
          (operator.a == ASSOCIATIVITY_L && operator.p > p) ||
@@ -568,36 +541,35 @@ parser_parse_expression_binary_base (struct parser *parser, int p)
     {
       if (operator.a == ASSOCIATIVITY_NONE && p > 0)
         {
-          error (parser->current->location, "non-associative operator used consecutively");
+          error (parser->location, "non-associative operator used consecutively");
 
           exit (1);
         }
 
-      struct token *middle = parser->current;
-
       parser_advance (parser);
 
-      struct tree *right;
+      struct tree *rhs;
 
       if (operator.a == ASSOCIATIVITY_L)
-        right = parser_parse_expression_binary_base (parser, operator.p);
+        rhs = parser_parse_expression_binary_base (parser, operator.p);
       else
-        right = parser_parse_expression_binary_base (parser, operator.p - 1);
+        rhs = parser_parse_expression_binary_base (parser, operator.p - 1);
 
       struct tree *binary;
 
-      binary = tree_create_token (left->location, TREE_BINARY, middle);
+      binary = tree_create (lhs->location, TREE_BINARY);
 
-      tree_append (binary, left);
-      tree_append (binary, right);
+      binary->d.binary.lhs = lhs;
+      binary->d.binary.rhs = rhs;
+      binary->d.binary.op = operator.op;
 
-      left = binary;
+      lhs = binary;
 
       if (!parser_fetch_operator (parser->current, &operator))
-        return left;
+        return lhs;
     }
 
-  return left;
+  return lhs;
 }
 
 
@@ -611,55 +583,56 @@ parser_parse_expression_binary (struct parser *parser)
 static struct tree *
 parser_parse_expression_cast (struct parser *parser)
 {
-  struct tree *left;
+  struct tree *result;
 
-  left = parser_parse_expression_call (parser);
+  result = parser_parse_expression_call (parser);
 
-  if (!parser_match (parser, TOKEN_COLON))
-    return left;
+  while (parser_match (parser, TOKEN_COLON))
+    {
+      parser_advance (parser);
 
-  parser_advance (parser);
+      struct type *type;
 
-  struct tree *type;
+      type = parser_parse_type (parser);
 
-  type = parser_parse_type (parser);
+      struct tree *cast;
 
-  struct tree *cast;
+      cast = tree_create (result->location, TREE_CAST);
 
-  cast = tree_create (left->location, TREE_CAST);
+      cast->d.cast.value = result;
+      cast->d.cast.type = type;
 
-  tree_append (cast, left);
+      result = cast;
+    }
 
-  tree_set_type (cast, type);
-
-  return cast;
+  return result;
 }
 
 
 static struct tree *
 parser_parse_expression_call (struct parser *parser)
 {
-  struct tree *a;
+  struct tree *result;
 
-  a = parser_parse_expression_access (parser);
+  result = parser_parse_expression_access (parser);
 
   while (parser_match (parser, TOKEN_LPAREN))
     {
       struct tree *call;
 
-      call = tree_create (a->location, TREE_CALL);
+      call = tree_create (result->location, TREE_CALL);
 
-      tree_append (call, a);
+      call->d.call.callee = result;
 
       parser_advance (parser);
 
       while (!parser_match (parser, TOKEN_RPAREN))
         {
-          struct tree *p;
+          struct tree *argument;
 
-          p = parser_parse_expression_assignment (parser);
+          argument = parser_parse_expression_assignment (parser);
 
-          tree_append (call, p);
+          tree_append (&call->d.call.argument1, argument);
 
           if (parser_match (parser, TOKEN_COMMA))
             parser_advance (parser);
@@ -669,10 +642,10 @@ parser_parse_expression_call (struct parser *parser)
 
       parser_expect_advance (parser, TOKEN_RPAREN);
 
-      a = call;
+      result = call;
     }
 
-  return a;
+  return result;
 }
 
 
@@ -694,18 +667,19 @@ parser_parse_expression_access (struct parser *parser)
 
       parser_expect_advance (parser, TOKEN_RBRACKET);
 
-      struct tree *binary;
+      struct tree *add;
 
-      binary = tree_create_token_kind (a->location, TREE_BINARY, TOKEN_PLUS);
+      add = tree_create (a->location, TREE_BINARY);
 
-      tree_append (binary, a);
-      tree_append (binary, b);
+      add->d.binary.lhs = a;
+      add->d.binary.rhs = b;
+      add->d.binary.op = BINARY_ADD;
 
       struct tree *deref;
 
       deref = tree_create (a->location, TREE_DEREFERENCE);
 
-      tree_append (deref, binary);
+      deref->d.dereference.value = add;
 
       a = deref;
     }
@@ -744,7 +718,7 @@ parser_parse_primary (struct parser *parser)
 struct tree *
 parser_parse_primary_group (struct parser *parser)
 {
-  struct location location = parser->current->location;
+  struct location location = parser->location;
 
   parser_expect_advance (parser, TOKEN_LPAREN);
 
@@ -763,19 +737,17 @@ parser_parse_primary_group (struct parser *parser)
 static struct tree *
 parser_parse_primary_reference (struct parser *parser)
 {
-  struct location location = parser->current->location;
+  struct tree *result;
+
+  result = tree_create (parser->location, TREE_REFERENCE);
 
   parser_expect_advance (parser, TOKEN_AMPERSAND);
 
-  struct tree *child;
+  struct tree *value;
 
-  child = parser_parse_expression_call (parser);
+  value = parser_parse_expression_call (parser);
 
-  struct tree *result;
-
-  result = tree_create (location, TREE_REFERENCE);
-
-  tree_append (result, child);
+  result->d.reference.value = value;
 
   return result;
 }
@@ -784,38 +756,17 @@ parser_parse_primary_reference (struct parser *parser)
 static struct tree *
 parser_parse_primary_dereference (struct parser *parser)
 {
-  struct location location = parser->current->location;
+  struct tree *result;
+
+  result = tree_create (parser->location, TREE_DEREFERENCE);
 
   parser_expect_advance (parser, TOKEN_STAR);
 
-  struct tree *child;
+  struct tree *value;
 
-  child = parser_parse_expression_call (parser);
+  value = parser_parse_expression_call (parser);
 
-  struct tree *result;
-
-  result = tree_create (location, TREE_DEREFERENCE);
-
-  tree_append (result, child);
-
-  return result;
-
-}
-
-
-struct tree *
-parser_parse_primary_atom (struct parser *parser, enum token_kind token_kind,
-                           enum tree_kind tree_kind)
-{
-  parser_expect (parser, token_kind);
-
-  struct tree *result;
-
-  result = tree_create (parser->current->location, tree_kind);
-
-  result->token = parser->current;
-
-  parser_advance (parser);
+  result->d.dereference.value = value;
 
   return result;
 }
@@ -824,58 +775,98 @@ parser_parse_primary_atom (struct parser *parser, enum token_kind token_kind,
 static struct tree *
 parser_parse_primary_integer (struct parser *parser)
 {
-  return parser_parse_primary_atom (parser, TOKEN_INTEGER, TREE_INTEGER);
+  parser_expect (parser, TOKEN_INTEGER);
+
+  struct tree *result;
+
+  result = tree_create (parser->location, TREE_INTEGER);
+
+  result->d.integer.value = parser->current->d.i;
+
+  parser_advance (parser);
+
+  return result;
 }
 
 
 static struct tree *
 parser_parse_primary_identifier (struct parser *parser)
 {
-  return parser_parse_primary_atom (parser, TOKEN_IDENTIFIER, TREE_IDENTIFIER);
+  parser_expect (parser, TOKEN_IDENTIFIER);
+
+  struct tree *result;
+
+  result = tree_create (parser->location, TREE_IDENTIFIER);
+
+  result->d.identifier .value = parser->current->d.s;
+
+  parser_advance (parser);
+
+  return result;
 }
 
 
 static struct tree *
 parser_parse_program (struct parser *parser)
 {
-  return parser_parse_body (parser, TOKEN_EOF, TREE_PROGRAM, parser_parse_top);
+  struct tree *result;
+
+  result = tree_create (parser->location, TREE_PROGRAM);
+
+  while (!parser_match (parser, TOKEN_EOF))
+    {
+      struct tree *top;
+
+      top = parser_parse_top (parser);
+
+      tree_append (&result->d.compound.statement1, top);
+
+      switch (top->kind)
+        {
+        case TREE_FDEFINITION:
+          break; // No semicolon!
+        default:
+          parser_expect_advance (parser, TOKEN_SEMICOLON);
+          break;
+        }
+    }
+
+  return result;
 }
 
 
-static struct tree *
+static struct type *
 parser_parse_type_primary (struct parser *parser)
 {
-  struct location location = parser->current->location;
-
   switch (parser->current->kind)
     {
     case TOKEN_VOID:
       parser_advance (parser);
-      return type_create (location, TYPE_VOID);
+      return type_create (TYPE_VOID);
     case TOKEN_I8:
       parser_advance (parser);
-      return type_create (location, TYPE_I8);
+      return type_create (TYPE_I8);
     case TOKEN_I16:
       parser_advance (parser);
-      return type_create (location, TYPE_I16);
+      return type_create (TYPE_I16);
     case TOKEN_I32:
       parser_advance (parser);
-      return type_create (location, TYPE_I32);
+      return type_create (TYPE_I32);
     case TOKEN_I64:
       parser_advance (parser);
-      return type_create (location, TYPE_I64);
+      return type_create (TYPE_I64);
     case TOKEN_U8:
       parser_advance (parser);
-      return type_create (location, TYPE_U8);
+      return type_create (TYPE_U8);
     case TOKEN_U16:
       parser_advance (parser);
-      return type_create (location, TYPE_U16);
+      return type_create (TYPE_U16);
     case TOKEN_U32:
       parser_advance (parser);
-      return type_create (location, TYPE_U32);
+      return type_create (TYPE_U32);
     case TOKEN_U64:
       parser_advance (parser);
-      return type_create (location, TYPE_U64);
+      return type_create (TYPE_U64);
     default:
       break;
     }
@@ -888,51 +879,60 @@ parser_parse_type_primary (struct parser *parser)
 }
 
 
-static struct tree *
+static struct type *
 parser_parse_type (struct parser *parser)
 {
-  struct location location = parser->current->location;
-
   switch (parser->current->kind)
     {
     case TOKEN_STAR:
-      parser_advance (parser);
+      {
+        parser_advance (parser);
 
-      return type_create_pointer (location, parser_parse_type (parser));
+        struct type *result;
+
+        result = type_create (TYPE_POINTER);
+
+        result->d.pointer.base = parser_parse_type (parser);
+
+        return result;
+      }
     case TOKEN_LBRACKET:
       {
-        parser_expect_advance (parser, TOKEN_LBRACKET);
+        parser_advance (parser);
 
-        struct tree *n;
-        n = parser_parse_primary_integer (parser);
+        struct tree *size;
 
-        // if (parser_match (parser, TOKEN_RBRACKET))
-        //   n = NULL;
-        // else
-        //   n = parser_parse_primary_integer (parser);
+        size = parser_parse_primary_integer (parser);
 
         parser_expect_advance (parser, TOKEN_RBRACKET);
 
-        return type_create_array (location, parser_parse_type (parser), n);
+        struct type *result;
+
+        result = type_create (TYPE_ARRAY);
+
+        result->d.array.base = parser_parse_type (parser);
+        result->d.array.size = size;
+
+        return result;
       }
       break;
     case TOKEN_FN:
       {
         parser_advance (parser);
 
-        struct tree *fn;
+        struct type *result;
 
-        fn = type_create (location, TYPE_FUNCTION);
+        result = type_create (TYPE_FUNCTION);
 
         parser_expect_advance (parser, TOKEN_LPAREN);
 
         while (!parser_match (parser, TOKEN_RPAREN))
           {
-            struct tree *t;
+            struct type *parameter;
 
-            t = parser_parse_type (parser);
+            parameter = parser_parse_type (parser);
 
-            tree_append (fn, t);
+            type_append (&result->d.function.from1, parameter);
 
             if (parser_match (parser, TOKEN_COMMA))
               parser_advance (parser);
@@ -942,14 +942,9 @@ parser_parse_type (struct parser *parser)
 
         parser_expect_advance (parser, TOKEN_RPAREN);
 
-        struct tree *t;
+        result->d.function.to = parser_parse_type (parser);
 
-        t = parser_parse_type (parser);
-
-        tree_set_type (fn, t);
-
-        // NOTE: Function type is always a pointer to a function object.
-        return type_create_pointer (location, fn);
+        return result;
       }
       break;
     default:
@@ -963,7 +958,9 @@ parser_parse (struct parser *parser)
 {
   parser_advance (parser);
 
-  struct tree *result = parser_parse_program (parser); // parser_parse_binary (parser);
+  struct tree *result;
+
+  result = parser_parse_program (parser);
 
   parser_expect (parser, TOKEN_EOF);
 

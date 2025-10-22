@@ -195,22 +195,22 @@ lexer_next (struct lexer *lexer)
         {
         case '=':
           if (lexer_match_start (lexer, "=="))
-            return lexer_advance_n_token (lexer, 2, TOKEN_DEQUAL);
-          return lexer_advance_token (lexer, TOKEN_EQUAL);
+            return lexer_advance_n_token (lexer, 2, TOKEN_DE);
+          return lexer_advance_token (lexer, TOKEN_EQ);
 
         case '!':
           if (lexer_match_start (lexer, "!="))
-            return lexer_advance_n_token (lexer, 2, TOKEN_NEQUAL);
+            return lexer_advance_n_token (lexer, 2, TOKEN_NE);
           break;
 
         case '<':
           if (lexer_match_start (lexer, "<="))
-            return lexer_advance_n_token (lexer, 2, TOKEN_LTEQUAL);
-          return lexer_advance_token (lexer, TOKEN_LT);
+            return lexer_advance_n_token (lexer, 2, TOKEN_LE);
+          return lexer_advance_token (lexer, TOKEN_L);
         case '>':
           if (lexer_match_start (lexer, ">="))
-            return lexer_advance_n_token (lexer, 2, TOKEN_GTEQUAL);
-          return lexer_advance_token (lexer, TOKEN_GT);
+            return lexer_advance_n_token (lexer, 2, TOKEN_GE);
+          return lexer_advance_token (lexer, TOKEN_G);
 
         case ',':
           return lexer_advance_token (lexer, TOKEN_COMMA);
