@@ -16,6 +16,8 @@ struct location
 extern const struct location location_none;
 
 
+void bug (const char *, ...);
+
 void error (struct location, const char *, ...);
 void warning (struct location, const char *, ...);
 

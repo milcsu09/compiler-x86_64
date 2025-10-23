@@ -1,8 +1,6 @@
 #include "scope.h"
 #include "memory.h"
 
-
-#include <assert.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -27,12 +25,17 @@ enum scope_set_result
 scope_set (struct scope *scope, struct symbol symbol)
 {
   for (size_t i = 0; i < scope->size; ++i)
-    if (strcmp (scope->data[i].key, symbol.key) == 0)
+    if (strcmp (scope->data[i].name, symbol.name) == 0)
       {
         return SCOPE_SET_REDEFINED;
       }
 
-  assert (scope->size < scope->capacity);
+  if (scope->size >= scope->capacity)
+    {
+      error (location_none, "too many entries in scope (max. %zu)", scope->capacity);
+
+      exit (1);
+    }
 
   scope->data[scope->size++] = symbol;
 
@@ -41,24 +44,21 @@ scope_set (struct scope *scope, struct symbol symbol)
 
 
 enum scope_get_result
-scope_get (struct scope *scope, const char *key, struct symbol *symbol)
+scope_get (struct scope *scope, const char *name, struct symbol *symbol)
 {
   for (size_t i = 0; i < scope->size; ++i)
     {
       struct symbol current = scope->data[i];
 
-      if (strcmp (current.key, key) == 0)
+      if (strcmp (current.name, name) == 0)
         {
-          symbol->type = current.type;
-          symbol->offset = current.offset;
-          symbol->storage = current.storage;
-          symbol->key = current.key;
+          *symbol = current;
           return SCOPE_GET_OK;
         }
     }
 
   if (scope->parent)
-    return scope_get (scope->parent, key, symbol);
+    return scope_get (scope->parent, name, symbol);
 
   return SCOPE_GET_UNDEFINED;
 }
@@ -66,7 +66,7 @@ scope_get (struct scope *scope, const char *key, struct symbol *symbol)
 
 
 void
-scope_set2 (struct scope *scope, struct symbol symbol, struct location location)
+scope_set_validate (struct scope *scope, struct symbol symbol, struct location location)
 {
   enum scope_set_result result = scope_set (scope, symbol);
 
@@ -75,25 +75,25 @@ scope_set2 (struct scope *scope, struct symbol symbol, struct location location)
     case SCOPE_SET_OK:
       break;
     case SCOPE_SET_REDEFINED:
-      error (location, "redefined %s", symbol.key);
+      error (location, "redefined %s", symbol.name);
       exit (1);
     }
 }
 
 
 void
-scope_get2 (struct scope *scope, const char *key, struct symbol *symbol, struct location location)
+scope_get_validate (struct scope *scope, const char *name, struct symbol *symbol,
+                    struct location location)
 {
-  enum scope_get_result result = scope_get (scope, key, symbol);
+  enum scope_get_result result = scope_get (scope, name, symbol);
 
   switch (result)
     {
     case SCOPE_GET_OK:
       break;
     case SCOPE_GET_UNDEFINED:
-      error (location, "undefined %s", key);
+      error (location, "undefined %s", name);
       exit (1);
     }
 }
-
 

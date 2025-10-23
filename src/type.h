@@ -2,6 +2,9 @@
 #define TYPE_H
 
 
+#include <stdbool.h>
+
+
 struct tree;
 
 
@@ -37,8 +40,8 @@ struct type_node_pointer
 
 struct type_node_array
 {
-  struct type *base;
   struct tree *size;
+  struct type *base;
 };
 
 
@@ -67,9 +70,55 @@ struct type
 };
 
 
+enum type_width
+{
+  WIDTH_0 = 0,
+  WIDTH_1 = 1,
+  WIDTH_2 = 2,
+  WIDTH_4 = 4,
+  WIDTH_8 = 8,
+};
+
+
+enum type_width type_width (struct type *);
+
+
+#define TYPE_ERROR NULL
+
+
 struct type *type_create (enum type_kind);
 
+struct type *type_create_pointer (struct type *);
+
+struct type *type_create_array (struct tree *, struct type *);
+
+
 void type_append (struct type **, struct type *);
+
+
+bool type_cast_required (struct type *, struct type *);
+
+
+bool type_is_integer (struct type *);
+
+bool type_is_integer_signed (struct type *);
+
+bool type_is_pointer (struct type *);
+
+bool type_is_pointer_to_k (struct type *, enum type_kind);
+
+bool type_is_label (struct type *);
+
+
+bool type_is_assignable (struct type *);
+
+bool type_is_callable (struct type *);
+
+
+struct type *type_decay (struct type *);
+
+struct type *type_promote (struct type *, struct type *);
+
 
 void type_print (struct type *, int);
 

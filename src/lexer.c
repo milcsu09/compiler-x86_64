@@ -149,11 +149,9 @@ lexer_next (struct lexer *lexer)
   if (c == '\0')
     return token_create (location, TOKEN_EOF);
 
-  if (isdigit ((unsigned char)c) /* || (c == '-' && isdigit((unsigned char)lexer->current[1])) */)
+  // TODO: Binary, octal and hexadecimal integer literals.
+  if (isdigit ((unsigned char)c))
     {
-      // if (c == '-')
-      //   lexer_advance (lexer);
-
       while (isdigit (*lexer->current))
         lexer_advance (lexer);
 

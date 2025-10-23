@@ -4,6 +4,7 @@
 
 #include "memory.h"
 #include "parser.h"
+#include "resolver.h"
 
 
 char *
@@ -45,9 +46,14 @@ main (void)
   // PARSE
   struct parser *parser = parser_create (f, s);
 
-  struct tree *tree;
+  struct tree *tree = parser_parse (parser);
 
-  tree = parser_parse (parser);
+  // tree_print (tree, 0);
+
+  // PASS 1
+  struct resolver *resolver = resolver_create ();
+
+  resolver_resolve (resolver, tree);
 
   tree_print (tree, 0);
 

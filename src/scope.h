@@ -8,25 +8,47 @@
 #include <stddef.h>
 
 
+#define SCOPE_CAPACITY 128
+
+
 struct tree;
 
 
-enum symbol_storage
+enum symbol_scope
 {
-  STORAGE_LOCAL,
-  STORAGE_GLOBAL,
+  SYMBOL_LOCAL,
+  SYMBOL_GLOBAL,
+};
+
+
+// struct symbol_global
+// {
+// };
+
+
+struct symbol_local
+{
+  size_t stack_offset;
+};
+
+
+union symbol_data
+{
+  // struct symbol_global global;
+
+  struct symbol_local local;
 };
 
 
 struct symbol
 {
-  const char *key;
+  enum symbol_scope scope;
 
-  size_t offset;
+  const char *name;
 
-  enum symbol_storage storage;
+  struct type *type;
 
-  struct tree *type;
+  union symbol_data d;
 };
 
 
@@ -62,9 +84,9 @@ enum scope_set_result scope_set (struct scope *, struct symbol);
 
 enum scope_get_result scope_get (struct scope *, const char *, struct symbol *);
 
-void scope_set2 (struct scope *, struct symbol, struct location);
+void scope_set_validate (struct scope *, struct symbol, struct location);
 
-void scope_get2 (struct scope *, const char *, struct symbol *, struct location);
+void scope_get_validate (struct scope *, const char *, struct symbol *, struct location);
 
 
 #endif // SCOPE_H

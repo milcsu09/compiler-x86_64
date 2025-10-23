@@ -92,6 +92,51 @@ tree_append (struct tree **head, struct tree *node)
 }
 
 
+struct type *
+tree_type (struct tree *tree)
+{
+  switch (tree->kind)
+    {
+    case TREE_FDEFINITION:
+      return tree->d.fdefinition.type;
+    case TREE_VDECLARATION:
+      return tree->d.vdeclaration.type;
+    case TREE_CAST:
+      return tree->d.cast.type;
+    case TREE_CALL:
+      return tree->d.call.type;
+    case TREE_ASSIGNMENT:
+      return tree->d.assignment.type;
+    case TREE_BINARY:
+      return tree->d.binary.type;
+    case TREE_REFERENCE:
+      return tree->d.reference.type;
+    case TREE_DEREFERENCE:
+      return tree->d.dereference.type;
+    case TREE_INTEGER:
+      return tree->d.integer.type;
+    case TREE_IDENTIFIER:
+      return tree->d.identifier.type;
+    default:
+      return NULL;
+    }
+}
+
+
+bool
+tree_is_lvalue (struct tree *tree)
+{
+  switch (tree->kind)
+    {
+    case TREE_IDENTIFIER:
+    case TREE_DEREFERENCE:
+      return true;
+    default:
+      return false;
+    }
+}
+
+
 static void
 tree_print_indent (int depth)
 {
@@ -123,7 +168,7 @@ tree_print (struct tree *tree, int depth)
 
         tree_print_indent (depth + 1);
 
-        fprintf (stderr, "\033[94m%s\033[0m\n", node.name);
+        fprintf (stderr, "\033[91m%s\033[0m\n", node.name);
 
         for (struct tree *t = node.parameter1; t; t = t->next)
           tree_print (t, depth + 1);
@@ -232,7 +277,7 @@ tree_print (struct tree *tree, int depth)
 
         tree_print_indent (depth + 1);
 
-        fprintf (stderr, "%s\n", binary_operator_string (node.op));
+        fprintf (stderr, "%s\n", binary_operator_string (node.o));
 
         tree_print (node.lhs, depth + 1);
         tree_print (node.rhs, depth + 1);

@@ -4,6 +4,8 @@
 
 #include "error.h"
 
+#include <stdbool.h>
+
 
 enum binary_operator
 {
@@ -150,10 +152,10 @@ struct tree_node_assignment
 
 struct tree_node_binary
 {
+  enum binary_operator o;
+
   struct tree *lhs;
   struct tree *rhs;
-
-  enum binary_operator op;
 
   struct type *type;
 };
@@ -236,7 +238,15 @@ struct tree
 
 struct tree *tree_create (struct location, enum tree_kind);
 
+
 void tree_append (struct tree **, struct tree *);
+
+
+struct type *tree_type (struct tree *);
+
+
+bool tree_is_lvalue (struct tree *);
+
 
 void tree_print (struct tree *, int);
 
