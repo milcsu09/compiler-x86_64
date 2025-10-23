@@ -99,6 +99,8 @@ void type_append (struct type **, struct type *);
 bool type_cast_required (struct type *, struct type *);
 
 
+bool type_is_void (struct type *);
+
 bool type_is_integer (struct type *);
 
 bool type_is_integer_signed (struct type *);
@@ -109,6 +111,8 @@ bool type_is_pointer_to_k (struct type *, enum type_kind);
 
 bool type_is_label (struct type *);
 
+
+bool type_is_scalar (struct type *);
 
 bool type_is_assignable (struct type *);
 

@@ -5,6 +5,7 @@
 #include "memory.h"
 #include "parser.h"
 #include "resolver.h"
+#include "checker.h"
 
 
 char *
@@ -56,6 +57,11 @@ main (void)
   resolver_resolve (resolver, tree);
 
   tree_print (tree, 0);
+
+  // PASS 2
+  struct checker *checker = checker_create ();
+
+  checker_check (checker, tree);
 
   return 0;
 }

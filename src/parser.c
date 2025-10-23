@@ -241,7 +241,7 @@ parser_parse_top_fdefinition (struct parser *parser)
 
   parser_expect_advance (parser, TOKEN_RPAREN);
 
-  type->d.function.to = parser_parse_type (parser);
+  type->d.function.to = type_decay (parser_parse_type (parser));
 
   result->d.fdefinition.name = name;
 
@@ -894,7 +894,7 @@ parser_parse_type (struct parser *parser)
 
         parser_expect_advance (parser, TOKEN_RPAREN);
 
-        result->d.function.to = parser_parse_type (parser);
+        result->d.function.to = type_decay (parser_parse_type (parser));
 
         return type_create_pointer (result);
       }

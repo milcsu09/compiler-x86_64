@@ -1,11 +1,11 @@
 #include "memory.h"
 
 #include <stdint.h>
-// #include <stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 
-#define AA_CHUNK_SIZE (0x10000)
+#define AA_CHUNK_SIZE (0x1000)
 
 
 struct aa_chunk

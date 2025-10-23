@@ -101,7 +101,7 @@ static void resolver_resolve_node_program (struct resolver *, struct tree *);
 
 
 struct tree *
-resolver_resolve_lvalue (struct resolver *resolver, struct tree *tree)
+resolver_resolve_expression (struct resolver *resolver, struct tree *tree)
 {
   if (!tree)
     return NULL;
@@ -130,13 +130,20 @@ resolver_resolve_lvalue (struct resolver *resolver, struct tree *tree)
 }
 
 
-struct tree *
+static struct tree *
+resolver_resolve_lvalue (struct resolver *resolver, struct tree *tree)
+{
+  return resolver_resolve_expression (resolver, tree);
+}
+
+
+static struct tree *
 resolver_resolve_rvalue (struct resolver *resolver, struct tree *tree)
 {
   if (!tree)
     return NULL;
 
-  struct tree *value = resolver_resolve_lvalue (resolver, tree);
+  struct tree *value = resolver_resolve_expression (resolver, tree);
 
   struct type *type = tree_type (value);
 
@@ -157,7 +164,7 @@ resolver_resolve_rvalue (struct resolver *resolver, struct tree *tree)
 }
 
 
-void
+static void
 resolver_resolve_statement (struct resolver *resolver, struct tree *tree)
 {
   if (!tree)
@@ -192,8 +199,9 @@ resolver_resolve_statement (struct resolver *resolver, struct tree *tree)
     case TREE_PROGRAM:
       resolver_resolve_node_program (resolver, tree);
       break;
+
     default:
-      resolver_resolve_lvalue (resolver, tree);
+      resolver_resolve_expression (resolver, tree);
       break;
     }
 }
@@ -402,7 +410,7 @@ resolver_resolve_node_assignment (struct resolver *resolver, struct tree *tree)
 {
   struct tree_node_assignment *node = &tree->d.assignment;
 
-  if (!tree_is_lvalue (node->lhs))
+  if (tree_is_rvalue (node->lhs))
     return tree;
 
   node->lhs = resolver_resolve_lvalue (resolver, node->lhs);
@@ -441,7 +449,6 @@ resolver_resolve_node_binary (struct resolver *resolver, struct tree *tree)
 
   switch (o)
     {
-    // Arithmetic
     case BINARY_ADD:
     case BINARY_SUB:
       if (a_i && b_i)
@@ -564,7 +571,7 @@ resolver_resolve_node_reference (struct resolver *resolver, struct tree *tree)
 {
   struct tree_node_reference *node = &tree->d.reference;
 
-  if (!tree_is_lvalue (node->value))
+  if (tree_is_rvalue (node->value))
     return tree;
 
   node->value = resolver_resolve_lvalue (resolver, node->value);

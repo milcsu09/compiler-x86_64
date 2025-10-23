@@ -137,6 +137,13 @@ tree_is_lvalue (struct tree *tree)
 }
 
 
+bool
+tree_is_rvalue (struct tree *tree)
+{
+  return !tree_is_lvalue (tree);
+}
+
+
 static void
 tree_print_indent (int depth)
 {

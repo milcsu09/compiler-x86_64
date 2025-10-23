@@ -184,6 +184,22 @@ type_cast_required (struct type *a, struct type *b)
 
 
 bool
+type_is_void (struct type *type)
+{
+  if (type == TYPE_ERROR)
+    return false;
+
+  switch (type->kind)
+    {
+    case TYPE_VOID:
+      return true;
+    default:
+      return false;
+    }
+}
+
+
+bool
 type_is_integer (struct type *type)
 {
   if (type == TYPE_ERROR)
@@ -265,6 +281,30 @@ type_is_label (struct type *type)
     {
     case TYPE_ARRAY:
     case TYPE_FUNCTION:
+      return true;
+    default:
+      return false;
+    }
+}
+
+
+bool
+type_is_scalar (struct type *type)
+{
+  if (type == TYPE_ERROR)
+    return false;
+
+  switch (type->kind)
+    {
+    case TYPE_I8:
+    case TYPE_I16:
+    case TYPE_I32:
+    case TYPE_I64:
+    case TYPE_U8:
+    case TYPE_U16:
+    case TYPE_U32:
+    case TYPE_U64:
+    case TYPE_POINTER:
       return true;
     default:
       return false;

@@ -247,6 +247,8 @@ struct type *tree_type (struct tree *);
 
 bool tree_is_lvalue (struct tree *);
 
+bool tree_is_rvalue (struct tree *);
+
 
 void tree_print (struct tree *, int);
 
