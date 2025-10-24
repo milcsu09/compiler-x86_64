@@ -1,0 +1,28 @@
+
+fn main() i32 {
+  a : i64;
+  b : i64;
+
+  a = 1;
+  b = 2;
+
+  s : i64;
+  s = 0;
+
+  while a < 4000000 {
+    if a % 2 == 0 {
+      s = s + a;
+    }
+
+    c : i64;
+    c = a + b;
+
+    a = b;
+    b = c;
+  }
+
+  print s;
+
+  return 0;
+}
+
