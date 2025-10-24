@@ -165,6 +165,10 @@ resolver_resolve_rvalue (struct resolver *resolver, struct tree *tree)
 
       result->d.reference.type = type_decay (type);
 
+      result->next = value->next;
+
+      value->next = NULL;
+
       return result;
     }
 

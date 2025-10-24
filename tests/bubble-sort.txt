@@ -1,0 +1,43 @@
+
+fn bubble_sort(A : *i32, N : i64) void {
+  i : i64;
+  j : i64;
+
+  for i = 0; i < N; i = i + 1
+    {
+      for j = 0; j < N - i - 1; j = j + 1
+        {
+          if A[j] > A[j + 1]
+            {
+              t : i64;
+              t = A[j];
+
+              A[j] = A[j + 1];
+              A[j + 1] = t;
+            }
+        }
+    }
+}
+
+fn main() i32
+{
+  A : [5]i32;
+
+  A[0] = 42;
+  A[1] = 27;
+  A[2] = 16;
+  A[3] = 5;
+  A[4] = 30;
+
+  bubble_sort(A, 5);
+
+  i : i64;
+
+  for i = 0; i < 5; i = i + 1
+    {
+      print A[i];
+    }
+
+  return 0;
+}
+

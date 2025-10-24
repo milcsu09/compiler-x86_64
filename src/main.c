@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
+#include <stdio.h>
+#include <time.h>
+#include <sys/time.h>
 
 #include "cg.h"
 #include "tree.h"
@@ -10,6 +13,13 @@
 #include "parser.h"
 #include "resolver.h"
 #include "checker.h"
+
+
+static double
+dt_ms (struct timeval t0, struct timeval t1)
+{
+  return (t1.tv_sec - t0.tv_sec) * 1000.0 + (t1.tv_usec - t0.tv_usec) / 1000.0;
+}
 
 
 char *
@@ -56,6 +66,12 @@ strip_extension (char *buffer, size_t size, const char *path)
 void
 compile_file (const char *path)
 {
+  struct timeval t0, t1;
+
+  double t_compiler;
+  double t_nasm;
+  double t_gcc;
+
   char path_base[256];
   char path_s[256];
   char path_o[256];
@@ -66,6 +82,8 @@ compile_file (const char *path)
   snprintf (path_s, sizeof path_s, "%.252s.s", path_base);
   snprintf (path_o, sizeof path_o, "%.252s.o", path_base);
   snprintf (path_u, sizeof path_u, "%s", path_base);
+
+  gettimeofday (&t0, NULL);
 
   char *source = read_file (path);
 
@@ -93,14 +111,18 @@ compile_file (const char *path)
       exit (1);
     }
 
-  note (location_none, "%s", path_s);
-
   // Generate
   struct cg *cg = cg_create (fs);
 
   cg_generate (cg, tree);
 
   fclose(fs);
+
+  gettimeofday (&t1, NULL);
+
+  t_compiler = dt_ms (t0, t1);
+
+  gettimeofday (&t0, NULL);
 
   char cmd[2048];
 
@@ -112,7 +134,11 @@ compile_file (const char *path)
       exit (1);
     }
 
-  note (location_none, "%s", path_o);
+  gettimeofday (&t1, NULL);
+
+  t_nasm = dt_ms (t0, t1);
+
+  gettimeofday (&t0, NULL);
 
   snprintf (cmd, sizeof cmd, "gcc -no-pie %s -o %s", path_o, path_u);
 
@@ -122,7 +148,19 @@ compile_file (const char *path)
       exit (1);
     }
 
-  note (location_none, "%s", path_u);
+  gettimeofday (&t1, NULL);
+
+  t_gcc = dt_ms (t0, t1);
+
+  double t = t_compiler + t_nasm + t_gcc;
+
+  double p_compiler = t_compiler / t * 100.0;
+  double p_nasm     = t_nasm     / t * 100.0;
+  double p_gcc      = t_gcc      / t * 100.0;
+
+  note (location_none, "Compiler: %7.2fms (%6.2f%%)", t_compiler, p_compiler);
+  note (location_none, "    NASM: %7.2fms (%6.2f%%)", t_nasm,     p_nasm);
+  note (location_none, "     GCC: %7.2fms (%6.2f%%)", t_gcc,      p_gcc);
 }
 
 
