@@ -420,7 +420,7 @@ checker_check_node_dereference (struct checker *checker, struct tree *tree)
     {
       const char *name = type_kind_string (type->kind);
 
-      error (tree->location, "dereference of non-dereferenceable type '%s'", name);
+      error (tree->location, "dereference of non-pointer type '%s'", name);
 
       exit (1);
     }
