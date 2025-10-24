@@ -36,6 +36,7 @@ enum token_kind
   TOKEN_MINUS,
   TOKEN_STAR,
   TOKEN_SLASH,
+  TOKEN_PERCENT,
 
   TOKEN_LPAREN,
   TOKEN_RPAREN,
@@ -47,6 +48,9 @@ enum token_kind
   TOKEN_INTEGER,
 
   TOKEN_IDENTIFIER,
+
+  TOKEN_OR,
+  TOKEN_AND,
 
   TOKEN_FN,
   TOKEN_RETURN,

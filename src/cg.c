@@ -253,6 +253,55 @@ cg_write_udiv (struct cg *cg, struct cg_register a, struct cg_register b)
 
 
 static void
+cg_write_smod (struct cg *cg, struct cg_register a, struct cg_register b)
+{
+  // TODO: generalize this
+  const char *ax;
+  const char *dx;
+
+  if (a.w == WIDTH_4)
+    {
+      ax = "eax";
+      dx = "edx";
+    }
+  else
+    {
+      ax = "rax";
+      dx = "rdx";
+    }
+
+  cg_write (cg, "\tmov\t%s, %s\n", ax, register_string (a));
+  cg_write (cg, "\tcqo\n");
+  cg_write (cg, "\tidiv\t%s\n", register_string (b));
+  cg_write (cg, "\tmov\t%s, %s\n", register_string (a), dx);
+}
+
+
+static void
+cg_write_umod (struct cg *cg, struct cg_register a, struct cg_register b)
+{
+  const char *ax;
+  const char *dx;
+
+  if (a.w == WIDTH_4)
+    {
+      ax = "eax";
+      dx = "edx";
+    }
+  else
+    {
+      ax = "rax";
+      dx = "rdx";
+    }
+
+  cg_write (cg, "\tmov\t%s, %s\n", ax, register_string (a));
+  cg_write (cg, "\txor\t%s, %s\n", dx, dx);
+  cg_write (cg, "\tdiv\t%s\n", register_string (b));
+  cg_write (cg, "\tmov\t%s, %s\n", register_string (a), dx);
+}
+
+
+static void
 cg_write_compare (struct cg *cg, const char *i, struct cg_register a, struct cg_register b)
 {
   cg_write (cg, "\tcmp\t%s, %s\n", register_string (a), register_string (b));
@@ -338,13 +387,6 @@ cg_write_label (struct cg *cg, cg_label_t label)
 
 
 static void
-cg_write_test (struct cg *cg, struct cg_register a)
-{
-  cg_write (cg, "\ttest\t%s, %s\n", register_string (a), register_string (a));
-}
-
-
-static void
 cg_write_jump (struct cg *cg, cg_label_t label, const char *s)
 {
   cg_write (cg, "\t%s\t.L%zu\n", s, label);
@@ -369,6 +411,29 @@ static void
 cg_write_jnz (struct cg *cg, cg_label_t a)
 {
   cg_write_jump (cg, a, "jnz");
+}
+
+
+static void
+cg_write_lor (struct cg *cg, struct cg_register a, struct cg_register b)
+{
+  cg_write (cg, "\tor \t%s, %s\n", register_string (a), register_string (b));
+  cg_write (cg, "\tsetne\t%s\n", register_b_string (a));
+}
+
+
+static void
+cg_write_land (struct cg *cg, struct cg_register a, struct cg_register b)
+{
+  cg_write (cg, "\tand\t%s, %s\n", register_string (a), register_string (b));
+  cg_write (cg, "\tsetne\t%s\n", register_b_string (a));
+}
+
+
+static void
+cg_write_test (struct cg *cg, struct cg_register a)
+{
+  cg_write (cg, "\ttest\t%s, %s\n", register_string (a), register_string (a));
 }
 
 
@@ -1183,6 +1248,12 @@ cg_generate_node_binary (struct cg *cg, struct tree *tree)
       else
         cg_write_udiv (cg, a, b);
       break;
+    case BINARY_MOD:
+      if (s)
+        cg_write_smod (cg, a, b);
+      else
+        cg_write_umod (cg, a, b);
+      break;
 
     case BINARY_CMP_EQ:
       cg_write_compare_e (cg, a, b);
@@ -1220,6 +1291,16 @@ cg_generate_node_binary (struct cg *cg, struct tree *tree)
         cg_write_ucompare_ge (cg, a, b);
       a.w = WIDTH_1;
       break;
+
+    case BINARY_LOR:
+      cg_write_lor (cg, a, b);
+      a.w = WIDTH_1;
+      break;
+    case BINARY_LAND:
+      cg_write_land (cg, a, b);
+      a.w = WIDTH_1;
+      break;
+
     default:
       break;
     }

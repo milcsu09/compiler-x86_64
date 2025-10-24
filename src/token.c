@@ -22,6 +22,7 @@ static const char *const TOKEN_KIND_STRING[] = {
   "'-'",
   "'*'",
   "'/'",
+  "'%'",
 
   "'('",
   "')'",
@@ -33,6 +34,9 @@ static const char *const TOKEN_KIND_STRING[] = {
   "integer",
 
   "identifier",
+
+  "'or'",
+  "'and'",
 
   "'fn'",
   "'return'",

@@ -13,6 +13,7 @@ enum binary_operator
   BINARY_SUB,
   BINARY_MUL,
   BINARY_DIV,
+  BINARY_MOD,
 
   BINARY_CMP_EQ,
   BINARY_CMP_NE,
@@ -20,6 +21,9 @@ enum binary_operator
   BINARY_CMP_G,
   BINARY_CMP_LE,
   BINARY_CMP_GE,
+
+  BINARY_LOR,
+  BINARY_LAND,
 };
 
 

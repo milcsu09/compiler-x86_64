@@ -366,6 +366,7 @@ checker_check_node_binary (struct checker *checker, struct tree *tree)
 
     case BINARY_MUL:
     case BINARY_DIV:
+    case BINARY_MOD:
       if (a_i && b_i)
         return;
       break;
@@ -388,6 +389,10 @@ checker_check_node_binary (struct checker *checker, struct tree *tree)
       if (a_p && b_p)
         return;
       break;
+
+    case BINARY_LOR:
+    case BINARY_LAND:
+      return;
 
     default:
       break;

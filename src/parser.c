@@ -22,7 +22,6 @@ struct parser
 
 enum
 {
-  ASSOCIATIVITY_NONE,
   ASSOCIATIVITY_L,
   ASSOCIATIVITY_R,
 };
@@ -38,19 +37,23 @@ struct operator
 
 
 static struct operator OPERATOR_TABLE[] = {
-  { TOKEN_DE,    BINARY_CMP_EQ,  30, ASSOCIATIVITY_NONE },
-  { TOKEN_NE,    BINARY_CMP_NE,  30, ASSOCIATIVITY_NONE },
+  { TOKEN_OR,      BINARY_LOR,     20, ASSOCIATIVITY_L },
+  { TOKEN_AND,     BINARY_LAND,    25, ASSOCIATIVITY_L },
 
-  { TOKEN_L,     BINARY_CMP_L,   40, ASSOCIATIVITY_NONE },
-  { TOKEN_G,     BINARY_CMP_G,   40, ASSOCIATIVITY_NONE },
-  { TOKEN_LE,    BINARY_CMP_LE,  40, ASSOCIATIVITY_NONE },
-  { TOKEN_GE,    BINARY_CMP_GE,  40, ASSOCIATIVITY_NONE },
+  { TOKEN_DE,      BINARY_CMP_EQ,  30, ASSOCIATIVITY_L },
+  { TOKEN_NE,      BINARY_CMP_NE,  30, ASSOCIATIVITY_L },
 
-  { TOKEN_PLUS,  BINARY_ADD,     50, ASSOCIATIVITY_L },
-  { TOKEN_MINUS, BINARY_SUB,     50, ASSOCIATIVITY_L },
+  { TOKEN_L,       BINARY_CMP_L,   40, ASSOCIATIVITY_L },
+  { TOKEN_G,       BINARY_CMP_G,   40, ASSOCIATIVITY_L },
+  { TOKEN_LE,      BINARY_CMP_LE,  40, ASSOCIATIVITY_L },
+  { TOKEN_GE,      BINARY_CMP_GE,  40, ASSOCIATIVITY_L },
 
-  { TOKEN_STAR,  BINARY_MUL,     60, ASSOCIATIVITY_L },
-  { TOKEN_SLASH, BINARY_DIV,     60, ASSOCIATIVITY_L },
+  { TOKEN_PLUS,    BINARY_ADD,     50, ASSOCIATIVITY_L },
+  { TOKEN_MINUS,   BINARY_SUB,     50, ASSOCIATIVITY_L },
+
+  { TOKEN_STAR,    BINARY_MUL,     60, ASSOCIATIVITY_L },
+  { TOKEN_SLASH,   BINARY_DIV,     60, ASSOCIATIVITY_L },
+  { TOKEN_PERCENT, BINARY_MOD,     60, ASSOCIATIVITY_L },
 };
 
 
@@ -515,17 +518,9 @@ parser_parse_expression_binary_base (struct parser *parser, int p)
   if (!parser_fetch_operator (parser->current, &operator))
     return lhs;
 
-  while ((operator.a == ASSOCIATIVITY_NONE && operator.p > p) ||
-         (operator.a == ASSOCIATIVITY_L && operator.p > p) ||
+  while ((operator.a == ASSOCIATIVITY_L && operator.p > p) ||
          (operator.a == ASSOCIATIVITY_R && operator.p >= p))
     {
-      if (operator.a == ASSOCIATIVITY_NONE && p > 0)
-        {
-          error (parser->location, "non-associative operator used consecutively");
-
-          exit (1);
-        }
-
       parser_advance (parser);
 
       struct tree *rhs;

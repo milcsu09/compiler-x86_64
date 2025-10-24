@@ -49,3 +49,15 @@ warning (struct location location, const char *format, ...)
   va_end (va);
 }
 
+
+void
+note (struct location location, const char *format, ...)
+{
+  va_list va;
+  va_start (va, format);
+
+  diagnostic_va (location, "\033[94mnote\033[0m", format, va);
+
+  va_end (va);
+}
+

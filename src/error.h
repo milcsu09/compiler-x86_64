@@ -20,6 +20,7 @@ void bug (const char *, ...);
 
 void error (struct location, const char *, ...);
 void warning (struct location, const char *, ...);
+void note (struct location, const char *, ...);
 
 
 #endif // ERROR_H

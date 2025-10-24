@@ -108,6 +108,9 @@ struct keyword
 
 
 static struct keyword KEYWORD_TABLE[] = {
+  { "or",     TOKEN_OR },
+  { "and",    TOKEN_AND },
+
   { "fn",     TOKEN_FN },
   { "return", TOKEN_RETURN },
   { "if",     TOKEN_IF },
@@ -116,15 +119,15 @@ static struct keyword KEYWORD_TABLE[] = {
   { "for",    TOKEN_FOR },
   { "print",  TOKEN_PRINT },
 
-  { "void", TOKEN_VOID },
-  { "i8",   TOKEN_I8 },
-  { "i16",  TOKEN_I16 },
-  { "i32",  TOKEN_I32 },
-  { "i64",  TOKEN_I64 },
-  { "u8",   TOKEN_U8 },
-  { "u16",  TOKEN_U16 },
-  { "u32",  TOKEN_U32 },
-  { "u64",  TOKEN_U64 },
+  { "void",   TOKEN_VOID },
+  { "i8",     TOKEN_I8 },
+  { "i16",    TOKEN_I16 },
+  { "i32",    TOKEN_I32 },
+  { "i64",    TOKEN_I64 },
+  { "u8",     TOKEN_U8 },
+  { "u16",    TOKEN_U16 },
+  { "u32",    TOKEN_U32 },
+  { "u64",    TOKEN_U64 },
 };
 
 
@@ -236,6 +239,8 @@ lexer_next (struct lexer *lexer)
           return lexer_advance_token (lexer, TOKEN_STAR);
         case '/':
           return lexer_advance_token (lexer, TOKEN_SLASH);
+        case '%':
+          return lexer_advance_token (lexer, TOKEN_PERCENT);
 
         case '(':
           return lexer_advance_token (lexer, TOKEN_LPAREN);

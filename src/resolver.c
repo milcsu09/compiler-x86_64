@@ -511,6 +511,7 @@ resolver_resolve_node_binary (struct resolver *resolver, struct tree *tree)
 
     case BINARY_MUL:
     case BINARY_DIV:
+    case BINARY_MOD:
       if (a_i && b_i)
         {
           struct type *common = type_promote (type_a, type_b);
@@ -574,6 +575,20 @@ resolver_resolve_node_binary (struct resolver *resolver, struct tree *tree)
           return tree;
         }
 
+      break;
+
+    case BINARY_LOR:
+    case BINARY_LAND:
+      {
+        struct type *common = type_promote (type_a, type_b);
+
+        node->lhs = resolver_cast_to (node->lhs, common);
+        node->rhs = resolver_cast_to (node->rhs, common);
+
+        node->type = type_create (TYPE_U8);
+
+        return tree;
+      }
       break;
 
     default:
