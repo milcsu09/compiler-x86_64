@@ -4,13 +4,7 @@
 
 struct tree;
 
-
-struct resolver
-{
-  struct tree_node_fdefinition *function;
-
-  struct scope *scope;
-};
+struct resolver;
 
 
 struct resolver *resolver_create (void);

@@ -196,10 +196,10 @@ tree_print (struct tree *tree, int depth)
       break;
     case TREE_WHILE:
       {
-        struct tree_node_while node_while = tree->d.while_s;
+        struct tree_node_while node = tree->d.while_s;
 
-        tree_print (node_while.condition, depth + 1);
-        tree_print (node_while.body, depth + 1);
+        tree_print (node.condition, depth + 1);
+        tree_print (node.body, depth + 1);
       }
       break;
     case TREE_FOR:

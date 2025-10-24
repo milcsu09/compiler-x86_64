@@ -6,6 +6,12 @@
 #include <stdlib.h>
 
 
+struct checker
+{
+  char dummy;
+};
+
+
 struct checker *
 checker_create (void)
 {

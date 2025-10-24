@@ -85,6 +85,8 @@ enum type_width type_width (struct type *);
 
 size_t type_size (struct type *);
 
+size_t type_element_size (struct type *);
+
 size_t type_alignment (struct type *);
 
 

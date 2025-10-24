@@ -1,4 +1,5 @@
 #include "lexer.h"
+#include "token.h"
 #include "memory.h"
 #include "string.h"
 
@@ -8,6 +9,14 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+
+
+struct lexer
+{
+  struct location location;
+
+  const char *current;
+};
 
 
 struct lexer *

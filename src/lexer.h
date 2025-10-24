@@ -2,15 +2,9 @@
 #define LEXER_H
 
 
-#include "token.h"
+struct token;
 
-
-struct lexer
-{
-  struct location location;
-
-  const char *current;
-};
+struct lexer;
 
 
 struct lexer *lexer_create (const char *const, const char *);

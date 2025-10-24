@@ -1,8 +1,94 @@
 
-fn main() i32
-{
-  A : [1]i32;
+fn take_many(
+  a : i8,  b : i16, c : i32, d : i64, e : i32, f : i16, g : i8,  h : i16, i : i32,
+  j : i64, k : i32, l : i16, m : i8,  n : i16, o : i32, p : i64, q : i32, r : i16,
+) i32 {
+  print a;
+  print b;
+  print c;
+  print d;
+  print e;
+  print f;
+  print g;
+  print h;
+  print i;
+  print j;
+  print k;
+  print l;
+  print m;
+  print n;
+  print o;
+  print p;
+  print q;
+  print r;
 
-  print **A;
+  return r;
+}
+
+
+fn fib(n : i64) i64 {
+  if n <= 1 {
+    return n;
+  }
+
+  return fib(n - 1) + fib(n - 2);
+}
+
+
+fn fib2(n : i64) i64 {
+  a : i64;
+  b : i64;
+  c : i64;
+
+  a = 0;
+  b = 1;
+  c = 0;
+
+  while n > 0 {
+    c = a + b;
+    a = b;
+    b = c;
+    n = n - 1;
+  }
+
+  return a;
+}
+
+
+fn main() i32 {
+  i : i64;
+  j : i64;
+
+  for i = 0; i < 10; i = i + 1 {
+    for j = 0; j < 10; j = j + 1 {
+      print i * j;
+    }
+  }
+
+  print fib(40);
+  print fib2(40);
+
+  print 20 + (30 + (40 + (50 + take_many(
+    1 + (2 + (3 + (4 + (5 + 6)))),
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+  ))));
+
+  return 0;
 }
 

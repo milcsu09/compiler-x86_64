@@ -2,18 +2,9 @@
 #define PARSER_H
 
 
-#include "tree.h"
-#include "lexer.h"
+struct tree;
 
-
-struct parser
-{
-  struct location location;
-
-  struct lexer *lexer;
-
-  struct token *current;
-};
+struct parser;
 
 
 struct parser *parser_create (const char *const, const char *);

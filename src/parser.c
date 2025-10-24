@@ -1,4 +1,6 @@
 #include "parser.h"
+#include "token.h"
+#include "tree.h"
 #include "lexer.h"
 #include "type.h"
 #include "memory.h"
@@ -6,6 +8,16 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+
+
+struct parser
+{
+  struct location location;
+
+  struct lexer *lexer;
+
+  struct token *current;
+};
 
 
 enum
@@ -225,11 +237,13 @@ parser_parse_top_fdefinition (struct parser *parser)
 
       parameter = parser_parse_statement_vdeclaration (parser);
 
-      tree_append (&result->d.fdefinition.parameter1, parameter);
-
       struct type *parameter_type;
 
       parameter_type = type_decay (parameter->d.vdeclaration.type);
+
+      parameter->d.vdeclaration.type = parameter_type;
+
+      tree_append (&result->d.fdefinition.parameter1, parameter);
 
       type_append (&type->d.function.from1, parameter_type);
 

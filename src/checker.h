@@ -4,11 +4,7 @@
 
 struct tree;
 
-
-struct checker
-{
-  char dummy;
-};
+struct checker;
 
 
 struct checker *checker_create (void);

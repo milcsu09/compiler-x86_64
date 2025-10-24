@@ -2,10 +2,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "cg.h"
+#include "tree.h"
 #include "memory.h"
 #include "parser.h"
 #include "resolver.h"
 #include "checker.h"
+#include "register.h"
 
 
 char *
@@ -44,24 +47,30 @@ main (void)
 
   char *s = read_file (f);
 
-  // PARSE
+  // Parse
   struct parser *parser = parser_create (f, s);
 
   struct tree *tree = parser_parse (parser);
 
   // tree_print (tree, 0);
 
-  // PASS 1
+  // Pass 1
   struct resolver *resolver = resolver_create ();
 
   resolver_resolve (resolver, tree);
 
   // tree_print (tree, 0);
+  // exit (0);
 
-  // PASS 2
+  // Pass 2
   struct checker *checker = checker_create ();
 
   checker_check (checker, tree);
+
+  // Generate
+  struct cg *cg = cg_create (stdout);
+
+  cg_generate (cg, tree);
 
   return 0;
 }

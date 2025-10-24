@@ -7,6 +7,14 @@
 #include <stdlib.h>
 
 
+struct resolver
+{
+  struct tree_node_fdefinition *function;
+
+  struct scope *scope;
+};
+
+
 static void
 resolver_scope_push (struct resolver *resolver)
 {
@@ -369,12 +377,21 @@ resolver_resolve_node_call (struct resolver *resolver, struct tree *tree)
   struct tree *a = node->argument1;
   struct type *b = type_function.from1;
 
+  size_t p_n = 0;
+
   while (a && b)
     {
       struct tree *n;
 
       n = resolver_resolve_rvalue (resolver, a);
-      n = resolver_cast_to (n, b);
+
+      // First 6 arguments are casted to their expected type
+      if (p_n < 6)
+        n = resolver_cast_to (n, b);
+
+      // Rest of the arguments must be 64-bit, so they're correctly placed on the stack
+      else
+        n = resolver_cast_to (n, type_create (TYPE_I64));
 
       if (p)
         p->next = n;
@@ -385,6 +402,7 @@ resolver_resolve_node_call (struct resolver *resolver, struct tree *tree)
 
       a = n->next;
       b = b->next;
+      p_n++;
     }
 
   if (a)

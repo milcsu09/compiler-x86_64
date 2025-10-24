@@ -127,6 +127,24 @@ type_size (struct type *type)
 
 
 size_t
+type_element_size (struct type *type)
+{
+  if (type == TYPE_ERROR)
+    return 0;
+
+  switch (type->kind)
+    {
+    case TYPE_POINTER:
+      return type_size (type->d.pointer.base);
+    case TYPE_ARRAY:
+      return type_size (type->d.array.base);
+    default:
+      return type_size (type);
+    }
+}
+
+
+size_t
 type_alignment (struct type *type)
 {
   if (type == TYPE_ERROR)
