@@ -614,8 +614,6 @@ cg_generate_expression (struct cg *cg, struct tree *tree)
   if (!tree)
     return register_none;
 
-  fprintf (stderr, "\033[96mcg_generate_expression\033[0m : %s\n", tree_kind_string (tree->kind));
-
   switch (tree->kind)
     {
     case TREE_CAST:
@@ -694,8 +692,6 @@ cg_generate_statement (struct cg *cg, struct tree *tree)
     return;
 
   cg_register_free_all (cg);
-
-  fprintf (stderr, "\033[94mcg_generate_statement\033[0m  : %s\n", tree_kind_string (tree->kind));
 
   switch (tree->kind)
     {
