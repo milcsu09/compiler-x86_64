@@ -52,34 +52,6 @@ static void checker_check_node_program (struct checker *, struct tree *);
 
 
 static void
-checker_check_type (struct checker *checker, struct type *type, struct location location)
-{
-  if (type == TYPE_ERROR)
-    return;
-
-  switch (type->kind)
-    {
-    case TYPE_ARRAY:
-      {
-        struct type_node_array *node = &type->d.array;
-
-        if (node->size->d.integer.value == 0)
-          {
-            error (location, "zero sized 'array'");
-
-            exit (1);
-          }
-
-        checker_check_type (checker, node->base, location);
-      }
-      break;
-    default:
-      break;
-    }
-}
-
-
-static void
 checker_check_expression (struct checker *checker, struct tree *tree)
 {
   if (!tree)
@@ -105,12 +77,6 @@ checker_check_expression (struct checker *checker, struct tree *tree)
     case TREE_DEREFERENCE:
       checker_check_node_dereference (checker, tree);
       break;
-    // case TREE_INTEGER:
-    //   checker_check_node_integer (checker, tree);
-    //   break;
-    // case TREE_IDENTIFIER:
-    //   checker_check_node_identifier (checker, tree);
-    //   break;
     default:
       break;
     }
@@ -134,7 +100,7 @@ checker_check_lvalue (struct checker *checker, struct tree *tree)
 
   if (type_is_void (tree_type (tree)))
     {
-      error (tree->location, "'void' expression used as left-value");
+      error (tree->location, "void expression used as left-value");
 
       exit (1);
     }
@@ -151,7 +117,7 @@ checker_check_rvalue (struct checker *checker, struct tree *tree)
 
   if (type_is_void (tree_type (tree)))
     {
-      error (tree->location, "'void' expression used as right-value");
+      error (tree->location, "void expression used as right-value");
 
       exit (1);
     }
@@ -204,8 +170,6 @@ static void
 checker_check_node_fdefinition (struct checker *checker, struct tree *tree)
 {
   struct tree_node_fdefinition *node = &tree->d.fdefinition;
-
-  checker_check_type (checker, node->type, tree->location);
 
   for (struct tree *t = node->parameter1; t; t = t->next)
     checker_check_statement (checker, t);
@@ -263,9 +227,16 @@ checker_check_node_compound (struct checker *checker, struct tree *tree)
 static void
 checker_check_node_vdeclaration (struct checker *checker, struct tree *tree)
 {
+  (void)checker;
+
   struct tree_node_vdeclaration *node = &tree->d.vdeclaration;
 
-  checker_check_type (checker, node->type, tree->location);
+  if (type_size (node->type) == 0)
+    {
+      error (tree->location, "'%s' has no storage size", node->name);
+
+      exit (1);
+    }
 }
 
 
@@ -292,8 +263,6 @@ checker_check_node_cast (struct checker *checker, struct tree *tree)
 {
   struct tree_node_cast *node = &tree->d.cast;
 
-  checker_check_type (checker, node->type, tree->location);
-
   checker_check_rvalue (checker, node->value);
 
   if (!type_is_scalar (node->type))
@@ -311,8 +280,6 @@ static void
 checker_check_node_call (struct checker *checker, struct tree *tree)
 {
   struct tree_node_call *node = &tree->d.call;
-
-  checker_check_type (checker, node->type, tree->location);
 
   struct type *type_callee = tree_type (node->callee);
 
@@ -336,8 +303,6 @@ checker_check_node_assignment (struct checker *checker, struct tree *tree)
 {
   struct tree_node_assignment *node = &tree->d.assignment;
 
-  checker_check_type (checker, node->type, tree->location);
-
   checker_check_lvalue (checker, node->lhs);
 
   struct type *type = tree_type (node->lhs);
@@ -359,8 +324,6 @@ static void
 checker_check_node_binary (struct checker *checker, struct tree *tree)
 {
   struct tree_node_binary *node = &tree->d.binary;
-
-  checker_check_type (checker, node->type, tree->location);
 
   checker_check_rvalue (checker, node->lhs);
   checker_check_rvalue (checker, node->rhs);
@@ -440,8 +403,6 @@ checker_check_node_reference (struct checker *checker, struct tree *tree)
 {
   struct tree_node_reference *node = &tree->d.reference;
 
-  checker_check_type (checker, node->type, tree->location);
-
   checker_check_lvalue (checker, node->value);
 }
 
@@ -451,8 +412,6 @@ checker_check_node_dereference (struct checker *checker, struct tree *tree)
 {
   struct tree_node_dereference *node = &tree->d.dereference;
 
-  checker_check_type (checker, node->type, tree->location);
-
   checker_check_rvalue (checker, node->value);
 
   struct type *type = tree_type (node->value);
@@ -461,25 +420,11 @@ checker_check_node_dereference (struct checker *checker, struct tree *tree)
     {
       const char *name = type_kind_string (type->kind);
 
-      error (tree->location, "dereference of non-dereferencable type '%s'", name);
+      error (tree->location, "dereference of non-dereferenceable type '%s'", name);
 
       exit (1);
     }
 }
-
-
-// static void
-// checker_check_node_integer (struct checker *checker, struct tree *tree)
-// {
-//   struct tree_node_integer *node = &tree->d.integer;
-// }
-// 
-// 
-// static void
-// checker_check_node_identifier (struct checker *checker, struct tree *tree)
-// {
-//   struct tree_node_identifier *node = &tree->d.identifier;
-// }
 
 
 static void

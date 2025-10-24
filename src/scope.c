@@ -75,7 +75,7 @@ scope_set_validate (struct scope *scope, struct symbol symbol, struct location l
     case SCOPE_SET_OK:
       break;
     case SCOPE_SET_REDEFINED:
-      error (location, "redefined %s", symbol.name);
+      error (location, "redefined '%s'", symbol.name);
       exit (1);
     }
 }
@@ -92,7 +92,7 @@ scope_get_validate (struct scope *scope, const char *name, struct symbol *symbol
     case SCOPE_GET_OK:
       break;
     case SCOPE_GET_UNDEFINED:
-      error (location, "undefined %s", name);
+      error (location, "undefined '%s'", name);
       exit (1);
     }
 }

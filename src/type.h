@@ -2,6 +2,7 @@
 #define TYPE_H
 
 
+#include <stddef.h>
 #include <stdbool.h>
 
 
@@ -82,6 +83,10 @@ enum type_width
 
 enum type_width type_width (struct type *);
 
+size_t type_size (struct type *);
+
+size_t type_alignment (struct type *);
+
 
 #define TYPE_ERROR NULL
 
@@ -111,8 +116,8 @@ bool type_is_pointer_to_k (struct type *, enum type_kind);
 
 bool type_is_label (struct type *);
 
-
 bool type_is_scalar (struct type *);
+
 
 bool type_is_assignable (struct type *);
 

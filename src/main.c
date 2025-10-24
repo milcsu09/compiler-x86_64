@@ -56,7 +56,7 @@ main (void)
 
   resolver_resolve (resolver, tree);
 
-  tree_print (tree, 0);
+  // tree_print (tree, 0);
 
   // PASS 2
   struct checker *checker = checker_create ();

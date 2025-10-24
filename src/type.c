@@ -76,6 +76,99 @@ type_width (struct type *type)
 }
 
 
+size_t
+type_size (struct type *type)
+{
+  if (type == TYPE_ERROR)
+    return 0;
+
+  switch (type->kind)
+    {
+    case TYPE_VOID:
+      return 0;
+
+    case TYPE_I8:
+      return 1;
+    case TYPE_I16:
+      return 2;
+    case TYPE_I32:
+      return 4;
+    case TYPE_I64:
+      return 8;
+
+    case TYPE_U8:
+      return 1;
+    case TYPE_U16:
+      return 2;
+    case TYPE_U32:
+      return 4;
+    case TYPE_U64:
+      return 8;
+
+    case TYPE_POINTER:
+      return 8;
+
+    case TYPE_ARRAY:
+      {
+        struct type_node_array *node = &type->d.array;
+
+        size_t s = type_size (node->base);
+        size_t n = node->size->d.integer.value;
+
+        return s * n;
+      }
+    case TYPE_FUNCTION:
+      return 0;
+
+    default:
+      return 0;
+    }
+}
+
+
+size_t
+type_alignment (struct type *type)
+{
+  if (type == TYPE_ERROR)
+    return 0;
+
+  switch (type->kind)
+    {
+    case TYPE_VOID:
+      return 0;
+
+    case TYPE_I8:
+      return 1;
+    case TYPE_I16:
+      return 2;
+    case TYPE_I32:
+      return 4;
+    case TYPE_I64:
+      return 8;
+
+    case TYPE_U8:
+      return 1;
+    case TYPE_U16:
+      return 2;
+    case TYPE_U32:
+      return 4;
+    case TYPE_U64:
+      return 8;
+
+    case TYPE_POINTER:
+      return 8;
+
+    case TYPE_ARRAY:
+      return type_alignment (type->d.array.base);
+    case TYPE_FUNCTION:
+      return 0;
+
+    default:
+      return 0;
+    }
+}
+
+
 struct type *
 type_create (enum type_kind kind)
 {
