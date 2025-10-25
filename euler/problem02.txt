@@ -1,5 +1,5 @@
 
-fn main() i32 {
+fn main() -> i32 {
   a : i64;
   b : i64;
 

@@ -120,25 +120,6 @@ lexer_is_digit (char c, int base)
 }
 
 
-// static struct token
-// lexer_lex_integer (struct lexer *lexer, int base)
-// {
-//   struct location location = lexer->location;
-//   const char *start = lexer->current;
-// 
-//   while (lexer_is_digit (*lexer->current, base))
-//     lexer_advance (lexer);
-// 
-//   errno = 0;
-//   long i = strtoul (start, NULL, 10);
-// 
-//   if (errno == ERANGE)
-//     warning (location, "number out of range");
-// 
-//   return token_create_i (location, TOKEN_INTEGER, i);
-// }
-
-
 struct keyword
 {
   const char *key;
@@ -306,6 +287,8 @@ lexer_next (struct lexer *lexer)
         case '+':
           return lexer_advance_token (lexer, TOKEN_PLUS);
         case '-':
+          if (lexer_match_start (lexer, "->"))
+            return lexer_advance_n_token (lexer, 2, TOKEN_ARROW);
           return lexer_advance_token (lexer, TOKEN_MINUS);
         case '*':
           return lexer_advance_token (lexer, TOKEN_STAR);

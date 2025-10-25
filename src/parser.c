@@ -261,7 +261,14 @@ parser_parse_top_fdeclaration (struct parser *parser)
 
   parser_expect_advance (parser, TOKEN_RPAREN);
 
-  type->d.function.to = type_decay (parser_parse_type (parser));
+  if (parser_match (parser, TOKEN_ARROW))
+    {
+      parser_advance (parser);
+
+      type->d.function.to = type_decay (parser_parse_type (parser));
+    }
+  else
+    type->d.function.to = type_create (TYPE_VOID);
 
   result->d.fdeclaration.name = name;
 
@@ -317,7 +324,14 @@ parser_parse_top_fdefinition (struct parser *parser)
 
   parser_expect_advance (parser, TOKEN_RPAREN);
 
-  type->d.function.to = type_decay (parser_parse_type (parser));
+  if (parser_match (parser, TOKEN_ARROW))
+    {
+      parser_advance (parser);
+
+      type->d.function.to = type_decay (parser_parse_type (parser));
+    }
+  else
+    type->d.function.to = type_create (TYPE_VOID);
 
   result->d.fdefinition.name = name;
 
@@ -962,7 +976,14 @@ parser_parse_type (struct parser *parser)
 
         parser_expect_advance (parser, TOKEN_RPAREN);
 
-        result->d.function.to = type_decay (parser_parse_type (parser));
+        if (parser_match (parser, TOKEN_ARROW))
+          {
+            parser_advance (parser);
+
+            result->d.function.to = type_decay (parser_parse_type (parser));
+          }
+        else
+          result->d.function.to = type_create (TYPE_VOID);
 
         return type_create_pointer (result);
       }

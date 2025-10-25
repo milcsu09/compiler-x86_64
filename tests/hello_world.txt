@@ -1,7 +1,7 @@
 
-extern fn puts(*u8) void;
+extern fn puts(*u8);
 
-fn main() i32 {
+fn main() -> i32 {
   msg : [14]u8;
 
   msg[0]  = 72;  // 'H'

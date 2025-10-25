@@ -1,5 +1,5 @@
 
-fn bubble_sort(A : *i32, N : i64) void {
+fn bubble_sort(A : *i32, N : i64) {
   i : i64;
   j : i64;
 
@@ -20,8 +20,7 @@ fn bubble_sort(A : *i32, N : i64) void {
 }
 
 
-fn main() i32
-{
+fn main() -> i32 {
   A : [5]i32;
 
   A[0] = 42;

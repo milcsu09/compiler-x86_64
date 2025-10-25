@@ -7,7 +7,7 @@ printi:
 	mov	edi, printi_s
 	jmp	printf
 
-	global main
+	global	main
 main:
 	push	rbp
 	mov	rbp, rsp

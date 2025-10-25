@@ -1,7 +1,7 @@
 
-extern fn printi(i64) void;
+extern fn printi(i64);
 
-fn main() i32 {
+fn main() -> i32 {
   printi(34 + 35);
 
   return 0;
