@@ -22,6 +22,9 @@ static const char *const TYPE_KIND_STRING[] = {
   "pointer",
   "array",
 
+  "struct",
+  "struct_name",
+
   "function",
 };
 
@@ -117,6 +120,32 @@ type_size (struct type *type)
 
         return s * n;
       }
+
+    case TYPE_STRUCT:
+      {
+        struct type_node_struct *node = &type->d.struct_t;
+
+        size_t offset = 0;
+        size_t alignment = 0;
+
+        for (struct type *t = node->field1; t; t = t->next)
+          {
+            size_t t_alignment = type_alignment (t);
+            size_t t_size = type_size (t);
+
+            if (t_alignment > alignment)
+                alignment = t_alignment;
+
+            offset = (offset + t_alignment - 1) & ~(t_alignment - 1);
+
+            offset += t_size;
+          }
+
+        offset = (offset + alignment - 1) & ~(alignment - 1);
+
+        return offset;
+      }
+
     case TYPE_FUNCTION:
       return 0;
 
@@ -178,6 +207,23 @@ type_alignment (struct type *type)
 
     case TYPE_ARRAY:
       return type_alignment (type->d.array.base);
+    case TYPE_STRUCT:
+      {
+        struct type_node_struct node = type->d.struct_t;
+
+        size_t alignment = 0;
+
+        for (struct type *t = node.field1; t; t = t->next)
+          {
+            size_t t_alignment = type_alignment (t);
+
+            if (t_alignment > alignment)
+              alignment = t_alignment;
+          }
+
+        return alignment;
+      }
+
     case TYPE_FUNCTION:
       return 0;
 
@@ -188,11 +234,13 @@ type_alignment (struct type *type)
 
 
 struct type *
-type_create (enum type_kind kind)
+type_create (struct location location, enum type_kind kind)
 {
   struct type *type;
 
   type = aa_malloc (sizeof (struct type));
+
+  type->location = location;
 
   type->next = NULL;
 
@@ -203,11 +251,11 @@ type_create (enum type_kind kind)
 
 
 struct type *
-type_create_pointer (struct type *base)
+type_create_pointer (struct location location, struct type *base)
 {
   struct type *result;
 
-  result = type_create (TYPE_POINTER);
+  result = type_create (location, TYPE_POINTER);
 
   result->d.pointer.base = base;
 
@@ -216,11 +264,11 @@ type_create_pointer (struct type *base)
 
 
 struct type *
-type_create_array (struct tree *size, struct type *base)
+type_create_array (struct location location, struct tree *size, struct type *base)
 {
   struct type *result;
 
-  result = type_create (TYPE_ARRAY);
+  result = type_create (location, TYPE_ARRAY);
 
   result->d.array.size = size;
   result->d.array.base = base;
@@ -288,6 +336,23 @@ type_cast_required (struct type *a, struct type *b)
 
       return type_cast_required (a->d.function.to, b->d.function.to);
 
+    default:
+      return false;
+    }
+}
+
+
+bool
+type_is_incomplete (struct type *type)
+{
+  if (type == TYPE_ERROR)
+    return false;
+
+  switch (type->kind)
+    {
+    case TYPE_VOID:
+    case TYPE_STRUCT_NAME:
+      return true;
     default:
       return false;
     }
@@ -378,7 +443,6 @@ type_is_pointer_to_k (struct type *type, enum type_kind kind)
     return false;
 
   return type->d.pointer.base->kind == kind;
-  // return type->d.pointer.base->kind == kind;
 }
 
 
@@ -424,6 +488,22 @@ type_is_scalar (struct type *type)
 
 
 bool
+type_is_composite (struct type *type)
+{
+  if (type == TYPE_ERROR)
+    return false;
+
+  switch (type->kind)
+    {
+    case TYPE_STRUCT:
+      return true;
+    default:
+      return false;
+    }
+}
+
+
+bool
 type_is_assignable (struct type *type)
 {
   if (type == TYPE_ERROR)
@@ -433,6 +513,7 @@ type_is_assignable (struct type *type)
     {
     case TYPE_ARRAY:
     case TYPE_FUNCTION:
+    case TYPE_STRUCT:
       return false;
     default:
       return true;
@@ -466,11 +547,11 @@ type_decay (struct type *type)
     {
     // []T -> *T
     case TYPE_ARRAY:
-      return type_create_pointer (type->d.array.base);
+      return type_create_pointer (type->d.array.base->location, type->d.array.base);
 
     // fn -> *fn
     case TYPE_FUNCTION:
-      return type_create_pointer (type);
+      return type_create_pointer (type->location, type);
 
     default:
       return type;
@@ -553,6 +634,22 @@ type_print (struct type *type, int depth)
 
         tree_print (node.size, depth + 1);
         type_print (node.base, depth + 1);
+      }
+      break;
+    case TYPE_STRUCT:
+      {
+        struct type_node_struct node = type->d.struct_t;
+
+        for (struct type *t = node.field1; t; t = t->next)
+          type_print (t, depth + 1);
+      }
+      break;
+    case TYPE_STRUCT_NAME:
+      {
+        struct type_node_struct_name node = type->d.struct_name;
+
+        type_print_indent (depth + 1);
+        fprintf (stderr, "\033[90mstruct \033[91m%s\033[0m\n", node.name);
       }
       break;
     case TYPE_FUNCTION:

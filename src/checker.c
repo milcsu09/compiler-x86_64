@@ -3,6 +3,7 @@
 #include "type.h"
 #include "memory.h"
 
+// #include <stdio.h>
 #include <stdlib.h>
 
 
@@ -23,7 +24,11 @@ checker_create (void)
 }
 
 
+static void checker_check_node_fdeclaration (struct checker *, struct tree *);
+
 static void checker_check_node_fdefinition (struct checker *, struct tree *);
+
+static void checker_check_node_struct (struct checker *, struct tree *);
 
 
 static void checker_check_node_if (struct checker *, struct tree *);
@@ -47,6 +52,8 @@ static void checker_check_node_call (struct checker *, struct tree *);
 
 static void checker_check_node_assignment (struct checker *, struct tree *);
 
+static void checker_check_node_access (struct checker *, struct tree *);
+
 static void checker_check_node_binary (struct checker *, struct tree *);
 
 static void checker_check_node_reference (struct checker *, struct tree *);
@@ -55,6 +62,89 @@ static void checker_check_node_dereference (struct checker *, struct tree *);
 
 
 static void checker_check_node_program (struct checker *, struct tree *);
+
+
+static void checker_check_type (struct checker *checker, struct type *type)
+{
+  if (type == TYPE_ERROR)
+    return;
+
+  if (type_is_incomplete (type))
+    {
+      const char *name = type_kind_string (type->kind);
+
+      error (type->location, "expression has incomplete type '%s'", name);
+
+      exit (1);
+    }
+
+  switch (type->kind)
+    {
+    // case TYPE_POINTER:
+    //   {
+    //     struct type_node_pointer *node = &type->d.pointer;
+
+    //     switch (node->base->kind)
+    //       {
+    //       case TYPE_STRUCT_NAME:
+    //         break;
+    //       default:
+    //         checker_check_type (checker, node->base);
+    //         break;
+    //       }
+    //   }
+    //   break;
+
+    case TYPE_ARRAY:
+      {
+        struct type_node_array *node = &type->d.array;
+
+        checker_check_type (checker, node->base);
+      }
+      break;
+
+    case TYPE_FUNCTION:
+      {
+        struct type_node_function *node = &type->d.function;
+
+        for (struct type *t = node->from1; t; t = t->next)
+          {
+            checker_check_type (checker, t);
+
+            if (t->kind == TYPE_STRUCT)
+              {
+                error (type->location, "WIP structures as parameters");
+
+                exit (1);
+              }
+          }
+
+        if (node->to->kind == TYPE_STRUCT)
+          {
+            error (type->location, "WIP structures as return");
+
+            exit (1);
+          }
+
+        if (node->to->kind != TYPE_VOID)
+          checker_check_type (checker, node->to);
+      }
+      break;
+
+    case TYPE_STRUCT:
+      {
+        struct type_node_struct *node = &type->d.struct_t;
+
+        for (struct type *t = node->field1; t; t = t->next)
+          checker_check_type (checker, t);
+      }
+      break;
+
+    default:
+      break;
+    }
+
+}
 
 
 static void
@@ -73,6 +163,9 @@ checker_check_expression (struct checker *checker, struct tree *tree)
       break;
     case TREE_ASSIGNMENT:
       checker_check_node_assignment (checker, tree);
+      break;
+    case TREE_ACCESS:
+      checker_check_node_access (checker, tree);
       break;
     case TREE_BINARY:
       checker_check_node_binary (checker, tree);
@@ -95,6 +188,8 @@ checker_check_lvalue (struct checker *checker, struct tree *tree)
   if (!tree)
     return;
 
+  checker_check_type (checker, tree_type (tree));
+
   if (tree_is_rvalue (tree))
     {
       error (tree->location, "right-value expression used as left-value");
@@ -104,12 +199,12 @@ checker_check_lvalue (struct checker *checker, struct tree *tree)
 
   checker_check_expression (checker, tree);
 
-  if (type_is_void (tree_type (tree)))
-    {
-      error (tree->location, "void expression used as left-value");
+  // if (type_is_void (tree_type (tree)))
+  //   {
+  //     error (tree->location, "void expression used as left-value");
 
-      exit (1);
-    }
+  //     exit (1);
+  //   }
 }
 
 
@@ -119,14 +214,16 @@ checker_check_rvalue (struct checker *checker, struct tree *tree)
   if (!tree)
     return;
 
+  checker_check_type (checker, tree_type (tree));
+
   checker_check_expression (checker, tree);
 
-  if (type_is_void (tree_type (tree)))
-    {
-      error (tree->location, "void expression used as right-value");
+  // if (type_is_void (tree_type (tree)))
+  //   {
+  //     error (tree->location, "void expression used as right-value");
 
-      exit (1);
-    }
+  //     exit (1);
+  //   }
 }
 
 
@@ -138,8 +235,14 @@ checker_check_statement (struct checker *checker, struct tree *tree)
 
   switch (tree->kind)
     {
+    case TREE_FDECLARATION:
+      checker_check_node_fdeclaration (checker, tree);
+      break;
     case TREE_FDEFINITION:
       checker_check_node_fdefinition (checker, tree);
+      break;
+    case TREE_STRUCT:
+      checker_check_node_struct (checker, tree);
       break;
     case TREE_IF:
       checker_check_node_if (checker, tree);
@@ -173,14 +276,37 @@ checker_check_statement (struct checker *checker, struct tree *tree)
 
 
 static void
+checker_check_node_fdeclaration (struct checker *checker, struct tree *tree)
+{
+  struct tree_node_fdeclaration *node = &tree->d.fdeclaration;
+
+  checker_check_type (checker, node->type);
+}
+
+
+static void
 checker_check_node_fdefinition (struct checker *checker, struct tree *tree)
 {
   struct tree_node_fdefinition *node = &tree->d.fdefinition;
+
+  checker_check_type (checker, node->type);
 
   for (struct tree *t = node->parameter1; t; t = t->next)
     checker_check_statement (checker, t);
 
   checker_check_statement (checker, node->body);
+}
+
+
+static void
+checker_check_node_struct (struct checker *checker, struct tree *tree)
+{
+  struct tree_node_struct *node = &tree->d.struct_s;
+
+  checker_check_type (checker, node->type);
+
+  for (struct tree *t = node->field1; t; t = t->next)
+    checker_check_statement (checker, t);
 }
 
 
@@ -233,13 +359,13 @@ checker_check_node_compound (struct checker *checker, struct tree *tree)
 static void
 checker_check_node_vdeclaration (struct checker *checker, struct tree *tree)
 {
-  (void)checker;
-
   struct tree_node_vdeclaration *node = &tree->d.vdeclaration;
+
+  checker_check_type (checker, node->type);
 
   if (type_size (node->type) == 0)
     {
-      error (tree->location, "'%s' has no storage size", node->name);
+      error (tree->location, "expression has no storage size");
 
       exit (1);
     }
@@ -270,6 +396,17 @@ checker_check_node_cast (struct checker *checker, struct tree *tree)
   struct tree_node_cast *node = &tree->d.cast;
 
   checker_check_rvalue (checker, node->value);
+
+  struct type *type = tree_type (node->value);
+
+  if (!type_is_scalar (type))
+    {
+      const char *kind = type_kind_string (type->kind);
+
+      error (tree->location, "cast from non-scalar type '%s'", kind);
+
+      exit (1);
+    }
 
   if (!type_is_scalar (node->type))
     {
@@ -323,6 +460,26 @@ checker_check_node_assignment (struct checker *checker, struct tree *tree)
     }
 
   checker_check_rvalue (checker, node->rhs);
+}
+
+
+static void
+checker_check_node_access (struct checker *checker, struct tree *tree)
+{
+  struct tree_node_access *node = &tree->d.access;
+
+  checker_check_lvalue (checker, node->s);
+
+  struct type *type = tree_type (node->s);
+
+  if (!type_is_composite (type))
+    {
+      const char *name = type_kind_string (type->kind);
+
+      error (tree->location, "field access of non-composite type '%s'", name);
+
+      exit (1);
+    }
 }
 
 

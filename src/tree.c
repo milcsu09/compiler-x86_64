@@ -35,6 +35,8 @@ static const char *const TREE_KIND_STRING[] = {
   "fdeclaration",
   "fdefinition",
 
+  "struct",
+
   "empty",
   "if",
   "while",
@@ -47,6 +49,7 @@ static const char *const TREE_KIND_STRING[] = {
   "cast",
   "call",
   "assignment",
+  "access",
   "binary",
   "reference",
   "dereference",
@@ -110,6 +113,8 @@ tree_type (struct tree *tree)
       return tree->d.fdeclaration.type;
     case TREE_FDEFINITION:
       return tree->d.fdefinition.type;
+    case TREE_STRUCT:
+      return tree->d.struct_s.type;
     case TREE_VDECLARATION:
       return tree->d.vdeclaration.type;
     case TREE_CAST:
@@ -118,6 +123,8 @@ tree_type (struct tree *tree)
       return tree->d.call.type;
     case TREE_ASSIGNMENT:
       return tree->d.assignment.type;
+    case TREE_ACCESS:
+      return tree->d.access.type;
     case TREE_BINARY:
       return tree->d.binary.type;
     case TREE_REFERENCE:
@@ -141,6 +148,7 @@ tree_is_lvalue (struct tree *tree)
     {
     case TREE_IDENTIFIER:
     case TREE_DEREFERENCE:
+    case TREE_ACCESS:
       return true;
     default:
       return false;
@@ -203,6 +211,20 @@ tree_print (struct tree *tree, int depth)
           tree_print (t, depth + 1);
 
         tree_print (node.body, depth + 1);
+      }
+      break;
+    case TREE_STRUCT:
+      {
+        struct tree_node_struct node = tree->d.struct_s;
+
+        type_print (node.type, depth + 1);
+
+        tree_print_indent (depth + 1);
+
+        fprintf (stderr, "\033[91m%s\033[0m\n", node.name);
+
+        for (struct tree *t = node.field1; t; t = t->next)
+          tree_print (t, depth + 1);
       }
       break;
     case TREE_EMPTY:
@@ -296,6 +318,19 @@ tree_print (struct tree *tree, int depth)
 
         tree_print (node.lhs, depth + 1);
         tree_print (node.rhs, depth + 1);
+      }
+      break;
+    case TREE_ACCESS:
+      {
+        struct tree_node_access node = tree->d.access;
+
+        type_print (node.type, depth + 1);
+
+        tree_print (node.s, depth + 1);
+
+        tree_print_indent (depth + 1);
+
+        fprintf (stderr, "\033[91m%s\033[0m\n", node.field);
       }
       break;
     case TREE_BINARY:

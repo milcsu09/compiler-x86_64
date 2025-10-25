@@ -2,6 +2,8 @@
 #define TYPE_H
 
 
+#include "error.h"
+
 #include <stddef.h>
 #include <stdbool.h>
 
@@ -26,6 +28,9 @@ enum type_kind
   TYPE_POINTER,
   TYPE_ARRAY,
 
+  TYPE_STRUCT,
+  TYPE_STRUCT_NAME,
+
   TYPE_FUNCTION,
 };
 
@@ -46,6 +51,20 @@ struct type_node_array
 };
 
 
+struct type_node_struct
+{
+  struct type *field1;
+
+  struct scope *scope;
+};
+
+
+struct type_node_struct_name
+{
+  char *name;
+};
+
+
 struct type_node_function
 {
   struct type *from1;
@@ -57,12 +76,16 @@ union type_data
 {
   struct type_node_pointer pointer;
   struct type_node_array array;
+  struct type_node_struct struct_t;
+  struct type_node_struct_name struct_name;
   struct type_node_function function;
 };
 
 
 struct type
 {
+  struct location location;
+
   union type_data d;
 
   struct type *next;
@@ -93,11 +116,11 @@ size_t type_alignment (struct type *);
 #define TYPE_ERROR NULL
 
 
-struct type *type_create (enum type_kind);
+struct type *type_create (struct location, enum type_kind);
 
-struct type *type_create_pointer (struct type *);
+struct type *type_create_pointer (struct location, struct type *);
 
-struct type *type_create_array (struct tree *, struct type *);
+struct type *type_create_array (struct location, struct tree *, struct type *);
 
 
 void type_append (struct type **, struct type *);
@@ -105,6 +128,8 @@ void type_append (struct type **, struct type *);
 
 bool type_cast_required (struct type *, struct type *);
 
+
+bool type_is_incomplete (struct type *);
 
 bool type_is_void (struct type *);
 
@@ -120,6 +145,8 @@ bool type_is_label (struct type *);
 
 bool type_is_scalar (struct type *);
 
+
+bool type_is_composite (struct type *);
 
 bool type_is_assignable (struct type *);
 

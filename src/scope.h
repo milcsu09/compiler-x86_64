@@ -16,8 +16,9 @@ struct tree;
 
 enum symbol_scope
 {
-  SYMBOL_LOCAL,
   SYMBOL_GLOBAL,
+  SYMBOL_LOCAL,
+  SYMBOL_FIELD,
 };
 
 
@@ -28,7 +29,13 @@ enum symbol_scope
 
 struct symbol_local
 {
-  size_t stack_offset;
+  size_t offset;
+};
+
+
+struct symbol_field
+{
+  size_t offset;
 };
 
 
@@ -37,6 +44,7 @@ union symbol_data
   // struct symbol_global global;
 
   struct symbol_local local;
+  struct symbol_field field;
 };
 
 

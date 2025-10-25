@@ -27,6 +27,7 @@ enum token_kind
   TOKEN_LE,
   TOKEN_GE,
 
+  TOKEN_DOT,
   TOKEN_COMMA,
   TOKEN_COLON,
   TOKEN_SEMICOLON,
@@ -56,6 +57,7 @@ enum token_kind
 
   TOKEN_EXTERN,
   TOKEN_FN,
+  TOKEN_STRUCT,
   TOKEN_RETURN,
   TOKEN_IF,
   TOKEN_ELSE,

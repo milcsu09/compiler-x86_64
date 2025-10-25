@@ -13,6 +13,7 @@ static const char *const TOKEN_KIND_STRING[] = {
   "'<='",
   "'>='",
 
+  "'.'",
   "','",
   "':'",
   "';'",
@@ -42,6 +43,7 @@ static const char *const TOKEN_KIND_STRING[] = {
 
   "'extern'",
   "'fn'",
+  "'struct'",
   "'return'",
   "'if'",
   "'else'",

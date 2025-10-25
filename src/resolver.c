@@ -4,6 +4,8 @@
 #include "scope.h"
 #include "memory.h"
 
+#include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 
@@ -12,6 +14,7 @@ struct resolver
   struct tree_node_fdefinition *function;
 
   struct scope *scope;
+  struct scope *scope_struct;
 };
 
 
@@ -37,6 +40,7 @@ resolver_create (void)
   resolver = aa_malloc (sizeof (struct resolver));
 
   resolver->scope = NULL;
+  resolver->scope_struct = scope_create (NULL, SCOPE_CAPACITY);
 
   resolver_scope_push (resolver);
 
@@ -74,6 +78,8 @@ static void resolver_resolve_node_fdeclaration (struct resolver *, struct tree *
 
 static void resolver_resolve_node_fdefinition (struct resolver *, struct tree *);
 
+static void resolver_resolve_node_struct (struct resolver *, struct tree *);
+
 
 static void resolver_resolve_node_if (struct resolver *, struct tree *);
 
@@ -96,6 +102,8 @@ static struct tree *resolver_resolve_node_call (struct resolver *, struct tree *
 
 static struct tree *resolver_resolve_node_assignment (struct resolver *, struct tree *);
 
+static struct tree *resolver_resolve_node_access (struct resolver *, struct tree *);
+
 static struct tree *resolver_resolve_node_binary (struct resolver *, struct tree *);
 
 static struct tree *resolver_resolve_node_reference (struct resolver *, struct tree *);
@@ -108,6 +116,110 @@ static struct tree *resolver_resolve_node_identifier (struct resolver *, struct 
 
 
 static void resolver_resolve_node_program (struct resolver *, struct tree *);
+
+
+static struct type *
+resolver_resolve_type (struct resolver *resolver, struct type *type)
+{
+  if (type == TYPE_ERROR)
+    return type;
+
+  switch (type->kind)
+    {
+    // case TYPE_POINTER:
+    //   {
+    //     struct type_node_pointer *node = &type->d.pointer;
+
+    //     switch (node->base->kind)
+    //       {
+    //       case TYPE_STRUCT_NAME:
+    //         return type;
+    //       default:
+    //         node->base = resolver_resolve_type (resolver, node->base);
+    //         return type;
+    //       }
+    //   }
+
+    case TYPE_ARRAY:
+      {
+        struct type_node_array *node = &type->d.array;
+
+        node->base = resolver_resolve_type (resolver, node->base);
+
+        return type;
+      }
+
+    case TYPE_FUNCTION:
+      {
+        struct type_node_function *node = &type->d.function;
+
+        struct type *prev = NULL;
+        struct type *curr = node->from1;
+
+        while (curr)
+          {
+            struct type *next = resolver_resolve_type (resolver, curr);
+
+            if (prev)
+              prev->next = next;
+            else
+              node->from1 = next;
+
+            prev = next;
+            curr = next->next;
+          }
+
+        node->to = resolver_resolve_type (resolver, node->to);
+
+        return type;
+      }
+
+    case TYPE_STRUCT:
+      {
+        struct type_node_struct *node = &type->d.struct_t;
+
+        struct type *prev = NULL;
+        struct type *curr = node->field1;
+
+        while (curr)
+          {
+            struct type *next = resolver_resolve_type (resolver, curr);
+
+            if (prev)
+              prev->next = next;
+            else
+              node->field1 = next;
+
+            prev = next;
+            curr = next->next;
+          }
+
+        return type;
+      }
+
+    case TYPE_STRUCT_NAME:
+      {
+        struct type_node_struct_name *node = &type->d.struct_name;
+
+        struct symbol symbol;
+
+        // NOTE: Don't check for invalidity
+        enum scope_get_result result = scope_get (resolver->scope_struct, node->name, &symbol);
+
+        switch (result)
+          {
+          case SCOPE_GET_OK:
+            return symbol.type;
+
+          default:
+            return type;
+          }
+      }
+
+    default:
+      return type;
+    }
+}
 
 
 struct tree *
@@ -124,6 +236,8 @@ resolver_resolve_expression (struct resolver *resolver, struct tree *tree)
       return resolver_resolve_node_call (resolver, tree);
     case TREE_ASSIGNMENT:
       return resolver_resolve_node_assignment (resolver, tree);
+    case TREE_ACCESS:
+      return resolver_resolve_node_access (resolver, tree);
     case TREE_BINARY:
       return resolver_resolve_node_binary (resolver, tree);
     case TREE_REFERENCE:
@@ -192,6 +306,9 @@ resolver_resolve_statement (struct resolver *resolver, struct tree *tree)
     case TREE_FDEFINITION:
       resolver_resolve_node_fdefinition (resolver, tree);
       break;
+    case TREE_STRUCT:
+      resolver_resolve_node_struct (resolver, tree);
+      break;
     case TREE_IF:
       resolver_resolve_node_if (resolver, tree);
       break;
@@ -229,6 +346,8 @@ resolver_resolve_node_fdeclaration (struct resolver *resolver, struct tree *tree
 {
   struct tree_node_fdeclaration *node = &tree->d.fdeclaration;
 
+  node->type = resolver_resolve_type (resolver, node->type);
+
   struct symbol symbol;
 
   symbol.scope = SYMBOL_GLOBAL;
@@ -244,8 +363,11 @@ resolver_resolve_node_fdefinition (struct resolver *resolver, struct tree *tree)
 {
   struct tree_node_fdefinition *node = &tree->d.fdefinition;
 
+  assert (node->type != NULL);
+
   resolver->function = node;
 
+  // NOTE: Set BEFORE resolve. Functions can refer to themselves.
   struct symbol symbol;
 
   symbol.scope = SYMBOL_GLOBAL;
@@ -256,14 +378,98 @@ resolver_resolve_node_fdefinition (struct resolver *resolver, struct tree *tree)
 
   resolver_scope_push (resolver);
 
+  struct type_node_function *type_node = &node->type->d.function;
+
+  struct type *prev_t = type_node->from1;
+
   for (struct tree *t = node->parameter1; t; t = t->next)
-    resolver_resolve_statement (resolver, t);
+    {
+      resolver_resolve_statement (resolver, t);
+
+      struct type *curr_t = tree_type (t);
+
+      if (prev_t)
+        prev_t->next = curr_t;
+      else
+        type_node->from1 = curr_t;
+
+      prev_t = curr_t;
+    }
 
   // NOTE: Resolve body iteratively to avoid scope creation.
   for (struct tree *t = node->body->d.compound.statement1; t; t = t->next)
     resolver_resolve_statement (resolver, t);
 
   resolver_scope_pop (resolver);
+
+  node->type = resolver_resolve_type (resolver, node->type);
+}
+
+
+static void
+resolver_resolve_node_struct (struct resolver *resolver, struct tree *tree)
+{
+  struct tree_node_struct *node = &tree->d.struct_s;
+
+  assert (node->type != NULL);
+
+  struct type_node_struct *type_node = &node->type->d.struct_t;
+
+  struct scope *save = resolver->scope;
+
+  resolver->scope = type_node->scope = scope_create (NULL, SCOPE_CAPACITY);
+
+  struct type *prev_t = type_node->field1;
+
+  for (struct tree *t = node->field1; t; t = t->next)
+    {
+      resolver_resolve_statement (resolver, t);
+
+      struct type *curr_t = tree_type (t);
+
+      if (prev_t)
+        prev_t->next = curr_t;
+      else
+        type_node->field1 = curr_t;
+
+      prev_t = curr_t;
+    }
+
+  // Compute field offsets.
+  // TODO: Hacky. Resolver should probably not do this.
+  size_t offset = 0;
+
+  size_t i = 0;
+
+  for (struct tree *t = node->field1; t; t = t->next, ++i)
+    {
+      assert (i < type_node->scope->size);
+
+      struct symbol *symbol = &type_node->scope->data[i];
+
+      size_t t_alignment = type_alignment (symbol->type);
+      size_t t_size = type_size (symbol->type);
+
+      symbol->scope = SYMBOL_FIELD;
+
+      offset = (offset + t_alignment - 1) & ~(t_alignment - 1);
+
+      symbol->d.field.offset = offset;
+
+      offset += t_size;
+    }
+
+  resolver->scope = save;
+
+  node->type = resolver_resolve_type (resolver, node->type);
+
+  // NOTE: Set AFTER resolve. Structures cannot refer to themselves.
+  struct symbol symbol;
+
+  symbol.name = node->name;
+  symbol.type = node->type;
+
+  scope_set_validate (resolver->scope_struct, symbol, tree->location);
 }
 
 
@@ -274,7 +480,7 @@ resolver_resolve_node_if (struct resolver *resolver, struct tree *tree)
 
   node->condition = resolver_resolve_rvalue (resolver, node->condition);
 
-  node->condition = resolver_cast_to (node->condition, type_create (TYPE_U8));
+  node->condition = resolver_cast_to (node->condition, type_create (tree->location, TYPE_U8));
 
   resolver_resolve_statement (resolver, node->branch_a);
   resolver_resolve_statement (resolver, node->branch_b);
@@ -288,7 +494,7 @@ resolver_resolve_node_while (struct resolver *resolver, struct tree *tree)
 
   node->condition = resolver_resolve_rvalue (resolver, node->condition);
 
-  node->condition = resolver_cast_to (node->condition, type_create (TYPE_U8));
+  node->condition = resolver_cast_to (node->condition, type_create (tree->location, TYPE_U8));
 
   resolver_resolve_statement (resolver, node->body);
 }
@@ -303,7 +509,7 @@ resolver_resolve_node_for (struct resolver *resolver, struct tree *tree)
 
   node->condition = resolver_resolve_rvalue (resolver, node->condition);
 
-  node->condition = resolver_cast_to (node->condition, type_create (TYPE_U8));
+  node->condition = resolver_cast_to (node->condition, type_create (tree->location, TYPE_U8));
 
   node->increment = resolver_resolve_rvalue (resolver, node->increment);
 
@@ -329,6 +535,8 @@ static void
 resolver_resolve_node_vdeclaration (struct resolver *resolver, struct tree *tree)
 {
   struct tree_node_vdeclaration *node = &tree->d.vdeclaration;
+
+  node->type = resolver_resolve_type (resolver, node->type);
 
   struct symbol symbol;
 
@@ -363,7 +571,7 @@ resolver_resolve_node_print (struct resolver *resolver, struct tree *tree)
 
   node->value = resolver_resolve_rvalue (resolver, node->value);
 
-  node->value = resolver_cast_to (node->value, type_create (TYPE_I64));
+  node->value = resolver_cast_to (node->value, type_create (tree->location, TYPE_I64));
 }
 
 
@@ -371,6 +579,8 @@ static struct tree *
 resolver_resolve_node_cast (struct resolver *resolver, struct tree *tree)
 {
   struct tree_node_cast *node = &tree->d.cast;
+
+  node->type = resolver_resolve_type (resolver, node->type);
 
   node->value = resolver_resolve_rvalue (resolver, node->value);
 
@@ -415,7 +625,7 @@ resolver_resolve_node_call (struct resolver *resolver, struct tree *tree)
 
       // Rest of the arguments must be 64-bit, so they're correctly placed on the stack
       else
-        n = resolver_cast_to (n, type_create (TYPE_I64));
+        n = resolver_cast_to (n, type_create (tree->location, TYPE_I64));
 
       if (p)
         p->next = n;
@@ -441,7 +651,7 @@ resolver_resolve_node_call (struct resolver *resolver, struct tree *tree)
       exit (1);
     }
 
-  node->type = type_function.to;
+  node->type = resolver_resolve_type (resolver, type_function.to);
 
   return tree;
 }
@@ -463,7 +673,34 @@ resolver_resolve_node_assignment (struct resolver *resolver, struct tree *tree)
   if (type_is_assignable (type))
     {
       node->rhs = resolver_cast_to (node->rhs, type);
-      node->type = type;
+      node->type = resolver_resolve_type (resolver, type);
+    }
+
+  return tree;
+}
+
+
+static struct tree *
+resolver_resolve_node_access (struct resolver *resolver, struct tree *tree)
+{
+  struct tree_node_access *node = &tree->d.access;
+
+  if (tree_is_rvalue (node->s))
+    return tree;
+
+  node->s = resolver_resolve_lvalue (resolver, node->s);
+
+  struct type *type = tree_type (node->s);
+
+  if (type_is_composite (type))
+    {
+      struct type_node_struct type_node = type->d.struct_t;
+
+      struct symbol symbol;
+
+      scope_get_validate (type_node.scope, node->field, &symbol, tree->location);
+
+      node->type = resolver_resolve_type (resolver, symbol.type);
     }
 
   return tree;
@@ -500,25 +737,25 @@ resolver_resolve_node_binary (struct resolver *resolver, struct tree *tree)
           node->lhs = resolver_cast_to (node->lhs, common);
           node->rhs = resolver_cast_to (node->rhs, common);
 
-          node->type = common;
+          node->type = resolver_resolve_type (resolver, common);
 
           return tree;
         }
 
       if (a_i && b_p)
         {
-          node->lhs = resolver_cast_to (node->lhs, type_create (TYPE_I64));
+          node->lhs = resolver_cast_to (node->lhs, type_create (tree->location, TYPE_I64));
 
-          node->type = type_b;
+          node->type = resolver_resolve_type (resolver, type_b);
 
           return tree;
         }
 
       if (a_p && b_i)
         {
-          node->rhs = resolver_cast_to (node->rhs, type_create (TYPE_I64));
+          node->rhs = resolver_cast_to (node->rhs, type_create (tree->location, TYPE_I64));
 
-          node->type = type_a;
+          node->type = resolver_resolve_type (resolver, type_a);
 
           return tree;
         }
@@ -526,7 +763,7 @@ resolver_resolve_node_binary (struct resolver *resolver, struct tree *tree)
       if (o == BINARY_SUB)
         if (a_p && b_p)
           {
-            node->type = type_create (TYPE_I64);
+            node->type = type_create (tree->location, TYPE_I64);
 
             return tree;
           }
@@ -543,7 +780,7 @@ resolver_resolve_node_binary (struct resolver *resolver, struct tree *tree)
           node->lhs = resolver_cast_to (node->lhs, common);
           node->rhs = resolver_cast_to (node->rhs, common);
 
-          node->type = common;
+          node->type = resolver_resolve_type (resolver, common);
 
           return tree;
         }
@@ -563,38 +800,38 @@ resolver_resolve_node_binary (struct resolver *resolver, struct tree *tree)
           node->lhs = resolver_cast_to (node->lhs, common);
           node->rhs = resolver_cast_to (node->rhs, common);
 
-          node->type = type_create (TYPE_U8);
+          node->type = type_create (tree->location, TYPE_U8);
 
           return tree;
         }
 
       if (a_i && b_p)
         {
-          struct type *common = type_create (TYPE_I64);
+          struct type *common = type_create (tree->location, TYPE_I64);
 
           node->lhs = resolver_cast_to (node->lhs, common);
           node->rhs = resolver_cast_to (node->rhs, common);
 
-          node->type = type_create (TYPE_U8);
+          node->type = type_create (tree->location, TYPE_U8);
 
           return tree;
         }
 
       if (a_p && b_i)
         {
-          struct type *common = type_create (TYPE_I64);
+          struct type *common = type_create (tree->location, TYPE_I64);
 
           node->lhs = resolver_cast_to (node->lhs, common);
           node->rhs = resolver_cast_to (node->rhs, common);
 
-          node->type = type_create (TYPE_U8);
+          node->type = type_create (tree->location, TYPE_U8);
 
           return tree;
         }
 
       if (a_p && b_p)
         {
-          node->type = type_create (TYPE_U8);
+          node->type = type_create (tree->location, TYPE_U8);
 
           return tree;
         }
@@ -609,7 +846,7 @@ resolver_resolve_node_binary (struct resolver *resolver, struct tree *tree)
         node->lhs = resolver_cast_to (node->lhs, common);
         node->rhs = resolver_cast_to (node->rhs, common);
 
-        node->type = type_create (TYPE_U8);
+        node->type = type_create (tree->location, TYPE_U8);
 
         return tree;
       }
@@ -633,7 +870,7 @@ resolver_resolve_node_reference (struct resolver *resolver, struct tree *tree)
 
   node->value = resolver_resolve_lvalue (resolver, node->value);
 
-  node->type = type_create_pointer (tree_type (node->value));
+  node->type = type_create_pointer (tree->location, tree_type (node->value));
 
   return tree;
 }
@@ -650,7 +887,7 @@ resolver_resolve_node_dereference (struct resolver *resolver, struct tree *tree)
 
   if (type_is_pointer (type))
     {
-      node->type = type->d.pointer.base;
+      node->type = resolver_resolve_type (resolver, type->d.pointer.base);
     }
 
   return tree;
@@ -664,7 +901,7 @@ resolver_resolve_node_integer (struct resolver *resolver, struct tree *tree)
 
   struct tree_node_integer *node = &tree->d.integer;
 
-  node->type = type_create (TYPE_I64);
+  node->type = type_create (tree->location, TYPE_I64);
 
   return tree;
 }
@@ -679,7 +916,7 @@ resolver_resolve_node_identifier (struct resolver *resolver, struct tree *tree)
 
   scope_get_validate (resolver->scope, node->value, &symbol, tree->location);
 
-  node->type = symbol.type;
+  node->type = resolver_resolve_type (resolver, symbol.type);
 
   return tree;
 }

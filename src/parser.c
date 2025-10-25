@@ -151,6 +151,8 @@ static struct tree *parser_parse_top_fdeclaration (struct parser *);
 
 static struct tree *parser_parse_top_fdefinition (struct parser *);
 
+static struct tree *parser_parse_top_struct (struct parser *);
+
 static struct tree *parser_parse_statement (struct parser *);
 
 static struct tree *parser_parse_statement_if (struct parser *);
@@ -174,9 +176,11 @@ static struct tree *parser_parse_expression_binary (struct parser *);
 
 static struct tree *parser_parse_expression_cast (struct parser *);
 
+static struct tree *parser_parse_expression_access (struct parser *);
+
 static struct tree *parser_parse_expression_call (struct parser *);
 
-static struct tree *parser_parse_expression_access (struct parser *);
+static struct tree *parser_parse_expression_index (struct parser *);
 
 
 static struct tree *parser_parse_primary (struct parser *);
@@ -213,6 +217,9 @@ parser_parse_top (struct parser *parser)
   if (parser_match (parser, TOKEN_FN))
     return parser_parse_top_fdefinition (parser);
 
+  if (parser_match (parser, TOKEN_STRUCT))
+    return parser_parse_top_struct (parser);
+
   const char *b = token_kind_string (parser->current->kind);
 
   parser_error_expect (parser, "top-level declaration", b);
@@ -221,7 +228,7 @@ parser_parse_top (struct parser *parser)
 }
 
 
-// TODO: Function parsing has a lot of duplicated code.
+// TODO: Parser has a lot of duplicated code.
 
 
 static struct tree *
@@ -235,7 +242,7 @@ parser_parse_top_fdeclaration (struct parser *parser)
 
   struct type *type;
 
-  type = type_create (TYPE_FUNCTION);
+  type = type_create (result->location, TYPE_FUNCTION);
 
   parser_expect (parser, TOKEN_IDENTIFIER);
 
@@ -268,7 +275,7 @@ parser_parse_top_fdeclaration (struct parser *parser)
       type->d.function.to = type_decay (parser_parse_type (parser));
     }
   else
-    type->d.function.to = type_create (TYPE_VOID);
+    type->d.function.to = type_create (result->location, TYPE_VOID);
 
   result->d.fdeclaration.name = name;
 
@@ -290,7 +297,7 @@ parser_parse_top_fdefinition (struct parser *parser)
 
   struct type *type;
 
-  type = type_create (TYPE_FUNCTION);
+  type = type_create (result->location, TYPE_FUNCTION);
 
   parser_expect (parser, TOKEN_IDENTIFIER);
 
@@ -306,15 +313,15 @@ parser_parse_top_fdefinition (struct parser *parser)
 
       parameter = parser_parse_statement_vdeclaration (parser);
 
-      struct type *parameter_type;
+      // struct type *parameter_type;
 
-      parameter_type = type_decay (parameter->d.vdeclaration.type);
+      // parameter_type = type_decay (parameter->d.vdeclaration.type);
 
-      parameter->d.vdeclaration.type = parameter_type;
+      parameter->d.vdeclaration.type = type_decay (parameter->d.vdeclaration.type);
 
       tree_append (&result->d.fdefinition.parameter1, parameter);
 
-      type_append (&type->d.function.from1, parameter_type);
+      // type_append (&type->d.function.from1, parameter_type);
 
       if (parser_match (parser, TOKEN_COMMA))
         parser_advance (parser);
@@ -331,13 +338,59 @@ parser_parse_top_fdefinition (struct parser *parser)
       type->d.function.to = type_decay (parser_parse_type (parser));
     }
   else
-    type->d.function.to = type_create (TYPE_VOID);
+    type->d.function.to = type_create (result->location, TYPE_VOID);
 
   result->d.fdefinition.name = name;
 
   result->d.fdefinition.body = parser_parse_statement_compound (parser);
 
   result->d.fdefinition.type = type;
+
+  return result;
+}
+
+
+static struct tree *
+parser_parse_top_struct (struct parser *parser)
+{
+  struct tree *result;
+
+  result = tree_create (parser->location, TREE_STRUCT);
+
+  parser_expect_advance (parser, TOKEN_STRUCT);
+
+  struct type *type;
+
+  type = type_create (result->location, TYPE_STRUCT);
+
+  parser_expect (parser, TOKEN_IDENTIFIER);
+
+  char *name = parser->current->d.s;
+
+  parser_advance (parser);
+
+  parser_expect_advance (parser, TOKEN_LBRACE);
+
+  do
+    {
+      struct tree *field;
+
+      field = parser_parse_statement_vdeclaration (parser);
+
+      tree_append (&result->d.struct_s.field1, field);
+
+      if (parser_match (parser, TOKEN_SEMICOLON))
+        parser_advance (parser);
+      else
+        parser_expect (parser, TOKEN_RBRACE);
+    }
+  while (!parser_match (parser, TOKEN_RBRACE));
+
+  parser_expect_advance (parser, TOKEN_RBRACE);
+
+  result->d.struct_s.name = name;
+
+  result->d.struct_s.type = type;
 
   return result;
 }
@@ -633,7 +686,7 @@ parser_parse_expression_cast (struct parser *parser)
 {
   struct tree *result;
 
-  result = parser_parse_expression_call (parser);
+  result = parser_parse_expression_index (parser);
 
   while (parser_match (parser, TOKEN_COLON))
     {
@@ -657,12 +710,83 @@ parser_parse_expression_cast (struct parser *parser)
 }
 
 
+
+static struct tree *
+parser_parse_expression_index (struct parser *parser)
+{
+  struct tree *a;
+
+  a = parser_parse_expression_access (parser);
+
+  // NOTE: Access doesn't produce it's own tree node, rather it combines '+' with dereference.
+  while (parser_match (parser, TOKEN_LBRACKET))
+    {
+      parser_advance (parser);
+
+      struct tree *b;
+
+      b = parser_parse_expression_assignment (parser);
+
+      parser_expect_advance (parser, TOKEN_RBRACKET);
+
+      struct tree *add;
+
+      add = tree_create (a->location, TREE_BINARY);
+
+      add->d.binary.lhs = a;
+      add->d.binary.rhs = b;
+      add->d.binary.o = BINARY_ADD;
+
+      struct tree *deref;
+
+      deref = tree_create (a->location, TREE_DEREFERENCE);
+
+      deref->d.dereference.value = add;
+
+      a = deref;
+    }
+
+  return a;
+}
+
+
+static struct tree *
+parser_parse_expression_access (struct parser *parser)
+{
+  struct tree *result;
+
+  result = parser_parse_expression_call (parser);
+
+  while (parser_match (parser, TOKEN_DOT))
+    {
+      parser_advance (parser);
+
+      parser_expect (parser, TOKEN_IDENTIFIER);
+
+      char *field = parser->current->d.s;
+
+      parser_advance (parser);
+
+      struct tree *access;
+
+      access = tree_create (result->location, TREE_ACCESS);
+
+      access->d.access.s = result;
+      access->d.access.field = field;
+
+      result = access;
+    }
+
+  return result;
+}
+
+
 static struct tree *
 parser_parse_expression_call (struct parser *parser)
 {
   struct tree *result;
 
-  result = parser_parse_expression_access (parser);
+  result = parser_parse_primary (parser);
 
   while (parser_match (parser, TOKEN_LPAREN))
     {
@@ -694,45 +818,6 @@ parser_parse_expression_call (struct parser *parser)
     }
 
   return result;
-}
-
-
-static struct tree *
-parser_parse_expression_access (struct parser *parser)
-{
-  struct tree *a;
-
-  a = parser_parse_primary (parser);
-
-  // NOTE: Access doesn't produce it's own tree node, rather it combines '+' with dereference.
-  while (parser_match (parser, TOKEN_LBRACKET))
-    {
-      parser_advance (parser);
-
-      struct tree *b;
-
-      b = parser_parse_expression_assignment (parser);
-
-      parser_expect_advance (parser, TOKEN_RBRACKET);
-
-      struct tree *add;
-
-      add = tree_create (a->location, TREE_BINARY);
-
-      add->d.binary.lhs = a;
-      add->d.binary.rhs = b;
-      add->d.binary.o = BINARY_ADD;
-
-      struct tree *deref;
-
-      deref = tree_create (a->location, TREE_DEREFERENCE);
-
-      deref->d.dereference.value = add;
-
-      a = deref;
-    }
-
-  return a;
 }
 
 
@@ -793,7 +878,7 @@ parser_parse_primary_reference (struct parser *parser)
 
   struct tree *value;
 
-  value = parser_parse_expression_call (parser);
+  value = parser_parse_expression_access (parser);
 
   result->d.reference.value = value;
 
@@ -812,7 +897,7 @@ parser_parse_primary_dereference (struct parser *parser)
 
   struct tree *value;
 
-  value = parser_parse_expression_call (parser);
+  value = parser_parse_expression_access (parser);
 
   result->d.dereference.value = value;
 
@@ -872,6 +957,7 @@ parser_parse_program (struct parser *parser)
       switch (top->kind)
         {
         case TREE_FDEFINITION:
+        case TREE_STRUCT:
           break; // No semicolon!
         default:
           parser_expect_advance (parser, TOKEN_SEMICOLON);
@@ -886,35 +972,37 @@ parser_parse_program (struct parser *parser)
 static struct type *
 parser_parse_type_primary (struct parser *parser)
 {
+  struct location location = parser->location;
+
   switch (parser->current->kind)
     {
     case TOKEN_VOID:
       parser_advance (parser);
-      return type_create (TYPE_VOID);
+      return type_create (location, TYPE_VOID);
     case TOKEN_I8:
       parser_advance (parser);
-      return type_create (TYPE_I8);
+      return type_create (location, TYPE_I8);
     case TOKEN_I16:
       parser_advance (parser);
-      return type_create (TYPE_I16);
+      return type_create (location, TYPE_I16);
     case TOKEN_I32:
       parser_advance (parser);
-      return type_create (TYPE_I32);
+      return type_create (location, TYPE_I32);
     case TOKEN_I64:
       parser_advance (parser);
-      return type_create (TYPE_I64);
+      return type_create (location, TYPE_I64);
     case TOKEN_U8:
       parser_advance (parser);
-      return type_create (TYPE_U8);
+      return type_create (location, TYPE_U8);
     case TOKEN_U16:
       parser_advance (parser);
-      return type_create (TYPE_U16);
+      return type_create (location, TYPE_U16);
     case TOKEN_U32:
       parser_advance (parser);
-      return type_create (TYPE_U32);
+      return type_create (location, TYPE_U32);
     case TOKEN_U64:
       parser_advance (parser);
-      return type_create (TYPE_U64);
+      return type_create (location, TYPE_U64);
     default:
       break;
     }
@@ -930,12 +1018,15 @@ parser_parse_type_primary (struct parser *parser)
 static struct type *
 parser_parse_type (struct parser *parser)
 {
+  struct location location = parser->location;
+
   switch (parser->current->kind)
     {
     case TOKEN_STAR:
       parser_advance (parser);
 
-      return type_create_pointer (parser_parse_type (parser));
+      return type_create_pointer (location, parser_parse_type (parser));
+
     case TOKEN_LBRACKET:
       {
         parser_advance (parser);
@@ -947,16 +1038,35 @@ parser_parse_type (struct parser *parser)
 
         parser_expect_advance (parser, TOKEN_RBRACKET);
 
-        return type_create_array (size, parser_parse_type (parser));
+        return type_create_array (location, size, parser_parse_type (parser));
       }
       break;
+
+    case TOKEN_STRUCT:
+      {
+        parser_advance (parser);
+
+        struct type *result;
+
+        result = type_create (location, TYPE_STRUCT_NAME);
+
+        parser_expect (parser, TOKEN_IDENTIFIER);
+
+        result->d.struct_name.name = parser->current->d.s;
+
+        parser_advance (parser);
+
+        return result;
+      }
+      break;
+
     case TOKEN_FN:
       {
         parser_advance (parser);
 
         struct type *result;
 
-        result = type_create (TYPE_FUNCTION);
+        result = type_create (location, TYPE_FUNCTION);
 
         parser_expect_advance (parser, TOKEN_LPAREN);
 
@@ -983,9 +1093,9 @@ parser_parse_type (struct parser *parser)
             result->d.function.to = type_decay (parser_parse_type (parser));
           }
         else
-          result->d.function.to = type_create (TYPE_VOID);
+          result->d.function.to = type_create (location, TYPE_VOID);
 
-        return type_create_pointer (result);
+        return type_create_pointer (location, result);
       }
       break;
     default:

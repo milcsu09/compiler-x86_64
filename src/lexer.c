@@ -133,6 +133,7 @@ static struct keyword KEYWORD_TABLE[] = {
 
   { "extern", TOKEN_EXTERN },
   { "fn",     TOKEN_FN },
+  { "struct", TOKEN_STRUCT },
   { "return", TOKEN_RETURN },
   { "if",     TOKEN_IF },
   { "else",   TOKEN_ELSE },
@@ -275,6 +276,8 @@ lexer_next (struct lexer *lexer)
             return lexer_advance_n_token (lexer, 2, TOKEN_GE);
           return lexer_advance_token (lexer, TOKEN_G);
 
+        case '.':
+          return lexer_advance_token (lexer, TOKEN_DOT);
         case ',':
           return lexer_advance_token (lexer, TOKEN_COMMA);
         case ':':

@@ -616,7 +616,7 @@ cg_resolve_local (struct cg *cg, struct tree *tree)
         symbol.name = node.name;
         symbol.type = node.type;
 
-        symbol.d.local.stack_offset = stack_offset;
+        symbol.d.local.offset = stack_offset;
 
         scope_set_validate (cg->scope, symbol, tree->location);
 
@@ -661,6 +661,8 @@ static struct cg_register cg_generate_node_call (struct cg *, struct tree *);
 
 static struct cg_register cg_generate_node_assignment (struct cg *, struct tree *);
 
+static struct cg_register cg_generate_node_access (struct cg *, struct tree *);
+
 static struct cg_register cg_generate_node_binary (struct cg *, struct tree *);
 
 static struct cg_register cg_generate_node_reference (struct cg *, struct tree *);
@@ -689,6 +691,8 @@ cg_generate_expression (struct cg *cg, struct tree *tree)
       return cg_generate_node_call (cg, tree);
     case TREE_ASSIGNMENT:
       return cg_generate_node_assignment (cg, tree);
+    case TREE_ACCESS:
+      return cg_generate_node_access (cg, tree);
     case TREE_BINARY:
       return cg_generate_node_binary (cg, tree);
     case TREE_REFERENCE:
@@ -729,15 +733,36 @@ cg_generate_lvalue (struct cg *cg, struct tree *tree)
         switch (symbol.scope)
           {
           case SYMBOL_LOCAL:
-            cg_write_load_local_address (cg, r, symbol.d.local.stack_offset);
+            cg_write_load_local_address (cg, r, symbol.d.local.offset);
             break;
 
           case SYMBOL_GLOBAL:
             cg_write_load_global_address (cg, r, symbol.name);
             break;
+
+          default:
+            break;
           }
 
         return r;
+      }
+
+    case TREE_ACCESS:
+      {
+        struct tree_node_access *node = &tree->d.access;
+
+        struct cg_register s = cg_generate_lvalue (cg, node->s);
+
+        struct symbol symbol;
+
+        struct type_node_struct type_node = tree_type (node->s)->d.struct_t;
+
+        scope_get_validate (type_node.scope, node->field, &symbol, tree->location);
+
+        cg_write (cg, "\tadd\t%s, %zu\n", register_string (s), symbol.d.field.offset);
+
+        return s;
+
       }
     default:
       return register_none;
@@ -872,7 +897,7 @@ cg_generate_node_fdefinition (struct cg *cg, struct tree *tree)
         {
           struct cg_register r = register_create (p_register[p_n], w);
 
-          size_t offset_s = symbol.d.local.stack_offset;
+          size_t offset_s = symbol.d.local.offset;
 
           cg_write (cg, "\tmov\t%s [rbp-%zu], %s\n", s, offset_s, register_string (r));
         }
@@ -883,7 +908,7 @@ cg_generate_node_fdefinition (struct cg *cg, struct tree *tree)
           struct cg_register r = cg_register_allocate (cg, w);
 
           size_t offset_p = (p_n - 6) * 8 + 16;
-          size_t offset_s = symbol.d.local.stack_offset;
+          size_t offset_s = symbol.d.local.offset;
 
           cg_write (cg, "\tmov\t%s, %s [rbp+%zu]\n", register_string (r), s, offset_p);
           cg_write (cg, "\tmov\t%s [rbp-%zu], %s\n", s, offset_s, register_string (r));
@@ -1203,6 +1228,29 @@ cg_generate_node_assignment (struct cg *cg, struct tree *tree)
 
 
 static struct cg_register
+cg_generate_node_access (struct cg *cg, struct tree *tree)
+{
+  struct tree_node_access *node = &tree->d.access;
+
+  struct cg_register s = cg_generate_lvalue (cg, node->s);
+
+  struct symbol symbol;
+
+  struct type_node_struct type_node = tree_type (node->s)->d.struct_t;
+
+  scope_get_validate (type_node.scope, node->field, &symbol, tree->location);
+
+  cg_write (cg, "\tadd\t%s, %zu\n", register_string (s), symbol.d.field.offset);
+
+  struct cg_register r = register_modify (s, type_width (node->type));
+
+  cg_write_load (cg, r, s);
+
+  return r;
+}
+
+
+static struct cg_register
 cg_generate_node_binary (struct cg *cg, struct tree *tree)
 {
   struct tree_node_binary *node = &tree->d.binary;
@@ -1384,11 +1432,14 @@ cg_generate_node_identifier (struct cg *cg, struct tree *tree)
   switch (symbol.scope)
     {
     case SYMBOL_LOCAL:
-      cg_write_load_local (cg, r, symbol.d.local.stack_offset);
+      cg_write_load_local (cg, r, symbol.d.local.offset);
       break;
 
     case SYMBOL_GLOBAL:
       cg_write_load_global (cg, r, symbol.name);
+      break;
+
+    default:
       break;
     }
 

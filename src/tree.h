@@ -36,6 +36,8 @@ enum tree_kind
   TREE_FDECLARATION,
   TREE_FDEFINITION,
 
+  TREE_STRUCT,
+
   // Statement
   TREE_EMPTY,
   TREE_IF,
@@ -50,6 +52,7 @@ enum tree_kind
   TREE_CAST,
   TREE_CALL,
   TREE_ASSIGNMENT,
+  TREE_ACCESS,
   TREE_BINARY,
   TREE_REFERENCE,
   TREE_DEREFERENCE,
@@ -83,6 +86,15 @@ struct tree_node_fdefinition
   struct tree *parameter1;
   struct tree *body;
 
+  struct type *type;
+};
+
+
+struct tree_node_struct
+{
+  char *name;
+
+  struct tree *field1;
   struct type *type;
 };
 
@@ -163,6 +175,16 @@ struct tree_node_assignment
 };
 
 
+struct tree_node_access
+{
+  struct tree *s;
+
+  char *field;
+
+  struct type *type;
+};
+
+
 struct tree_node_binary
 {
   enum binary_operator o;
@@ -217,6 +239,8 @@ union tree_data
   struct tree_node_fdeclaration fdeclaration;
   struct tree_node_fdefinition  fdefinition;
 
+  struct tree_node_struct       struct_s;
+
   struct tree_node_if           if_s;
   struct tree_node_while        while_s;
   struct tree_node_for          for_s;
@@ -228,6 +252,7 @@ union tree_data
   struct tree_node_cast         cast;
   struct tree_node_call         call;
   struct tree_node_assignment   assignment;
+  struct tree_node_access       access;
   struct tree_node_binary       binary;
   struct tree_node_reference    reference;
   struct tree_node_dereference  dereference;

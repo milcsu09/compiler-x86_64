@@ -70,9 +70,28 @@ strip_extension (char *buffer, size_t size, const char *path)
 }
 
 
-void
-compile_file (const char *path, char *ld_flags)
+struct flags
 {
+  char *path;
+
+  bool p;
+  bool t;
+
+  bool S;
+
+  bool o_stdout;
+};
+
+
+void
+compile_file (struct flags flags)
+{
+  if (flags.path == NULL)
+    {
+      error (location_none, "no input");
+      exit (1);
+    }
+
   struct timeval t0, t1;
 
   char path_base[256];
@@ -80,7 +99,7 @@ compile_file (const char *path, char *ld_flags)
   char path_o[256];
   char path_u[256];
 
-  strip_extension (path_base, sizeof path_base, path);
+  strip_extension (path_base, sizeof path_base, flags.path);
 
   snprintf (path_s, sizeof path_s, "%.252s.s", path_base);
   snprintf (path_o, sizeof path_o, "%.252s.o", path_base);
@@ -88,13 +107,17 @@ compile_file (const char *path, char *ld_flags)
 
   gettimeofday (&t0, NULL);
 
-  char *source = read_file (path);
+  char *source = read_file (flags.path);
 
-  struct parser *parser = parser_create (path, source);
+  struct parser *parser = parser_create (flags.path, source);
 
   struct tree *tree = parser_parse (parser);
 
-  // tree_print (tree, 0);
+  if (flags.p)
+    {
+      tree_print (tree, 0);
+      return;
+    }
 
   // Pass 1
   struct resolver *resolver = resolver_create ();
@@ -102,18 +125,30 @@ compile_file (const char *path, char *ld_flags)
   resolver_resolve (resolver, tree);
 
   // tree_print (tree, 0);
+  // exit (1);
 
   // Pass 2
   struct checker *checker = checker_create ();
 
   checker_check (checker, tree);
 
-  FILE *fs = fopen (path_s, "w");
-
-  if (fs == NULL)
+  if (flags.t)
     {
-      error (location_none, "%s: %s", path_s, strerror (errno));
-      exit (1);
+      tree_print (tree, 0);
+      return;
+    }
+
+  FILE *fs = stdout;
+
+  if (!flags.o_stdout)
+    {
+      fs = fopen (path_s, "w");
+
+      if (fs == NULL)
+        {
+          error (location_none, "%s: %s", path_s, strerror (errno));
+          exit (1);
+        }
     }
 
   // Generate
@@ -121,11 +156,15 @@ compile_file (const char *path, char *ld_flags)
 
   cg_generate (cg, tree);
 
-  fclose(fs);
+  if (!flags.o_stdout)
+    fclose(fs);
 
   gettimeofday (&t1, NULL);
 
   note (location_none, "Compiler %9.4fs", dt_s (t0, t1));
+
+  if (flags.S)
+    return;
 
   gettimeofday (&t0, NULL);
 
@@ -145,7 +184,7 @@ compile_file (const char *path, char *ld_flags)
 
   gettimeofday (&t0, NULL);
 
-  snprintf (cmd, sizeof cmd, "gcc -no-pie %s -o %s %s", path_o, path_u, ld_flags);
+  snprintf (cmd, sizeof cmd, "gcc -no-pie %s -o %s", path_o, path_u);
 
   if (system (cmd) != 0)
     {
@@ -162,20 +201,43 @@ compile_file (const char *path, char *ld_flags)
 int
 main (int argc, char **argv)
 {
-  if (argc < 2)
-    {
-      error (location_none, "USAGE: %s <file>", argv[0]);
-      return 1;
-    }
-
   atexit (aa_free);
 
-  char *ld_flags = "";
+  struct flags flags;
 
-  if (argc > 2)
-    ld_flags = argv[2];
+  flags.p = false;
+  flags.t = false;
+  flags.S = false;
+  flags.o_stdout = false;
+  flags.path = NULL;
 
-  compile_file (argv[1], ld_flags);
+  for (int i = 1; i < argc; ++i)
+    {
+      if (strcmp (argv[i], "-p") == 0)
+        flags.p = true;
+
+      else if (strcmp (argv[i], "-t") == 0)
+        flags.t = true;
+
+      else if (strcmp (argv[i], "-S") == 0)
+        flags.S = true;
+
+      else if (strcmp (argv[i], "--stdout") == 0)
+        {
+          flags.S = true;
+          flags.o_stdout = true;
+        }
+
+      else
+        flags.path = argv[i];
+    }
+
+  // char *ld_flags = "";
+
+  // if (argc > 2)
+  //   ld_flags = argv[2];
+
+  compile_file (flags);
 
   return 0;
 }
