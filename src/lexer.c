@@ -3,6 +3,7 @@
 #include "memory.h"
 #include "string.h"
 
+#include <stdio.h>
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
@@ -100,6 +101,44 @@ lexer_match_start (struct lexer *lexer, const char *s)
 }
 
 
+static bool
+lexer_is_digit (char c, int base)
+{
+  switch (base)
+    {
+    case 2:
+      return c == '0' || c == '1';
+    case 8:
+      return c >= '0' && c <= '7';
+    case 10:
+      return isdigit ((unsigned char)c);
+    case 16:
+      return isxdigit ((unsigned char)c);
+    }
+
+  return false;
+}
+
+
+// static struct token
+// lexer_lex_integer (struct lexer *lexer, int base)
+// {
+//   struct location location = lexer->location;
+//   const char *start = lexer->current;
+// 
+//   while (lexer_is_digit (*lexer->current, base))
+//     lexer_advance (lexer);
+// 
+//   errno = 0;
+//   long i = strtoul (start, NULL, 10);
+// 
+//   if (errno == ERANGE)
+//     warning (location, "number out of range");
+// 
+//   return token_create_i (location, TOKEN_INTEGER, i);
+// }
+
+
 struct keyword
 {
   const char *key;
@@ -162,14 +201,46 @@ lexer_next (struct lexer *lexer)
   if (c == '\0')
     return token_create (location, TOKEN_EOF);
 
-  // TODO: Binary, octal and hexadecimal integer literals.
   if (isdigit ((unsigned char)c))
     {
-      while (isdigit (*lexer->current))
+      int base = 10;
+
+      if (start[0] == '0')
+        switch (start[1])
+          {
+          case 'b':
+          case 'B':
+            lexer_advance_n (lexer, 2);
+
+            start = start + 2;
+            base = 2;
+
+            break;
+
+          case 'o':
+          case 'O':
+            lexer_advance_n (lexer, 2);
+
+            start = start + 2;
+            base = 8;
+
+            break;
+
+          case 'x':
+          case 'X':
+            lexer_advance_n (lexer, 2);
+
+            start = start + 2;
+            base = 16;
+
+            break;
+          }
+
+      while (lexer_is_digit (*lexer->current, base))
         lexer_advance (lexer);
 
       errno = 0;
-      long i = strtoul (start, NULL, 10);
+      long i = strtoul (start, NULL, base);
 
       if (errno == ERANGE)
         warning (location, "number out of range");
@@ -177,7 +248,7 @@ lexer_next (struct lexer *lexer)
       return token_create_i (location, TOKEN_INTEGER, i);
     }
 
-  if (isalpha (*lexer->current) || *lexer->current == '_')
+  if (isalpha (c) || c == '_')
     {
       while (isalnum ((unsigned char)*lexer->current) || *lexer->current == '_')
         lexer_advance (lexer);

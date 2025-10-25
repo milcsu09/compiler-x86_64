@@ -15,10 +15,17 @@
 #include "checker.h"
 
 
+// static double
+// dt_ms (struct timeval t0, struct timeval t1)
+// {
+//   return (t1.tv_sec - t0.tv_sec) * 1000.0 + (t1.tv_usec - t0.tv_usec) / 1000.0;
+// }
+
+
 static double
-dt_ms (struct timeval t0, struct timeval t1)
+dt_s (struct timeval t0, struct timeval t1)
 {
-  return (t1.tv_sec - t0.tv_sec) * 1000.0 + (t1.tv_usec - t0.tv_usec) / 1000.0;
+  return (t1.tv_sec - t0.tv_sec) + (t1.tv_usec - t0.tv_usec) / 1000000.0;
 }
 
 
@@ -118,7 +125,7 @@ compile_file (const char *path, char *ld_flags)
 
   gettimeofday (&t1, NULL);
 
-  note (location_none, "Compiler %7.2fms", dt_ms (t0, t1));
+  note (location_none, "Compiler %9.4fs", dt_s (t0, t1));
 
   gettimeofday (&t0, NULL);
 
@@ -134,7 +141,7 @@ compile_file (const char *path, char *ld_flags)
 
   gettimeofday (&t1, NULL);
 
-  note (location_none, "    NASM %7.2fms", dt_ms (t0, t1));
+  note (location_none, "    NASM %9.4fs", dt_s (t0, t1));
 
   gettimeofday (&t0, NULL);
 
@@ -148,7 +155,7 @@ compile_file (const char *path, char *ld_flags)
 
   gettimeofday (&t1, NULL);
 
-  note (location_none, "     GCC %7.2fms", dt_ms (t0, t1));
+  note (location_none, "     GCC %9.4fs", dt_s (t0, t1));
 }
 
 

@@ -38,8 +38,8 @@ fn main() i32 {
   while WindowShouldClose() != 1 {
     BeginDrawing();
 
-    ClearBackground(4278190080);
-    DrawText(msg, 175, 200, 72, 4294967295);
+    ClearBackground(0xFF121212);
+    DrawText(msg, 175, 200, 72, 0xFFFFFFFF);
 
     DrawFPS(10, 10);
 

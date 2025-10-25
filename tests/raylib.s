@@ -122,7 +122,7 @@ main:
 .L1:
 	lea	r10, [rel BeginDrawing]
 	call	r10
-	mov	r10, 4278190080
+	mov	r10, 4279374354
 	mov	rdi, r10
 	lea	r10, [rel ClearBackground]
 	call	r10
