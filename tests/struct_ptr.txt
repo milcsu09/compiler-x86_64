@@ -8,14 +8,18 @@ struct B {
   a2 : struct A;
 }
 
+fn B_init(b : *struct B) {
+  (*b).a1.a = 10;
+  (*b).a1.b = 20;
+
+  (*b).a2.a = 30;
+  (*b).a2.b = 40;
+}
+
 fn main() -> i32 {
   b : struct B;
 
-  b.a1.a = 10;
-  b.a1.b = 20;
-
-  b.a2.a = 30;
-  b.a2.b = 40;
+  B_init(&b);
 
   print b.a1.a;
   print b.a1.b;
@@ -25,5 +29,4 @@ fn main() -> i32 {
 
   return 0;
 }
-
 
