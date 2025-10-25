@@ -1223,7 +1223,7 @@ cg_generate_node_assignment (struct cg *cg, struct tree *tree)
 
   cg_register_free (cg, lhs);
 
-  return register_none;
+  return rhs;
 }
 
 

@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 
-#define AA_CHUNK_SIZE (0x1000)
+#define AA_CHUNK_SIZE (0x10000)
 
 
 struct aa_chunk
