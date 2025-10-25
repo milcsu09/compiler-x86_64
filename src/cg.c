@@ -841,7 +841,7 @@ cg_generate_node_fdefinition (struct cg *cg, struct tree *tree)
 
   size_t stack_usage = cg_next_multiple (cg->function.stack_pointer, 16);
 
-  cg_write (cg, "\tglobal %s\n", cg->function.node->name);
+  cg_write (cg, "\tglobal\t%s\n", cg->function.node->name);
   cg_write (cg, "%s:\n", cg->function.node->name);
   cg_write (cg, "\tpush\trbp\n");
   cg_write (cg, "\tmov\trbp, rsp\n");

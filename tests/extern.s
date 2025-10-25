@@ -8,8 +8,7 @@ printi:
 	jmp	printf
 
 	extern	printi
-	extern	add
-	global main
+	global	main
 main:
 	push	rbp
 	mov	rbp, rsp
@@ -21,7 +20,7 @@ main:
 	lea	r10, [rel printi]
 	call	r10
 	mov	r10, 0
-	mov	rax, r10
+	mov	eax, r10d
 	jmp	.L0
 .L0:
 	add	rsp, 0

@@ -7,7 +7,7 @@ printi:
 	mov	edi, printi_s
 	jmp	printf
 
-	global bubble_sort
+	global	bubble_sort
 bubble_sort:
 	push	rbp
 	mov	rbp, rsp
@@ -102,7 +102,7 @@ bubble_sort:
 	pop	rbp
 	ret
 
-	global main
+	global	main
 main:
 	push	rbp
 	mov	rbp, rsp

@@ -9,7 +9,7 @@ printi:
 
 	extern	malloc
 	extern	free
-	global main
+	global	main
 main:
 	push	rbp
 	mov	rbp, rsp
