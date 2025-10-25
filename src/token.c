@@ -38,6 +38,7 @@ static const char *const TOKEN_KIND_STRING[] = {
   "'or'",
   "'and'",
 
+  "'extern'",
   "'fn'",
   "'return'",
   "'if'",

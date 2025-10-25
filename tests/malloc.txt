@@ -1,0 +1,25 @@
+
+extern fn malloc(u64) *void;
+extern fn free(*void) void;
+
+fn main() i32 {
+  a : *i32;
+  a = malloc(16);
+
+  print a;
+
+  i : i64;
+
+  for i = 0; i < 4; i = i + 1 {
+    a[i] = i * i;
+  }
+
+  for i = 0; i < 4; i = i + 1 {
+    print a[i];
+  }
+
+  free(a);
+
+  return 0;
+}
+

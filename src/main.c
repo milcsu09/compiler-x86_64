@@ -68,10 +68,6 @@ compile_file (const char *path)
 {
   struct timeval t0, t1;
 
-  double t_compiler;
-  double t_nasm;
-  double t_gcc;
-
   char path_base[256];
   char path_s[256];
   char path_o[256];
@@ -98,6 +94,8 @@ compile_file (const char *path)
 
   resolver_resolve (resolver, tree);
 
+  // tree_print (tree, 0);
+
   // Pass 2
   struct checker *checker = checker_create ();
 
@@ -120,7 +118,7 @@ compile_file (const char *path)
 
   gettimeofday (&t1, NULL);
 
-  t_compiler = dt_ms (t0, t1);
+  note (location_none, "Compiler %7.2fms", dt_ms (t0, t1));
 
   gettimeofday (&t0, NULL);
 
@@ -136,7 +134,7 @@ compile_file (const char *path)
 
   gettimeofday (&t1, NULL);
 
-  t_nasm = dt_ms (t0, t1);
+  note (location_none, "    NASM %7.2fms", dt_ms (t0, t1));
 
   gettimeofday (&t0, NULL);
 
@@ -150,17 +148,7 @@ compile_file (const char *path)
 
   gettimeofday (&t1, NULL);
 
-  t_gcc = dt_ms (t0, t1);
-
-  double t = t_compiler + t_nasm + t_gcc;
-
-  double p_compiler = t_compiler / t * 100.0;
-  double p_nasm     = t_nasm     / t * 100.0;
-  double p_gcc      = t_gcc      / t * 100.0;
-
-  note (location_none, "Compiler: %7.2fms (%6.2f%%)", t_compiler, p_compiler);
-  note (location_none, "    NASM: %7.2fms (%6.2f%%)", t_nasm,     p_nasm);
-  note (location_none, "     GCC: %7.2fms (%6.2f%%)", t_gcc,      p_gcc);
+  note (location_none, "     GCC %7.2fms", dt_ms (t0, t1));
 }
 
 

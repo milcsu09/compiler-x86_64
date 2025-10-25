@@ -19,6 +19,7 @@ fn bubble_sort(A : *i32, N : i64) void {
     }
 }
 
+
 fn main() i32
 {
   A : [5]i32;

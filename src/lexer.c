@@ -111,6 +111,7 @@ static struct keyword KEYWORD_TABLE[] = {
   { "or",     TOKEN_OR },
   { "and",    TOKEN_AND },
 
+  { "extern", TOKEN_EXTERN },
   { "fn",     TOKEN_FN },
   { "return", TOKEN_RETURN },
   { "if",     TOKEN_IF },

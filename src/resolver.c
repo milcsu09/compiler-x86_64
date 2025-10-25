@@ -70,6 +70,8 @@ resolver_cast_to (struct tree *value, struct type *type_b)
 }
 
 
+static void resolver_resolve_node_fdeclaration (struct resolver *, struct tree *);
+
 static void resolver_resolve_node_fdefinition (struct resolver *, struct tree *);
 
 
@@ -184,6 +186,9 @@ resolver_resolve_statement (struct resolver *resolver, struct tree *tree)
 
   switch (tree->kind)
     {
+    case TREE_FDECLARATION:
+      resolver_resolve_node_fdeclaration (resolver, tree);
+      break;
     case TREE_FDEFINITION:
       resolver_resolve_node_fdefinition (resolver, tree);
       break;
@@ -216,6 +221,21 @@ resolver_resolve_statement (struct resolver *resolver, struct tree *tree)
       resolver_resolve_expression (resolver, tree);
       break;
     }
+}
+
+
+static void
+resolver_resolve_node_fdeclaration (struct resolver *resolver, struct tree *tree)
+{
+  struct tree_node_fdeclaration *node = &tree->d.fdeclaration;
+
+  struct symbol symbol;
+
+  symbol.scope = SYMBOL_GLOBAL;
+  symbol.name = node->name;
+  symbol.type = node->type;
+
+  scope_set_validate (resolver->scope, symbol, tree->location);
 }
 
 

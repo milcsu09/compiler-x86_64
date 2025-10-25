@@ -1,0 +1,9 @@
+
+extern fn printi(i64) void;
+
+fn main() i32 {
+  printi(34 + 35);
+
+  return 0;
+}
+

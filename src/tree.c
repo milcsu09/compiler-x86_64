@@ -32,7 +32,9 @@ binary_operator_string (enum binary_operator operator)
 
 
 static const char *const TREE_KIND_STRING[] = {
+  "fdeclaration",
   "fdefinition",
+
   "empty",
   "if",
   "while",
@@ -41,6 +43,7 @@ static const char *const TREE_KIND_STRING[] = {
   "vdeclaration",
   "return",
   "print",
+
   "cast",
   "call",
   "assignment",
@@ -49,6 +52,7 @@ static const char *const TREE_KIND_STRING[] = {
   "dereference",
   "integer",
   "identifier",
+
   "program",
 };
 
@@ -102,6 +106,8 @@ tree_type (struct tree *tree)
 {
   switch (tree->kind)
     {
+    case TREE_FDECLARATION:
+      return tree->d.fdeclaration.type;
     case TREE_FDEFINITION:
       return tree->d.fdefinition.type;
     case TREE_VDECLARATION:
@@ -172,6 +178,17 @@ tree_print (struct tree *tree, int depth)
 
   switch (tree->kind)
     {
+    case TREE_FDECLARATION:
+      {
+        struct tree_node_fdeclaration node = tree->d.fdeclaration;
+
+        type_print (node.type, depth + 1);
+
+        tree_print_indent (depth + 1);
+
+        fprintf (stderr, "\033[91m%s\033[0m\n", node.name);
+      }
+      break;
     case TREE_FDEFINITION:
       {
         struct tree_node_fdefinition node = tree->d.fdefinition;

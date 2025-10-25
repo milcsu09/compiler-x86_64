@@ -52,6 +52,7 @@ enum token_kind
   TOKEN_OR,
   TOKEN_AND,
 
+  TOKEN_EXTERN,
   TOKEN_FN,
   TOKEN_RETURN,
   TOKEN_IF,

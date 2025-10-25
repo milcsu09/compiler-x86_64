@@ -147,6 +147,8 @@ parser_expect_advance (struct parser *parser, enum token_kind kind)
 
 static struct tree *parser_parse_top (struct parser *);
 
+static struct tree *parser_parse_top_fdeclaration (struct parser *);
+
 static struct tree *parser_parse_top_fdefinition (struct parser *);
 
 static struct tree *parser_parse_statement (struct parser *);
@@ -201,6 +203,13 @@ static struct type *parser_parse_type (struct parser *);
 static struct tree *
 parser_parse_top (struct parser *parser)
 {
+  if (parser_match (parser, TOKEN_EXTERN))
+    {
+      parser_advance (parser);
+
+      return parser_parse_top_fdeclaration (parser);
+    }
+
   if (parser_match (parser, TOKEN_FN))
     return parser_parse_top_fdefinition (parser);
 
@@ -212,7 +221,57 @@ parser_parse_top (struct parser *parser)
 }
 
 
-// TODO: Function declarations.
+// TODO: Function parsing has a lot of duplicated code.
+
+
+static struct tree *
+parser_parse_top_fdeclaration (struct parser *parser)
+{
+  struct tree *result;
+
+  result = tree_create (parser->location, TREE_FDECLARATION);
+
+  parser_expect_advance (parser, TOKEN_FN);
+
+  struct type *type;
+
+  type = type_create (TYPE_FUNCTION);
+
+  parser_expect (parser, TOKEN_IDENTIFIER);
+
+  char *name = parser->current->d.s;
+
+  parser_advance (parser);
+
+  parser_expect_advance (parser, TOKEN_LPAREN);
+
+  while (!parser_match (parser, TOKEN_RPAREN))
+    {
+      struct type *parameter_type;
+
+      parameter_type = type_decay (parser_parse_type (parser));
+
+      type_append (&type->d.function.from1, parameter_type);
+
+      if (parser_match (parser, TOKEN_COMMA))
+        parser_advance (parser);
+      else
+        parser_expect (parser, TOKEN_RPAREN);
+    }
+
+  parser_expect_advance (parser, TOKEN_RPAREN);
+
+  type->d.function.to = type_decay (parser_parse_type (parser));
+
+  result->d.fdeclaration.name = name;
+
+  result->d.fdeclaration.type = type;
+
+  return result;
+
+}
+
+
 static struct tree *
 parser_parse_top_fdefinition (struct parser *parser)
 {

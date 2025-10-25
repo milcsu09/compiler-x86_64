@@ -637,6 +637,8 @@ cg_resolve_local (struct cg *cg, struct tree *tree)
 }
 
 
+static void cg_generate_node_fdeclaration (struct cg *, struct tree *);
+
 static void cg_generate_node_fdefinition (struct cg *, struct tree *);
 
 
@@ -760,6 +762,9 @@ cg_generate_statement (struct cg *cg, struct tree *tree)
 
   switch (tree->kind)
     {
+    case TREE_FDECLARATION:
+      cg_generate_node_fdeclaration (cg, tree);
+      break;
     case TREE_FDEFINITION:
       cg_generate_node_fdefinition (cg, tree);
       break;
@@ -790,6 +795,23 @@ cg_generate_statement (struct cg *cg, struct tree *tree)
     }
 
   cg_register_free_all (cg);
+}
+
+
+static void
+cg_generate_node_fdeclaration (struct cg *cg, struct tree *tree)
+{
+  struct tree_node_fdeclaration *node = &tree->d.fdeclaration;
+
+  struct symbol symbol;
+
+  symbol.scope = SYMBOL_GLOBAL;
+  symbol.name = node->name;
+  symbol.type = node->type;
+
+  scope_set_validate (cg->scope, symbol, tree->location);
+
+  cg_write (cg, "\textern\t%s\n", node->name);
 }
 
 
