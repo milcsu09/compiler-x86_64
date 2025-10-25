@@ -122,6 +122,8 @@ struct type *type_create_pointer (struct location, struct type *);
 
 struct type *type_create_array (struct location, struct tree *, struct type *);
 
+struct type *type_shallow_copy (struct type *);
+
 
 void type_append (struct type **, struct type *);
 

@@ -277,6 +277,22 @@ type_create_array (struct location location, struct tree *size, struct type *bas
 }
 
 
+struct type *
+type_shallow_copy (struct type *type)
+{
+  struct type *copy;
+
+  copy = type_create (type->location, type->kind);
+
+  // IMPORTANT!
+  copy->next = NULL;
+
+  copy->d = type->d;
+
+  return copy;
+}
+
+
 void
 type_append (struct type **head, struct type *node)
 {

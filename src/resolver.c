@@ -209,7 +209,7 @@ resolver_resolve_type (struct resolver *resolver, struct type *type)
         switch (result)
           {
           case SCOPE_GET_OK:
-            return symbol.type;
+            return type_shallow_copy (symbol.type);
 
           default:
             return type;
