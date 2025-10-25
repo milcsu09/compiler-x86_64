@@ -1,0 +1,28 @@
+
+struct node {
+  value : i32;
+  next  : *struct node;
+}
+
+fn main() -> i32 {
+  node_a : struct node;
+  node_b : struct node;
+  node_c : struct node;
+
+  node_a.value = 10;
+  node_b.value = 20;
+  node_c.value = 30;
+
+  node_a.next = &node_b;
+  node_b.next = &node_c;
+  node_c.next = 0;
+
+  it : *struct node;
+
+  for it = &node_a; it; it = (*it).next {
+    print (*it).value;
+  }
+
+  return 0;
+}
+
