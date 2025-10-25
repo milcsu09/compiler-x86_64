@@ -64,7 +64,7 @@ strip_extension (char *buffer, size_t size, const char *path)
 
 
 void
-compile_file (const char *path)
+compile_file (const char *path, char *ld_flags)
 {
   struct timeval t0, t1;
 
@@ -138,7 +138,7 @@ compile_file (const char *path)
 
   gettimeofday (&t0, NULL);
 
-  snprintf (cmd, sizeof cmd, "gcc -no-pie %s -o %s", path_o, path_u);
+  snprintf (cmd, sizeof cmd, "gcc -no-pie %s -o %s %s", path_o, path_u, ld_flags);
 
   if (system (cmd) != 0)
     {
@@ -163,7 +163,12 @@ main (int argc, char **argv)
 
   atexit (aa_free);
 
-  compile_file (argv[1]);
+  char *ld_flags = "";
+
+  if (argc > 2)
+    ld_flags = argv[2];
+
+  compile_file (argv[1], ld_flags);
 
   return 0;
 }

@@ -1,0 +1,53 @@
+
+extern fn InitWindow(i32, i32, *u8) void;
+extern fn CloseWindow() void;
+extern fn WindowShouldClose() u8;
+
+extern fn BeginDrawing() void;
+extern fn EndDrawing() void;
+
+extern fn ClearBackground(u64) void;
+
+extern fn DrawText(*u8, i32, i32, i32, u64) void;
+extern fn DrawFPS(i32, i32) void;
+
+fn main() i32 {
+  title: [1]u8;
+
+  title[0] = 0;
+
+  InitWindow(800, 600, title);
+
+  msg : [14]u8;
+
+  msg[0]  = 72;  // 'H'
+  msg[1]  = 101; // 'e'
+  msg[2]  = 108; // 'l'
+  msg[3]  = 108; // 'l'
+  msg[4]  = 111; // 'o'
+  msg[5]  = 44;  // ','
+  msg[6]  = 32;  // ' '
+  msg[7]  = 119; // 'w'
+  msg[8]  = 111; // 'o'
+  msg[9]  = 114; // 'r'
+  msg[10] = 108; // 'l'
+  msg[11] = 100; // 'd'
+  msg[12] = 33;  // '!'
+  msg[13] = 0;   // '\0'
+
+  while WindowShouldClose() != 1 {
+    BeginDrawing();
+
+    ClearBackground(4278190080);
+    DrawText(msg, 175, 200, 72, 4294967295);
+
+    DrawFPS(10, 10);
+
+    EndDrawing();
+  }
+
+  CloseWindow();
+
+  return 0;
+}
+
