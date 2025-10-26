@@ -1,0 +1,31 @@
+
+struct stack {
+  data : [64]i64;
+  size : i64;
+}
+
+fn stack_push(stack : *struct stack, value : i64) {
+  stack->data[stack->size] = value;
+
+  stack->size = stack->size + 1;
+}
+
+fn stack_pop(stack : *struct stack) -> i64 {
+  stack->size = stack->size - 1;
+
+  return stack->data[stack->size];
+}
+
+fn main() -> i32 {
+  s : struct stack;
+
+  s.size = 0;
+
+  stack_push(&s, 34);
+  stack_push(&s, 35);
+
+  print stack_pop(&s) + stack_pop(&s);
+
+  return 0;
+}
+

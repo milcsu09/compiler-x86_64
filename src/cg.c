@@ -488,7 +488,6 @@ enum
 {
   CG_RA_S = REGISTER_R10,
   CG_RA_E = REGISTER_R15,
-
   CG_RA_COUNT = CG_RA_E - CG_RA_S + 1,
 };
 
