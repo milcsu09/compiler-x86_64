@@ -938,12 +938,14 @@ cg_generate_node_if (struct cg *cg, struct tree *tree)
 {
   struct tree_node_if *node = &tree->d.if_s;
 
+  bool has_else = node->branch_b != NULL;
+
   cg_label_t label_end;
   cg_label_t label_else;
 
   label_else = cg_label (cg);
 
-  if (node->branch_b)
+  if (has_else)
     label_end = cg_label (cg);
 
   struct cg_register c = cg_generate_rvalue (cg, node->condition);
@@ -953,12 +955,12 @@ cg_generate_node_if (struct cg *cg, struct tree *tree)
 
   cg_generate_statement (cg, node->branch_a);
 
-  if (node->branch_b)
+  if (has_else)
     cg_write_jmp (cg, label_end);
 
   cg_write_label (cg, label_else);
 
-  if (node->branch_b)
+  if (has_else)
     {
       cg_generate_statement (cg, node->branch_b);
 

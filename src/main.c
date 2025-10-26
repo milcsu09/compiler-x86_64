@@ -59,11 +59,10 @@ read_file (const char *path)
 void
 strip_extension (char *buffer, size_t size, const char *path)
 {
-  strncpy (buffer, path, size);
+  snprintf (buffer, size, "%s", path);
 
-  buffer[size - 1] = '\0';
-
-  char *dot = strrchr (buffer, '.');
+  char *slash = strrchr (buffer, '/');
+  char *dot = strrchr (slash ? slash + 1 : buffer, '.');
 
   if (dot)
     *dot = '\0';
@@ -124,9 +123,6 @@ compile_file (struct flags flags)
 
   resolver_resolve (resolver, tree);
 
-  // tree_print (tree, 0);
-  // exit (1);
-
   // Pass 2
   struct checker *checker = checker_create ();
 
@@ -161,7 +157,7 @@ compile_file (struct flags flags)
 
   gettimeofday (&t1, NULL);
 
-  note (location_none, "Compiler %9.4fs", dt_s (t0, t1));
+  note (location_none, "Compiler %9.4fs (%s)", dt_s (t0, t1), flags.o_stdout ? "stdout" : path_s);
 
   if (flags.S)
     return;
@@ -180,7 +176,7 @@ compile_file (struct flags flags)
 
   gettimeofday (&t1, NULL);
 
-  note (location_none, "    NASM %9.4fs", dt_s (t0, t1));
+  note (location_none, "    NASM %9.4fs (%s)", dt_s (t0, t1), path_o);
 
   gettimeofday (&t0, NULL);
 
@@ -194,7 +190,7 @@ compile_file (struct flags flags)
 
   gettimeofday (&t1, NULL);
 
-  note (location_none, "     GCC %9.4fs", dt_s (t0, t1));
+  note (location_none, "     GCC %9.4fs (%s)", dt_s (t0, t1), path_u);
 }
 
 
@@ -231,11 +227,6 @@ main (int argc, char **argv)
       else
         flags.path = argv[i];
     }
-
-  // char *ld_flags = "";
-
-  // if (argc > 2)
-  //   ld_flags = argv[2];
 
   compile_file (flags);
 

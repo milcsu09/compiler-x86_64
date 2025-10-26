@@ -12,8 +12,6 @@
 
 // TODO: Too much repetition
 
-// TODO: Parse A[0].field
-
 
 struct parser
 {
