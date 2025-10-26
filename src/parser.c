@@ -688,7 +688,7 @@ parser_parse_expression_cast (struct parser *parser)
 {
   struct tree *result;
 
-  result = parser_parse_expression_postfix (parser); // parser_parse_expression_index (parser);
+  result = parser_parse_expression_postfix (parser);
 
   while (parser_match (parser, TOKEN_COLON))
     {
@@ -715,9 +715,9 @@ parser_parse_expression_cast (struct parser *parser)
 static struct tree *
 parser_parse_expression_postfix (struct parser *parser)
 {
-  struct tree *a;
+  struct tree *result;
 
-  a = parser_parse_expression_call (parser);
+  result = parser_parse_expression_call (parser);
 
   while (1)
     {
@@ -731,14 +731,45 @@ parser_parse_expression_postfix (struct parser *parser)
 
           parser_advance (parser);
 
-          struct tree *access = tree_create (a->location, TREE_ACCESS);
+          struct tree *access;
 
-          access->d.access.s = a;
+          access = tree_create (result->location, TREE_ACCESS);
+
+          access->d.access.s = result;
           access->d.access.field = field;
 
-          a = access;
+          result = access;
         }
 
+      // NOTE: -> syntactic sugar
+      else if (parser_match (parser, TOKEN_ARROW))
+        {
+          parser_advance (parser);
+
+          parser_expect (parser, TOKEN_IDENTIFIER);
+
+          char *field = parser->current->d.s;
+
+          parser_advance (parser);
+
+          // a->b = (*a).b
+          struct tree *deref;
+
+          deref = tree_create (result->location, TREE_DEREFERENCE);
+
+          deref->d.dereference.value = result;
+
+          struct tree *access;
+
+          access = tree_create (result->location, TREE_ACCESS);
+
+          access->d.access.s = deref;
+          access->d.access.field = field;
+
+          result = access;
+        }
+
+      // NOTE: [] syntactic sugar
       else if (parser_match (parser, TOKEN_LBRACKET))
         {
           parser_advance (parser);
@@ -749,102 +780,30 @@ parser_parse_expression_postfix (struct parser *parser)
 
           parser_expect_advance (parser, TOKEN_RBRACKET);
 
-          // Equivalent to *(expr + index)
+          // a[b] = *(a + b)
           struct tree *add;
 
-          add = tree_create (a->location, TREE_BINARY);
+          add = tree_create (result->location, TREE_BINARY);
 
-          add->d.binary.lhs = a;
+          add->d.binary.lhs = result;
           add->d.binary.rhs = index;
           add->d.binary.o = BINARY_ADD;
 
           struct tree *deref;
 
-          deref = tree_create (a->location, TREE_DEREFERENCE);
+          deref = tree_create (result->location, TREE_DEREFERENCE);
 
           deref->d.dereference.value = add;
 
-          a = deref;
+          result = deref;
         }
 
       else
         break;
     }
 
-  return a;
-}
-
-
-/*
-static struct tree *
-parser_parse_expression_index (struct parser *parser)
-{
-  struct tree *a;
-
-  a = parser_parse_expression_access (parser);
-
-  // NOTE: Access doesn't produce it's own tree node, rather it combines '+' with dereference.
-  while (parser_match (parser, TOKEN_LBRACKET))
-    {
-      parser_advance (parser);
-
-      struct tree *b;
-
-      b = parser_parse_expression_assignment (parser);
-
-      parser_expect_advance (parser, TOKEN_RBRACKET);
-
-      struct tree *add;
-
-      add = tree_create (a->location, TREE_BINARY);
-
-      add->d.binary.lhs = a;
-      add->d.binary.rhs = b;
-      add->d.binary.o = BINARY_ADD;
-
-      struct tree *deref;
-
-      deref = tree_create (a->location, TREE_DEREFERENCE);
-
-      deref->d.dereference.value = add;
-
-      a = deref;
-    }
-
-  return a;
-}
-
-
-static struct tree *
-parser_parse_expression_access (struct parser *parser)
-{
-  struct tree *result;
-
-  result = parser_parse_expression_call (parser);
-
-  while (parser_match (parser, TOKEN_DOT))
-    {
-      parser_advance (parser);
-
-      parser_expect (parser, TOKEN_IDENTIFIER);
-
-      char *field = parser->current->d.s;
-
-      parser_advance (parser);
-
-      struct tree *access;
-
-      access = tree_create (result->location, TREE_ACCESS);
-
-      access->d.access.s = result;
-      access->d.access.field = field;
-
-      result = access;
-    }
-
   return result;
 }
-*/
 
 
 static struct tree *
