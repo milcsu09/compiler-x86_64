@@ -10,6 +10,11 @@
 #include <stdlib.h>
 
 
+// TODO: Too much repetition
+
+// TODO: Parse A[0].field
+
+
 struct parser
 {
   struct location location;
@@ -176,11 +181,13 @@ static struct tree *parser_parse_expression_binary (struct parser *);
 
 static struct tree *parser_parse_expression_cast (struct parser *);
 
-static struct tree *parser_parse_expression_access (struct parser *);
+// static struct tree *parser_parse_expression_access (struct parser *);
+
+static struct tree *parser_parse_expression_postfix (struct parser *);
 
 static struct tree *parser_parse_expression_call (struct parser *);
 
-static struct tree *parser_parse_expression_index (struct parser *);
+// static struct tree *parser_parse_expression_index (struct parser *);
 
 
 static struct tree *parser_parse_primary (struct parser *);
@@ -226,9 +233,6 @@ parser_parse_top (struct parser *parser)
 
   exit (1);
 }
-
-
-// TODO: Parser has a lot of duplicated code.
 
 
 static struct tree *
@@ -686,7 +690,7 @@ parser_parse_expression_cast (struct parser *parser)
 {
   struct tree *result;
 
-  result = parser_parse_expression_index (parser);
+  result = parser_parse_expression_postfix (parser); // parser_parse_expression_index (parser);
 
   while (parser_match (parser, TOKEN_COLON))
     {
@@ -710,7 +714,70 @@ parser_parse_expression_cast (struct parser *parser)
 }
 
 
+static struct tree *
+parser_parse_expression_postfix (struct parser *parser)
+{
+  struct tree *a;
 
+  a = parser_parse_expression_call (parser);
+
+  while (1)
+    {
+      if (parser_match (parser, TOKEN_DOT))
+        {
+          parser_advance (parser);
+
+          parser_expect (parser, TOKEN_IDENTIFIER);
+
+          char *field = parser->current->d.s;
+
+          parser_advance (parser);
+
+          struct tree *access = tree_create (a->location, TREE_ACCESS);
+
+          access->d.access.s = a;
+          access->d.access.field = field;
+
+          a = access;
+        }
+
+      else if (parser_match (parser, TOKEN_LBRACKET))
+        {
+          parser_advance (parser);
+
+          struct tree *index;
+
+          index = parser_parse_expression_assignment(parser);
+
+          parser_expect_advance (parser, TOKEN_RBRACKET);
+
+          // Equivalent to *(expr + index)
+          struct tree *add;
+
+          add = tree_create (a->location, TREE_BINARY);
+
+          add->d.binary.lhs = a;
+          add->d.binary.rhs = index;
+          add->d.binary.o = BINARY_ADD;
+
+          struct tree *deref;
+
+          deref = tree_create (a->location, TREE_DEREFERENCE);
+
+          deref->d.dereference.value = add;
+
+          a = deref;
+        }
+
+      else
+        break;
+    }
+
+  return a;
+}
+
+
+/*
 static struct tree *
 parser_parse_expression_index (struct parser *parser)
 {
@@ -779,6 +846,7 @@ parser_parse_expression_access (struct parser *parser)
 
   return result;
 }
+*/
 
 
 static struct tree *
@@ -878,7 +946,7 @@ parser_parse_primary_reference (struct parser *parser)
 
   struct tree *value;
 
-  value = parser_parse_expression_access (parser);
+  value = parser_parse_expression_postfix (parser);
 
   result->d.reference.value = value;
 
@@ -897,7 +965,7 @@ parser_parse_primary_dereference (struct parser *parser)
 
   struct tree *value;
 
-  value = parser_parse_expression_access (parser);
+  value = parser_parse_expression_postfix (parser);
 
   result->d.dereference.value = value;
 
