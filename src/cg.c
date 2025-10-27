@@ -489,7 +489,7 @@ cg_write_pop_register_id (struct cg *cg, enum cg_register_id r)
 enum
 {
   CG_RA_S = REGISTER_R10,
-  CG_RA_E = REGISTER_R15,
+  CG_RA_E = REGISTER_R12,
   CG_RA_COUNT = CG_RA_E - CG_RA_S + 1,
 };
 
@@ -1100,6 +1100,9 @@ cg_generate_node_cast (struct cg *cg, struct tree *tree)
 
   return r;
 }
+
+
+// TODO: Rewrite function calling code. It's wrong.
 
 
 static struct cg_register

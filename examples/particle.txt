@@ -1,0 +1,102 @@
+
+extern fn malloc(u64) -> *void;
+extern fn free(*void);
+
+extern fn InitWindow(i32, i32, *u8);
+extern fn CloseWindow();
+extern fn WindowShouldClose() -> u8;
+extern fn SetTargetFPS(i32);
+
+extern fn BeginDrawing();
+extern fn EndDrawing();
+
+extern fn ClearBackground(u64);
+
+extern fn DrawRectangle(i32, i32, i32, i32, u64);
+extern fn DrawFPS(i32, i32);
+
+extern fn GetRandomValue(i32, i32) -> i32;
+
+
+struct particle {
+  x    : i32;
+  y    : i32;
+  vx   : i32;
+  vy   : i32;
+  size : i32;
+}
+
+
+fn particle_init(particle : *struct particle) {
+  particle->x = 400 * 256;
+  particle->y = 300 * 256;
+
+  particle->vx = (GetRandomValue(0, 512) - 256) * 4;
+  particle->vy = (GetRandomValue(0, 512) - 256) * 4;
+
+  particle->size = GetRandomValue(200, 500);
+}
+
+
+fn main() -> i32 {
+  title : [1]u8;
+
+  title[0] = 0;
+
+  InitWindow(800, 600, title);
+
+  SetTargetFPS(60);
+
+  particles : *struct particle; // [10000]struct particle;
+  particles = malloc(50000 * 20);
+
+  print  particles;
+  print &particles[0];
+  print  particles + 1;
+  print &particles[1];
+
+  i : i64;
+
+  for i = 0; i < 10000; i = i + 1 {
+    particle_init(&particles[i]);
+  }
+
+  while WindowShouldClose() != 1 {
+    for i = 0; i < 10000; i = i + 1 {
+      particles[i].x = particles[i].x + particles[i].vx;
+      particles[i].y = particles[i].y + particles[i].vy;
+
+      particles[i].size = particles[i].size - 5;
+
+      if particles[i].size <= 200 {
+        particle_init(&particles[i]);
+      }
+    }
+
+    BeginDrawing();
+
+    ClearBackground(0xFF0c0c0c);
+
+    DrawFPS(10, 10);
+
+    for i = 0; i < 10000; i = i + 1 {
+      x : i32;
+      y : i32;
+
+      x = particles[i].x / 256;
+      y = particles[i].y / 256;
+
+      size : i32;
+      size = particles[i].size / 100;
+
+      DrawRectangle(x, y, size, size, 0xFF0000FF);
+    }
+
+    EndDrawing();
+  }
+
+  CloseWindow();
+
+  return 0;
+}
+

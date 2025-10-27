@@ -29,16 +29,32 @@ dt_s (struct timeval t0, struct timeval t1)
 }
 
 
-char *
-read_file (const char *path)
+static FILE *
+file_open (const char *path, const char *mode)
 {
-  FILE *file = fopen (path, "r");
+  FILE *file = fopen (path, mode);
 
   if (file == NULL)
     {
       error (location_none, "%s: %s", path, strerror (errno));
       exit (1);
     }
+
+  return file;
+}
+
+
+static void
+file_close (FILE *file)
+{
+  fclose (file);
+}
+
+
+static char *
+file_read (const char *path)
+{
+  FILE *file = file_open (path, "r");
 
   fseek (file, 0, SEEK_END);
   size_t file_size = ftell (file);
@@ -50,13 +66,13 @@ read_file (const char *path)
 
   buffer[file_size] = '\0';
 
-  fclose (file);
+  file_close (file);
 
   return buffer;
 }
 
 
-void
+static void
 strip_extension (char *buffer, size_t size, const char *path)
 {
   snprintf (buffer, size, "%s", path);
@@ -74,11 +90,14 @@ struct flags
   char *path;
 
   bool p;
-  bool t;
+  bool s;
+  bool sr;
 
   bool S;
 
   bool o_stdout;
+
+  char *ldflags;
 };
 
 
@@ -106,7 +125,7 @@ compile_file (struct flags flags)
 
   gettimeofday (&t0, NULL);
 
-  char *source = read_file (flags.path);
+  char *source = file_read (flags.path);
 
   struct parser *parser = parser_create (flags.path, source);
 
@@ -123,12 +142,18 @@ compile_file (struct flags flags)
 
   resolver_resolve (resolver, tree);
 
+  if (flags.sr)
+    {
+      tree_print (tree, 0);
+      return;
+    }
+
   // Pass 2
   struct checker *checker = checker_create ();
 
   checker_check (checker, tree);
 
-  if (flags.t)
+  if (flags.s)
     {
       tree_print (tree, 0);
       return;
@@ -180,7 +205,7 @@ compile_file (struct flags flags)
 
   gettimeofday (&t0, NULL);
 
-  snprintf (cmd, sizeof cmd, "gcc -no-pie %s -o %s", path_o, path_u);
+  snprintf (cmd, sizeof cmd, "gcc -no-pie %s -o %s %s", path_o, path_u, flags.ldflags);
 
   if (system (cmd) != 0)
     {
@@ -202,18 +227,24 @@ main (int argc, char **argv)
   struct flags flags;
 
   flags.p = false;
-  flags.t = false;
+  flags.s = false;
+  flags.sr = false;
   flags.S = false;
   flags.o_stdout = false;
   flags.path = NULL;
+
+  flags.ldflags = "";
 
   for (int i = 1; i < argc; ++i)
     {
       if (strcmp (argv[i], "-p") == 0)
         flags.p = true;
 
-      else if (strcmp (argv[i], "-t") == 0)
-        flags.t = true;
+      else if (strcmp (argv[i], "-s") == 0)
+        flags.s = true;
+
+      else if (strcmp (argv[i], "-sr") == 0)
+        flags.sr = true;
 
       else if (strcmp (argv[i], "-S") == 0)
         flags.S = true;
@@ -223,6 +254,9 @@ main (int argc, char **argv)
           flags.S = true;
           flags.o_stdout = true;
         }
+
+      else if (strncmp (argv[i], "--ldflags=", 10) == 0)
+        flags.ldflags = argv[i] + 10;
 
       else
         flags.path = argv[i];

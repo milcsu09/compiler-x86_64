@@ -155,6 +155,8 @@ bool type_is_assignable (struct type *);
 bool type_is_callable (struct type *);
 
 
+struct type *type_element (struct type *);
+
 struct type *type_decay (struct type *);
 
 struct type *type_promote (struct type *, struct type *);

@@ -164,6 +164,9 @@ type_element_size (struct type *type)
   switch (type->kind)
     {
     case TYPE_POINTER:
+      fprintf (stderr, "ELEMENT SIZE of %s = %zu\n", type_kind_string (type->d.pointer.base->kind),
+               type_size (type->d.pointer.base));
+
       return type_size (type->d.pointer.base);
     case TYPE_ARRAY:
       return type_size (type->d.array.base);
@@ -549,6 +552,24 @@ type_is_callable (struct type *type)
       return true;
     default:
       return type_is_pointer_to_k (type, TYPE_FUNCTION);
+    }
+}
+
+
+struct type *
+type_element (struct type *type)
+{
+  if (type == TYPE_ERROR)
+    return type;
+
+  switch (type->kind)
+    {
+    case TYPE_POINTER:
+      return type->d.pointer.base;
+    case TYPE_ARRAY:
+      return type->d.array.base;
+    default:
+      return type;
     }
 }
 
