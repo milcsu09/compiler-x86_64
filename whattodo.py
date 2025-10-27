@@ -1,86 +1,68 @@
 #!/usr/bin/python3
 
+import re
+import textwrap
 
+from typing import List
 from pathlib import Path
-from concurrent.futures import ThreadPoolExecutor
 
 
-def chop_line(line: str, at: int):
-    if at >= len(line):
-        return line, ''
-
-    split_pos = line.rfind(' ', 0, at)
-    if split_pos == -1:
-        split_pos = at
-
-    remaining = line[:split_pos].rstrip()
-    chopped = line[split_pos:].lstrip()
-
-    return remaining, chopped
+PATTERN_TODO = re.compile(r'^\s*//\s*TODO\s*:\s*(.*)$', re.IGNORECASE)
+PATTERN_CONT = re.compile(r'^\s*//\s*(.*)$')
 
 
-def search_file(path):
-    with open(path, "r", encoding="utf-8", errors="ignore") as file:
-        lines = list(map(str.strip, file.readlines()))
-        lines_size = len(lines)
+def whattodo_file(path: str, text: List[str]):
+    n = len(text)
+    i = 0
 
-        index = 0
+    while i < n:
+        line = text[i]
 
-        while index < lines_size:
-            line: str = lines[index]
-            lineno = index + 1
+        m_todo = PATTERN_TODO.match(line)
 
-            if not line.startswith("//"):
-                index = index + 1
-                continue
+        if not m_todo:
+            i = i + 1
+            continue
 
-            line = line[2::].strip()
+        print(f"{path}:{i + 1}")
 
-            if not line.startswith("TODO:"):
-                index = index + 1
-                continue
+        for line in textwrap.wrap(m_todo.group(1).strip(), width=80):
+            print("    {}".format(line))
 
-            body = [line[5::].strip()]
+        i = i + 1
 
-            index = index + 1
+        while i < n:
+            line = text[i]
 
-            while index < lines_size:
-                line = lines[index]
+            m_todo = PATTERN_TODO.match(line)
 
-                if not line.startswith("//"):
-                    break
+            if m_todo:
+                break
 
-                line = line[2::].strip()
+            m_cont = PATTERN_CONT.match(line)
 
-                if line:
-                    body.append(line)
+            if not m_cont:
+                break;
 
-                index = index + 1
+            for line in textwrap.wrap(m_cont.group(1).strip(), width=80):
+                print("    {}".format(line))
 
-            indent = f"{path}:{lineno}: "
+            i = i + 1
 
-            i = 0
-
-            while i < len(body):
-                body[i], chopped = chop_line(body[i], 80 - len(indent))
-
-                if chopped:
-                    body.insert(i + 1, chopped)
-
-                i = i + 1
-
-            formatted_body = ("\n" + " " * len(indent)).join(body)
-
-            print(f"\033[96m{indent}\033[0m{formatted_body}")
-            print()
+        print()
 
 
 def main():
-    root_dir = Path("src")
-    files = [f for f in root_dir.rglob("*") if f.is_file()]
+    root = Path("src")
+    paths = [f for f in root.rglob("*") if f.is_file()]
 
-    with ThreadPoolExecutor() as executor:
-        executor.map(search_file, files)
+    print()
+
+    for path in paths:
+        with open(path, "r", encoding="utf-8", errors="ignore") as file:
+            text = file.readlines()
+
+            whattodo_file(str(path), text)
 
 
 if __name__ == "__main__":
