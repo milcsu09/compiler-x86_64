@@ -1,0 +1,28 @@
+
+struct address {
+  zip: u32;
+}
+
+struct person {
+  age: u8;
+  address: struct address;
+}
+
+fn main() -> i32 {
+  people: [2]struct person;
+
+  people[0].age = 20;
+  people[0].address.zip = 1111;
+
+  people[1].age = 30;
+  people[1].address.zip = 2222;
+
+  print people[0].age;
+  print people[0].address.zip;
+
+  print people[1].age;
+  print people[1].address.zip;
+
+  return 0;
+}
+

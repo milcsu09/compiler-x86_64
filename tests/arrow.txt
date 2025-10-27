@@ -1,22 +1,4 @@
 
-// struct s {
-//   a : i32;
-// }
-// 
-// fn main() -> i32 {
-//   s :  struct s;
-// 
-//   p : *struct s;
-//   p = &s;
-// 
-//   p->a = 10;
-// 
-//   print p->a;
-// 
-//   return 0;
-// }
-
-
 struct a {
   x : i32;
   y : i32;

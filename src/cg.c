@@ -23,7 +23,7 @@ cg_operand_size_string (enum type_width w)
     case WIDTH_8:
       return "qword";
     default:
-      assert (!"Invalid");
+      assert (!"Invalid type_width");
     }
 }
 
@@ -482,6 +482,8 @@ cg_write_pop_register_id (struct cg *cg, enum cg_register_id r)
   cg_write (cg, "\tpop\t%s\n", register_id_string (r));
 }
 
+
+// TODO: Better register allocation (and spilling) strategy.
 
 // Register allocation boundaries
 enum
