@@ -360,6 +360,51 @@ cg_write_umod (struct cg *cg, struct cg_register a, struct cg_register b)
 
 
 static void
+cg_write_band (struct cg *cg, struct cg_register a, struct cg_register b)
+{
+  cg_write (cg, "\tand\t%s, %s\n", register_string (a), register_string (b));
+}
+
+
+static void
+cg_write_bor (struct cg *cg, struct cg_register a, struct cg_register b)
+{
+  cg_write (cg, "\tor\t%s, %s\n", register_string (a), register_string (b));
+}
+
+
+static void
+cg_write_bxor (struct cg *cg, struct cg_register a, struct cg_register b)
+{
+  cg_write (cg, "\txor\t%s, %s\n", register_string (a), register_string (b));
+}
+
+
+static void
+cg_write_shl (struct cg *cg, struct cg_register a, struct cg_register b)
+{
+  cg_write (cg, "\tmov\tcl, %s\n", register_b_string (b));
+  cg_write (cg, "\tshl\t%s, cl\n", register_string (a));
+}
+
+
+static void
+cg_write_shr (struct cg *cg, struct cg_register a, struct cg_register b)
+{
+  cg_write (cg, "\tmov\tcl, %s\n", register_b_string (b));
+  cg_write (cg, "\tshr\t%s, cl\n", register_string (a));
+}
+
+
+static void
+cg_write_sar (struct cg *cg, struct cg_register a, struct cg_register b)
+{
+  cg_write (cg, "\tmov\tcl, %s\n", register_b_string (b));
+  cg_write (cg, "\tsar\t%s, cl\n", register_string (a));
+}
+
+
+static void
 cg_write_compare (struct cg *cg, const char *i, struct cg_register a, struct cg_register b)
 {
   cg_write (cg, "\tcmp\t%s, %s\n", register_string (a), register_string (b));
@@ -1373,38 +1418,29 @@ cg_generate_node_binary (struct cg *cg, struct tree *tree)
   switch (o)
     {
     case BINARY_ADD:
-      // if (ai && bp)
-      //   {
-      //     size_t w = type_element_size (type_b);
-
-      //     cg_write (cg, "\timul\t%s, %zu\n", register_string (a), w);
-      //   }
-
-      // if (ap && bi)
-      //   {
-      //     size_t w = type_element_size (type_a);
-
-      //     cg_write (cg, "\timul\t%s, %zu\n", register_string (b), w);
-      //   }
-
       cg_write_add (cg, a, b);
       break;
     case BINARY_SUB:
-      // if (ai && bp)
-      //   {
-      //     size_t w = type_element_size (type_b);
-
-      //     cg_write (cg, "\timul\t%s, %zu\n", register_string (a), w);
-      //   }
-
-      // if (ap && bi)
-      //   {
-      //     size_t w = type_element_size (type_a);
-
-      //     cg_write (cg, "\timul\t%s, %zu\n", register_string (b), w);
-      //   }
-
       cg_write_sub (cg, a, b);
+      break;
+
+    case BINARY_SHL:
+      cg_write_shl (cg, a, b);
+      break;
+    case BINARY_SHR:
+      if (s)
+        cg_write_sar (cg, a, b);
+      else
+        cg_write_shr (cg, a, b);
+      break;
+    case BINARY_BOR:
+      cg_write_bor (cg, a, b);
+      break;
+    case BINARY_BAND:
+      cg_write_band (cg, a, b);
+      break;
+    case BINARY_BXOR:
+      cg_write_bxor (cg, a, b);
       break;
 
     case BINARY_MUL:

@@ -13,6 +13,12 @@ static const char *const BINARY_OPERATOR_STRING[] = {
   "/",
   "%",
 
+  "<<",
+  ">>",
+  "|",
+  "&",
+  "^",
+
   "==",
   "!=",
   "<",

@@ -831,6 +831,25 @@ resolver_resolve_node_binary (struct resolver *resolver, struct tree *tree)
 
       break;
 
+    case BINARY_SHL:
+    case BINARY_SHR:
+    case BINARY_BOR:
+    case BINARY_BAND:
+    case BINARY_BXOR:
+      if (a_i && b_i)
+        {
+          struct type *common = type_promote (type_a, type_b);
+
+          node->lhs = resolver_tree_create_cast (node->lhs, common);
+          node->rhs = resolver_tree_create_cast (node->rhs, common);
+
+          node->type = resolver_resolve_type (resolver, common);
+
+          return tree;
+        }
+
+      break;
+
     case BINARY_MUL:
     case BINARY_DIV:
     case BINARY_MOD:

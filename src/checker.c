@@ -553,6 +553,15 @@ checker_check_node_binary (struct checker *checker, struct tree *tree)
           return;
       break;
 
+    case BINARY_SHL:
+    case BINARY_SHR:
+    case BINARY_BOR:
+    case BINARY_BAND:
+    case BINARY_BXOR:
+      if (a_i && b_i)
+        return;
+      break;
+
     case BINARY_MUL:
     case BINARY_DIV:
     case BINARY_MOD:

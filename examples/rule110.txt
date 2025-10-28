@@ -1,0 +1,102 @@
+
+extern fn putchar(u8);
+
+
+fn rule110(l : u8, m : u8, r : u8) -> u8 {
+  pattern : u8;
+  pattern = (l << 2) | (m << 1) | r;
+
+  if pattern == 0b111 {
+    return 0;
+  }
+
+  if pattern == 0b110 {
+    return 1;
+  }
+
+  if pattern == 0b101 {
+    return 1;
+  }
+
+  if pattern == 0b100 {
+    return 0;
+  }
+
+  if pattern == 0b011 {
+    return 1;
+  }
+
+  if pattern == 0b010 {
+    return 1;
+  }
+
+  if pattern == 0b001 {
+    return 1;
+  }
+
+  if pattern == 0b000 {
+    return 0;
+  }
+}
+
+
+fn print_cells(cells : *u8) {
+  i : i64;
+
+  for i = 0; i < 80; i = i + 1 {
+    if cells[i] == 1 {
+      putchar('*');
+    } else {
+      putchar(' ');
+    }
+  }
+
+  putchar('\n');
+}
+
+
+fn main() -> i32 {
+  cells_curr : [80]u8;
+  cells_next : [80]u8;
+
+  i : i64;
+
+  for i = 0; i < 80; i = i + 1 {
+    cells_curr[i] = cells_next[i] = 0;
+  }
+
+  cells_curr[79] = 1;
+
+  step : i64;
+
+  for step = 0; step < 80; step = step + 1 {
+    print_cells (cells_curr);
+
+    for i = 0; i < 80; i = i + 1 {
+      l : u8;
+      m : u8;
+      r : u8;
+
+      l = 0;
+      m = cells_curr[i];
+      r = 0;
+
+      if i != 0 {
+        l = cells_curr[i - 1];
+      }
+
+      if i != 79 {
+        r = cells_curr[i + 1];
+      }
+
+      cells_next[i] = rule110(l, m, r);
+    }
+
+    for i = 0; i < 80; i = i + 1 {
+      cells_curr[i] = cells_next[i];
+    }
+  }
+
+  return 0;
+}
+

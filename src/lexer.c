@@ -311,6 +311,15 @@ lexer_next (struct lexer *lexer)
     {
       switch (c)
         {
+        case '.':
+          return lexer_advance_token (lexer, TOKEN_DOT);
+        case ',':
+          return lexer_advance_token (lexer, TOKEN_COMMA);
+        case ':':
+          return lexer_advance_token (lexer, TOKEN_COLON);
+        case ';':
+          return lexer_advance_token (lexer, TOKEN_SEMICOLON);
+
         case '=':
           if (lexer_match_start (lexer, "=="))
             return lexer_advance_n_token (lexer, 2, TOKEN_DE);
@@ -324,20 +333,20 @@ lexer_next (struct lexer *lexer)
         case '<':
           if (lexer_match_start (lexer, "<="))
             return lexer_advance_n_token (lexer, 2, TOKEN_LE);
+          if (lexer_match_start (lexer, "<<"))
+            return lexer_advance_n_token (lexer, 2, TOKEN_SHL);
           return lexer_advance_token (lexer, TOKEN_L);
         case '>':
           if (lexer_match_start (lexer, ">="))
             return lexer_advance_n_token (lexer, 2, TOKEN_GE);
+          if (lexer_match_start (lexer, ">>"))
+            return lexer_advance_n_token (lexer, 2, TOKEN_SHR);
           return lexer_advance_token (lexer, TOKEN_G);
 
-        case '.':
-          return lexer_advance_token (lexer, TOKEN_DOT);
-        case ',':
-          return lexer_advance_token (lexer, TOKEN_COMMA);
-        case ':':
-          return lexer_advance_token (lexer, TOKEN_COLON);
-        case ';':
-          return lexer_advance_token (lexer, TOKEN_SEMICOLON);
+        case '^':
+          return lexer_advance_token (lexer, TOKEN_CARET);
+        case '|':
+          return lexer_advance_token (lexer, TOKEN_PIPE);
 
         case '&':
           return lexer_advance_token (lexer, TOKEN_AMPERSAND);
