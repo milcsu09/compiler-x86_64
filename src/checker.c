@@ -372,7 +372,11 @@ checker_check_node_vdeclaration (struct checker *checker, struct tree *tree)
 
   if (type_size (node->type) == 0)
     {
-      error (tree->location, "type has no storage size");
+      char name[512];
+
+      type_string (node->type, name, sizeof name);
+
+      error (tree->location, "type '%s' has no storage size", name);
 
       exit (1);
     }

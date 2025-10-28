@@ -49,6 +49,7 @@ enum token_kind
   TOKEN_RBRACE,
 
   TOKEN_INTEGER,
+  TOKEN_STRING,
 
   TOKEN_IDENTIFIER,
 

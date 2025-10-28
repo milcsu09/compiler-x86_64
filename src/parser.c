@@ -198,6 +198,8 @@ static struct tree *parser_parse_primary_dereference (struct parser *);
 
 static struct tree *parser_parse_primary_integer (struct parser *);
 
+static struct tree *parser_parse_primary_string (struct parser *);
+
 static struct tree *parser_parse_primary_identifier (struct parser *);
 
 
@@ -859,6 +861,8 @@ parser_parse_primary (struct parser *parser)
       return parser_parse_primary_group (parser);
     case TOKEN_INTEGER:
       return parser_parse_primary_integer (parser);
+    case TOKEN_STRING:
+      return parser_parse_primary_string (parser);
     case TOKEN_IDENTIFIER:
       return parser_parse_primary_identifier (parser);
     default:
@@ -944,6 +948,24 @@ parser_parse_primary_integer (struct parser *parser)
   parser_advance (parser);
 
   return result;
+}
+
+
+static struct tree *
+parser_parse_primary_string (struct parser *parser)
+{
+  parser_expect (parser, TOKEN_STRING);
+
+  struct tree *result;
+
+  result = tree_create (parser->location, TREE_STRING);
+
+  result->d.string.value = parser->current->d.s;
+
+  parser_advance (parser);
+
+  return result;
+
 }
 
 
@@ -1056,10 +1078,12 @@ parser_parse_type (struct parser *parser)
       {
         parser_advance (parser);
 
-        struct tree *size;
-
         // TODO: Implement constant expressions.
-        size = parser_parse_primary_integer (parser);
+        parser_expect (parser, TOKEN_INTEGER);
+
+        size_t size = parser->current->d.i;
+
+        parser_advance (parser);
 
         parser_expect_advance (parser, TOKEN_RBRACKET);
 

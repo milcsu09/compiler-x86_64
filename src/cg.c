@@ -7,6 +7,7 @@
 
 #include <assert.h>
 #include <stdarg.h>
+#include <string.h>
 
 
 static const char *
@@ -31,6 +32,30 @@ cg_operand_size_string (enum type_width w)
 typedef size_t cg_label_t;
 
 
+struct cg_string
+{
+  struct cg_string *next;
+
+  char *value;
+
+  cg_label_t label;
+};
+
+
+static struct cg_string *
+cg_string_create (char *value, cg_label_t label)
+{
+  struct cg_string *string;
+
+  string = aa_malloc (sizeof (struct cg_string));
+
+  string->value = value;
+  string->label = label;
+
+  return string;
+}
+
+
 struct cg_function
 {
   struct tree_node_fdefinition *node;
@@ -50,12 +75,31 @@ struct cg
   struct scope *scope;
 
   cg_label_t label;
+  cg_label_t label_string;
 
   bool register_free[REGISTER_COUNT];
 
   size_t register_spill;
+
+  struct cg_string *string_head;
+  struct cg_string *string_tail;
 };
 
+
+static void
+cg_string_push (struct cg *cg, struct cg_string *string)
+{
+  if (cg->string_tail == NULL)
+    {
+      cg->string_head = string;
+      cg->string_tail = string;
+    }
+  else
+    {
+      cg->string_tail->next = string;
+      cg->string_tail = string;
+    }
+}
 
 static void
 cg_scope_push (struct cg *cg)
@@ -104,6 +148,13 @@ cg_label (struct cg *cg)
 }
 
 
+static cg_label_t
+cg_label_string (struct cg *cg)
+{
+  return cg->label_string++;
+}
+
+
 static void
 cg_write (struct cg *cg, const char *format, ...)
 {
@@ -147,6 +198,13 @@ static void
 cg_write_load_i (struct cg *cg, struct cg_register r, long i)
 {
   cg_write (cg, "\tmov\t%s, %ld\n", register_string (r), i);
+}
+
+
+static void
+cg_write_load_s (struct cg *cg, struct cg_register r, cg_label_t label)
+{
+  cg_write (cg, "\tmov\t%s, LS%zu\n", register_string (r), label);
 }
 
 
@@ -458,8 +516,18 @@ cg_write_begin (struct cg *cg)
 static void
 cg_write_end (struct cg *cg)
 {
-  cg_write (cg, "section .data\n");
+  cg_write (cg, "section .rodata\n");
   cg_write (cg, "\tprinti_s: db \"%%ld\", 10, 0\n");
+
+  for (struct cg_string *s = cg->string_head; s; s = s->next)
+    {
+      cg_write (cg, "\tLS%zu: db ", s->label);
+
+      for (char *c = s->value; *c; c++)
+        cg_write (cg, "%d, ", *c);
+
+      cg_write (cg, "0\n");
+    }
 
   cg_write (cg, "\n");
 
@@ -674,6 +742,8 @@ static struct cg_register cg_generate_node_dereference (struct cg *, struct tree
 
 static struct cg_register cg_generate_node_integer (struct cg *, struct tree *);
 
+static struct cg_register cg_generate_node_string (struct cg *, struct tree *);
+
 static struct cg_register cg_generate_node_identifier (struct cg *, struct tree *);
 
 
@@ -706,6 +776,8 @@ cg_generate_expression (struct cg *cg, struct tree *tree)
       return cg_generate_node_dereference (cg, tree);
     case TREE_INTEGER:
       return cg_generate_node_integer (cg, tree);
+    case TREE_STRING:
+      return cg_generate_node_string (cg, tree);
     case TREE_IDENTIFIER:
       return cg_generate_node_identifier (cg, tree);
     default:
@@ -1439,6 +1511,23 @@ cg_generate_node_integer (struct cg *cg, struct tree *tree)
   struct cg_register r = cg_register_allocate (cg, WIDTH_8);
 
   cg_write_load_i (cg, r, node->value);
+
+  return r;
+}
+
+
+static struct cg_register
+cg_generate_node_string (struct cg *cg, struct tree *tree)
+{
+  struct tree_node_string *node = &tree->d.string;
+
+  cg_label_t label = cg_label_string (cg);
+
+  cg_string_push (cg, cg_string_create (node->value, label));
+
+  struct cg_register r = cg_register_allocate (cg, type_width (node->type));
+
+  cg_write_load_s (cg, r, label);
 
   return r;
 }

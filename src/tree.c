@@ -2,6 +2,7 @@
 #include "type.h"
 #include "memory.h"
 
+#include <ctype.h>
 #include <stdio.h>
 
 
@@ -56,6 +57,7 @@ static const char *const TREE_KIND_STRING[] = {
   "reference",
   "dereference",
   "integer",
+  "string",
   "identifier",
 
   "program",
@@ -137,6 +139,8 @@ tree_type (struct tree *tree)
       return tree->d.dereference.type;
     case TREE_INTEGER:
       return tree->d.integer.type;
+    case TREE_STRING:
+      return tree->d.string.type;
     case TREE_IDENTIFIER:
       return tree->d.identifier.type;
     default:
@@ -389,6 +393,27 @@ tree_print (struct tree *tree, int depth)
         tree_print_indent (depth + 1);
 
         fprintf (stderr, "\033[38;5;100m%ld\033[0m\n", node.value);
+      }
+      break;
+    case TREE_STRING:
+      {
+        struct tree_node_string node = tree->d.string;
+
+        type_print (node.type, depth + 1);
+
+        tree_print_indent (depth + 1);
+
+        fprintf (stderr, "\033[92m\"");
+
+        for (char *c = node.value; *c; c++)
+          {
+            if (isprint ((unsigned char)*c))
+              fprintf (stderr, "%c", *c);
+            else
+              fprintf (stderr, "\033[90m.\033[92m");
+          }
+
+        fprintf (stderr, "\"\033[0m\n");
       }
       break;
     case TREE_IDENTIFIER:

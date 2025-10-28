@@ -253,6 +253,60 @@ lexer_next (struct lexer *lexer)
       return token_create_s (location, TOKEN_IDENTIFIER, s);
     }
 
+  if (c == '"')
+    {
+      lexer_advance (lexer);
+
+      while (*lexer->current != '"' && *lexer->current != '\n')
+        {
+          if (*lexer->current == '\\')
+            lexer_advance (lexer);
+          lexer_advance (lexer);
+        }
+
+      if (*lexer->current != '"')
+        {
+          error (location, "unterimated string-literal");
+          exit (1);
+        }
+
+      lexer_advance (lexer);
+
+      char *s = string_copy_until (start + 1, lexer->current - 1);
+
+      string_escape (s);
+
+      return token_create_s (location, TOKEN_STRING, s);
+    }
+
+  if (c == '\'')
+    {
+      lexer_advance (lexer);
+
+      char c;
+
+      if (*lexer->current == '\\')
+        {
+          lexer_advance (lexer);
+
+          c = char_escape (*lexer->current);
+        }
+      else
+        c = *lexer->current;
+
+      lexer_advance (lexer);
+
+      if (*lexer->current != '\'')
+        {
+          error (location, "unterimated character-literal");
+          exit (1);
+        }
+
+      lexer_advance (lexer);
+
+      return token_create_i (location, TOKEN_INTEGER, c);
+    }
+
   if (ispunct ((unsigned char)c))
     {
       switch (c)

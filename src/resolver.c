@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 
 struct resolver
@@ -139,6 +140,8 @@ static struct tree *resolver_resolve_node_reference (struct resolver *, struct t
 static struct tree *resolver_resolve_node_dereference (struct resolver *, struct tree *);
 
 static struct tree *resolver_resolve_node_integer (struct resolver *, struct tree *);
+
+static struct tree *resolver_resolve_node_string (struct resolver *, struct tree *);
 
 static struct tree *resolver_resolve_node_identifier (struct resolver *, struct tree *);
 
@@ -277,6 +280,8 @@ resolver_resolve_expression (struct resolver *resolver, struct tree *tree)
       return resolver_resolve_node_dereference (resolver, tree);
     case TREE_INTEGER:
       return resolver_resolve_node_integer (resolver, tree);
+    case TREE_STRING:
+      return resolver_resolve_node_string (resolver, tree);
     case TREE_IDENTIFIER:
       return resolver_resolve_node_identifier (resolver, tree);
     default:
@@ -718,7 +723,6 @@ resolver_resolve_node_access (struct resolver *resolver, struct tree *tree)
 {
   struct tree_node_access *node = &tree->d.access;
 
-
   if (tree_is_rvalue (node->s))
     return tree;
 
@@ -959,6 +963,19 @@ resolver_resolve_node_integer (struct resolver *resolver, struct tree *tree)
   struct tree_node_integer *node = &tree->d.integer;
 
   node->type = type_create (tree->location, TYPE_I64);
+
+  return tree;
+}
+
+
+static struct tree *
+resolver_resolve_node_string (struct resolver *resolver, struct tree *tree)
+{
+  (void)resolver;
+
+  struct tree_node_string *node = &tree->d.string;
+
+  node->type = type_create_pointer (tree->location, type_create (tree->location, TYPE_U8));
 
   return tree;
 }

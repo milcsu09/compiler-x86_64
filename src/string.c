@@ -48,6 +48,39 @@ string_copy_until (const char *s, const char *e)
 }
 
 
+char
+char_escape (char c)
+{
+  switch (c)
+    {
+    case 'a':
+      return '\a';
+    case 'b':
+      return '\b';
+    case 'f':
+      return '\f';
+    case 'n':
+      return '\n';
+    case 'r':
+      return '\r';
+    case 't':
+      return '\t';
+    case 'v':
+      return '\v';
+    case '\\':
+      return '\\';
+    case '\'':
+      return '\'';
+    case '\"':
+      return '\"';
+    case '0':
+      return '\0';
+    default:
+      return c;
+    }
+}
+
+
 void
 string_escape (char *s)
 {
@@ -112,5 +145,4 @@ string_escape (char *s)
 
   *j = '\0';
 }
-
 

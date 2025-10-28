@@ -39,11 +39,7 @@ fn particle_init(particle : *struct particle) {
 
 
 fn main() -> i32 {
-  title : [1]u8;
-
-  title[0] = 0;
-
-  InitWindow(800, 600, title);
+  InitWindow(800, 600, "Particles!");
 
   SetTargetFPS(60);
 

@@ -59,6 +59,7 @@ enum tree_kind
   TREE_REFERENCE,
   TREE_DEREFERENCE,
   TREE_INTEGER,
+  TREE_STRING,
   TREE_IDENTIFIER,
 
   // Miscellaneous
@@ -231,6 +232,14 @@ struct tree_node_integer
 };
 
 
+struct tree_node_string
+{
+  char *value;
+
+  struct type *type;
+};
+
+
 struct tree_node_identifier
 {
   char *value;
@@ -270,6 +279,7 @@ union tree_data
   struct tree_node_reference    reference;
   struct tree_node_dereference  dereference;
   struct tree_node_integer      integer;
+  struct tree_node_string       string;
   struct tree_node_identifier   identifier;
 
   struct tree_node_program      program;
