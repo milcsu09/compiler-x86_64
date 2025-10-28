@@ -81,28 +81,25 @@ resolver_tree_create_cast (struct tree *value, struct type *type_b)
 }
 
 
-// static struct tree *
-// resolver_tree_create_scale (struct resolver *resolver, struct tree *lhs, struct type *type)
-// {
-//   size_t size = type_size (resolver_resolve_type (resolver, type_element (type)));
-// 
-//   struct tree *rhs;
-// 
-//   rhs = tree_create (lhs->location, TREE_INTEGER);
-// 
-//   rhs->d.integer.value = size;
-// 
-//   struct tree *scale;
-// 
-//   scale = tree_create (lhs->location, TREE_BINARY);
-// 
-//   scale->d.binary.lhs = lhs;
-//   scale->d.binary.rhs = rhs;
-// 
-//   scale->d.binary.o = BINARY_MUL;
-// 
-//   return resolver_resolve_rvalue (resolver, scale);
-// }
+static struct tree *
+resolver_tree_create_scale (struct tree *value, struct type *type_base)
+{
+  struct tree *result;
+
+  result = tree_create (value->location, TREE_SCALE);
+
+  result->d.scale.value = value;
+
+  result->d.scale.type = tree_type (value);
+
+  result->d.scale.type_base = type_base;
+
+  result->next = value->next;
+
+  value->next = NULL;
+
+  return result;
+}
 
 
 static void resolver_resolve_node_fdeclaration (struct resolver *, struct tree *);
@@ -504,6 +501,8 @@ resolver_resolve_node_struct (struct resolver *resolver, struct tree *tree)
   symbol.type = node->type;
 
   scope_set_validate (resolver->scope_struct, symbol, tree->location);
+
+  type_node->name = node->name;
 }
 
 
@@ -798,6 +797,10 @@ resolver_resolve_node_binary (struct resolver *resolver, struct tree *tree)
 
           node->type = resolver_resolve_type (resolver, type_b);
 
+          struct type *type_base = resolver_resolve_type (resolver, type_element (node->type));
+
+          node->lhs = resolver_tree_create_scale (node->lhs, type_base);
+
           return tree;
         }
 
@@ -807,7 +810,9 @@ resolver_resolve_node_binary (struct resolver *resolver, struct tree *tree)
 
           node->type = resolver_resolve_type (resolver, type_a);
 
-          // node->rhs = resolver_tree_create_scale (resolver, node->rhs, node->type);
+          struct type *type_base = resolver_resolve_type (resolver, type_element (node->type));
+
+          node->rhs = resolver_tree_create_scale (node->rhs, type_base);
 
           return tree;
         }

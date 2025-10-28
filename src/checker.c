@@ -46,6 +46,8 @@ static void checker_check_node_return (struct checker *, struct tree *);
 static void checker_check_node_print (struct checker *, struct tree *);
 
 
+static void checker_check_node_scale (struct checker *, struct tree *);
+
 static void checker_check_node_cast (struct checker *, struct tree *);
 
 static void checker_check_node_call (struct checker *, struct tree *);
@@ -71,9 +73,11 @@ static void checker_check_type (struct checker *checker, struct type *type)
 
   if (type_is_incomplete (type))
     {
-      const char *name = type_kind_string (type->kind);
+      char name[512];
 
-      error (type->location, "expression has incomplete type '%s'", name);
+      type_string (type, name, sizeof name);
+
+      error (type->location, "incomplete type '%s'", name);
 
       exit (1);
     }
@@ -155,6 +159,9 @@ checker_check_expression (struct checker *checker, struct tree *tree)
 
   switch (tree->kind)
     {
+    case TREE_SCALE:
+      checker_check_node_scale (checker, tree);
+      break;
     case TREE_CAST:
       checker_check_node_cast (checker, tree);
       break;
@@ -365,7 +372,7 @@ checker_check_node_vdeclaration (struct checker *checker, struct tree *tree)
 
   if (type_size (node->type) == 0)
     {
-      error (tree->location, "expression has no storage size");
+      error (tree->location, "type has no storage size");
 
       exit (1);
     }
@@ -391,6 +398,17 @@ checker_check_node_print (struct checker *checker, struct tree *tree)
 
 
 static void
+checker_check_node_scale (struct checker *checker, struct tree *tree)
+{
+  struct tree_node_scale *node = &tree->d.scale;
+
+  checker_check_rvalue (checker, node->value);
+
+  checker_check_type (checker, node->type_base);
+}
+
+
+static void
 checker_check_node_cast (struct checker *checker, struct tree *tree)
 {
   struct tree_node_cast *node = &tree->d.cast;
@@ -401,18 +419,22 @@ checker_check_node_cast (struct checker *checker, struct tree *tree)
 
   if (!type_is_scalar (type))
     {
-      const char *kind = type_kind_string (type->kind);
+      char name[512];
 
-      error (tree->location, "cast from non-scalar type '%s'", kind);
+      type_string (type, name, sizeof name);
+
+      error (tree->location, "cast from non-scalar type '%s'", name);
 
       exit (1);
     }
 
   if (!type_is_scalar (node->type))
     {
-      const char *kind = type_kind_string (node->type->kind);
+      char name[512];
 
-      error (tree->location, "cast to non-scalar type '%s'", kind);
+      type_string (type, name, sizeof name);
+
+      error (tree->location, "cast to non-scalar type '%s'", name);
 
       exit (1);
     }
@@ -429,9 +451,11 @@ checker_check_node_call (struct checker *checker, struct tree *tree)
   // NOTE: For now, only function pointers can be called.
   if (!type_is_pointer_to_k (type_callee, TYPE_FUNCTION))
     {
-      const char *kind = type_kind_string (type_callee->kind);
+      char name[512];
 
-      error (tree->location, "call to non-callable type '%s'", kind);
+      type_string (type_callee, name, sizeof name);
+
+      error (tree->location, "call to non-callable type '%s'", name);
 
       exit (1);
     }
@@ -452,7 +476,9 @@ checker_check_node_assignment (struct checker *checker, struct tree *tree)
 
   if (!type_is_assignable (type))
     {
-      const char *name = type_kind_string (type->kind);
+      char name[512];
+
+      type_string (type, name, sizeof name);
 
       error (tree->location, "assignment to non-assignable type '%s'", name);
 
@@ -474,7 +500,9 @@ checker_check_node_access (struct checker *checker, struct tree *tree)
 
   if (!type_is_composite (type))
     {
-      const char *name = type_kind_string (type->kind);
+      char name[512];
+
+      type_string (type, name, sizeof name);
 
       error (tree->location, "field access of non-composite type '%s'", name);
 
@@ -556,8 +584,12 @@ checker_check_node_binary (struct checker *checker, struct tree *tree)
     }
 
   const char *name_operator = binary_operator_string (o);
-  const char *name_a = type_kind_string (type_a->kind);
-  const char *name_b = type_kind_string (type_b->kind);
+
+  char name_a[512];
+  char name_b[512];
+
+  type_string (type_a, name_a, sizeof name_a);
+  type_string (type_b, name_b, sizeof name_b);
 
   error (tree->location, "operator '%s' between '%s' and '%s' is not allowed", name_operator,
          name_a, name_b);
@@ -586,7 +618,9 @@ checker_check_node_dereference (struct checker *checker, struct tree *tree)
 
   if (!type_is_pointer (type))
     {
-      const char *name = type_kind_string (type->kind);
+      char name[512];
+
+      type_string (type, name, sizeof name);
 
       error (tree->location, "dereference of non-pointer type '%s'", name);
 

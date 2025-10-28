@@ -53,12 +53,15 @@ struct type_node_array
 
 struct type_node_struct
 {
+  char *name;
+
   struct type *field1;
 
   struct scope *scope;
 };
 
 
+// A reference to a struct type, which may or may not exist.
 struct type_node_struct_name
 {
   char *name;
@@ -115,6 +118,8 @@ size_t type_alignment (struct type *);
 
 #define TYPE_ERROR NULL
 
+
+void type_string (struct type *, char *, size_t);
 
 struct type *type_create (struct location, enum type_kind);
 

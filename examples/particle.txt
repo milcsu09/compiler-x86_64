@@ -47,13 +47,8 @@ fn main() -> i32 {
 
   SetTargetFPS(60);
 
-  particles : *struct particle; // [10000]struct particle;
-  particles = malloc(50000 * 20);
-
-  print  particles;
-  print &particles[0];
-  print  particles + 1;
-  print &particles[1];
+  particles : *struct particle;
+  particles = malloc(20 * 10000);
 
   i : i64;
 
@@ -96,6 +91,8 @@ fn main() -> i32 {
   }
 
   CloseWindow();
+
+  free(particles);
 
   return 0;
 }

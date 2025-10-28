@@ -31,28 +31,24 @@ main:
 	lea	r10, [rbp-24]
 	add	r10, 16
 	mov	r11, 0
-	imul	r11, 1
 	add	r10, r11
 	mov	r11, 1
 	mov	byte [r10], r11b
 	lea	r10, [rbp-24]
 	add	r10, 16
 	mov	r11, 1
-	imul	r11, 1
 	add	r10, r11
 	mov	r11, 2
 	mov	byte [r10], r11b
 	lea	r10, [rbp-24]
 	add	r10, 16
 	mov	r11, 2
-	imul	r11, 1
 	add	r10, r11
 	mov	r11, 3
 	mov	byte [r10], r11b
 	lea	r10, [rbp-24]
 	add	r10, 16
 	mov	r11, 3
-	imul	r11, 1
 	add	r10, r11
 	mov	r11, 4
 	mov	byte [r10], r11b
@@ -82,7 +78,6 @@ main:
 	lea	r10, [rbp-24]
 	add	r10, 16
 	mov	r11, 0
-	imul	r11, 1
 	add	r10, r11
 	mov	r10b, byte [r10]
 	movzx	r10, r10b
@@ -91,7 +86,6 @@ main:
 	lea	r10, [rbp-24]
 	add	r10, 16
 	mov	r11, 1
-	imul	r11, 1
 	add	r10, r11
 	mov	r10b, byte [r10]
 	movzx	r10, r10b
@@ -100,7 +94,6 @@ main:
 	lea	r10, [rbp-24]
 	add	r10, 16
 	mov	r11, 2
-	imul	r11, 1
 	add	r10, r11
 	mov	r10b, byte [r10]
 	movzx	r10, r10b
@@ -109,7 +102,6 @@ main:
 	lea	r10, [rbp-24]
 	add	r10, 16
 	mov	r11, 3
-	imul	r11, 1
 	add	r10, r11
 	mov	r10b, byte [r10]
 	movzx	r10, r10b

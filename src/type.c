@@ -25,7 +25,7 @@ static const char *const TYPE_KIND_STRING[] = {
   "struct",
   "struct_name",
 
-  "function",
+  "fn",
 };
 
 
@@ -235,6 +235,50 @@ type_alignment (struct type *type)
     }
 }
 
+
+void
+type_string (struct type *type, char *buffer, size_t size)
+{
+  if (!type || size == 0)
+    return;
+
+  switch (type->kind)
+    {
+    case TYPE_POINTER:
+      {
+        int n = snprintf (buffer, size, "*");
+
+        if (n < 0 || (size_t)n >= size)
+          return;
+
+        type_string (type->d.pointer.base, buffer + n, size - n);
+      }
+      break;
+
+    case TYPE_ARRAY:
+      {
+        int n = snprintf (buffer, size, "[]");
+
+        if (n < 0 || (size_t)n >= size)
+          return;
+
+        type_string (type->d.array.base, buffer + n, size - n);
+      }
+      break;
+
+    case TYPE_STRUCT:
+      snprintf (buffer, size, "struct %s", type->d.struct_t.name);
+      break;
+
+    case TYPE_STRUCT_NAME:
+      snprintf (buffer, size, "struct %s", type->d.struct_name.name);
+      break;
+
+    default:
+      snprintf (buffer, size, "%s", type_kind_string(type->kind));
+      break;
+    }
+}
 
 struct type *
 type_create (struct location location, enum type_kind kind)
@@ -677,6 +721,9 @@ type_print (struct type *type, int depth)
       {
         struct type_node_struct node = type->d.struct_t;
 
+        type_print_indent (depth + 1);
+        fprintf (stderr, "\033[91m%s\033[0m\n", node.name);
+
         for (struct type *t = node.field1; t; t = t->next)
           type_print (t, depth + 1);
       }
@@ -686,7 +733,7 @@ type_print (struct type *type, int depth)
         struct type_node_struct_name node = type->d.struct_name;
 
         type_print_indent (depth + 1);
-        fprintf (stderr, "\033[90mstruct \033[91m%s\033[0m\n", node.name);
+        fprintf (stderr, "\033[91m%s\033[0m\n", node.name);
       }
       break;
     case TYPE_FUNCTION:

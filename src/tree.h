@@ -49,6 +49,8 @@ enum tree_kind
   TREE_PRINT,
 
   // Expression
+  TREE_SCALE, // Implicit
+
   TREE_CAST,
   TREE_CALL,
   TREE_ASSIGNMENT,
@@ -146,6 +148,15 @@ struct tree_node_return
 struct tree_node_print
 {
   struct tree *value;
+};
+
+
+struct tree_node_scale
+{
+  struct tree *value;
+
+  struct type *type;
+  struct type *type_base;
 };
 
 
@@ -248,6 +259,8 @@ union tree_data
   struct tree_node_vdeclaration vdeclaration;
   struct tree_node_return       return_s;
   struct tree_node_print        print;
+
+  struct tree_node_scale        scale;
 
   struct tree_node_cast         cast;
   struct tree_node_call         call;

@@ -656,6 +656,8 @@ static void cg_generate_node_return (struct cg *, struct tree *);
 static void cg_generate_node_print (struct cg *, struct tree *);
 
 
+static struct cg_register cg_generate_node_scale (struct cg *, struct tree *);
+
 static struct cg_register cg_generate_node_cast (struct cg *, struct tree *);
 
 static struct cg_register cg_generate_node_call (struct cg *, struct tree *);
@@ -686,6 +688,8 @@ cg_generate_expression (struct cg *cg, struct tree *tree)
 
   switch (tree->kind)
     {
+    case TREE_SCALE:
+      return cg_generate_node_scale (cg, tree);
     case TREE_CAST:
       return cg_generate_node_cast (cg, tree);
     case TREE_CALL:
@@ -1061,6 +1065,22 @@ cg_generate_node_print (struct cg *cg, struct tree *tree)
 
 
 static struct cg_register
+cg_generate_node_scale (struct cg *cg, struct tree *tree)
+{
+  struct tree_node_scale *node = &tree->d.scale;
+
+  struct cg_register r = cg_generate_rvalue (cg, node->value);
+
+  size_t w = type_size (node->type_base);
+
+  if (w != 1)
+    cg_write (cg, "\timul\t%s, %zu\n", register_string (r), w);
+
+  return r;
+}
+
+
+static struct cg_register
 cg_generate_node_cast (struct cg *cg, struct tree *tree)
 {
   struct tree_node_cast *node = &tree->d.cast;
@@ -1265,15 +1285,15 @@ cg_generate_node_binary (struct cg *cg, struct tree *tree)
   struct cg_register b = cg_generate_rvalue (cg, node->rhs);
 
   struct type *type_a = tree_type (node->lhs);
-  struct type *type_b = tree_type (node->rhs);
+  // struct type *type_b = tree_type (node->rhs);
 
   bool s = type_is_integer_signed (type_a);
 
-  bool ai = type_is_integer (type_a);
-  bool bi = type_is_integer (type_b);
+  // bool ai = type_is_integer (type_a);
+  // bool bi = type_is_integer (type_b);
 
-  bool ap = type_is_pointer (type_a);
-  bool bp = type_is_pointer (type_b);
+  // bool ap = type_is_pointer (type_a);
+  // bool bp = type_is_pointer (type_b);
 
   enum binary_operator o = node->o;
 
@@ -1281,36 +1301,36 @@ cg_generate_node_binary (struct cg *cg, struct tree *tree)
   switch (o)
     {
     case BINARY_ADD:
-      if (ai && bp)
-        {
-          size_t w = type_element_size (type_b);
+      // if (ai && bp)
+      //   {
+      //     size_t w = type_element_size (type_b);
 
-          cg_write (cg, "\timul\t%s, %zu\n", register_string (a), w);
-        }
+      //     cg_write (cg, "\timul\t%s, %zu\n", register_string (a), w);
+      //   }
 
-      if (ap && bi)
-        {
-          size_t w = type_element_size (type_a);
+      // if (ap && bi)
+      //   {
+      //     size_t w = type_element_size (type_a);
 
-          cg_write (cg, "\timul\t%s, %zu\n", register_string (b), w);
-        }
+      //     cg_write (cg, "\timul\t%s, %zu\n", register_string (b), w);
+      //   }
 
       cg_write_add (cg, a, b);
       break;
     case BINARY_SUB:
-      if (ai && bp)
-        {
-          size_t w = type_element_size (type_b);
+      // if (ai && bp)
+      //   {
+      //     size_t w = type_element_size (type_b);
 
-          cg_write (cg, "\timul\t%s, %zu\n", register_string (a), w);
-        }
+      //     cg_write (cg, "\timul\t%s, %zu\n", register_string (a), w);
+      //   }
 
-      if (ap && bi)
-        {
-          size_t w = type_element_size (type_a);
+      // if (ap && bi)
+      //   {
+      //     size_t w = type_element_size (type_a);
 
-          cg_write (cg, "\timul\t%s, %zu\n", register_string (b), w);
-        }
+      //     cg_write (cg, "\timul\t%s, %zu\n", register_string (b), w);
+      //   }
 
       cg_write_sub (cg, a, b);
       break;

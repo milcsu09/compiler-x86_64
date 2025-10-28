@@ -101,7 +101,6 @@ main:
 	sub	rsp, 48
 	lea	r10, [rbp-1]
 	mov	r11, 0
-	imul	r11, 1
 	add	r10, r11
 	mov	r11, 0
 	mov	byte [r10], r11b
@@ -119,8 +118,8 @@ main:
 	call	r10
 	lea	r10, [rbp-16]
 	push	r10
-	mov	r11, 50000
-	mov	r12, 20
+	mov	r11, 20
+	mov	r12, 10000
 	imul	r11, r12
 	mov	rdi, r11
 	sub	rsp, 8
@@ -130,27 +129,6 @@ main:
 	pop	r10
 	mov	r11, rax
 	mov	qword [r10], r11
-	mov	r10, qword [rbp-16]
-	mov	rdi, r10
-	call	printi
-	mov	r10, qword [rbp-16]
-	mov	r11, 0
-	imul	r11, 0
-	add	r10, r11
-	mov	rdi, r10
-	call	printi
-	mov	r10, qword [rbp-16]
-	mov	r11, 1
-	imul	r11, 0
-	add	r10, r11
-	mov	rdi, r10
-	call	printi
-	mov	r10, qword [rbp-16]
-	mov	r11, 1
-	imul	r11, 0
-	add	r10, r11
-	mov	rdi, r10
-	call	printi
 	lea	r10, [rbp-24]
 	mov	r11, 0
 	mov	qword [r10], r11
@@ -158,7 +136,7 @@ main:
 .L2:
 	mov	r10, qword [rbp-16]
 	mov	r11, qword [rbp-24]
-	imul	r11, 0
+	imul	r11, 20
 	add	r10, r11
 	mov	rdi, r10
 	lea	r10, [rel particle_init]
@@ -184,19 +162,19 @@ main:
 .L6:
 	mov	r10, qword [rbp-16]
 	mov	r11, qword [rbp-24]
-	imul	r11, 0
+	imul	r11, 20
 	add	r10, r11
 	add	r10, 0
 	mov	r11, qword [rbp-16]
 	mov	r12, qword [rbp-24]
-	imul	r12, 0
+	imul	r12, 20
 	add	r11, r12
 	add	r11, 0
 	mov	r11d, dword [r11]
 	mov	r12, qword [rbp-16]
 	push	r10
 	mov	r10, qword [rbp-24]
-	imul	r10, 0
+	imul	r10, 20
 	add	r12, r10
 	pop	r10
 	add	r12, 8
@@ -205,19 +183,19 @@ main:
 	mov	dword [r10], r11d
 	mov	r10, qword [rbp-16]
 	mov	r11, qword [rbp-24]
-	imul	r11, 0
+	imul	r11, 20
 	add	r10, r11
 	add	r10, 4
 	mov	r11, qword [rbp-16]
 	mov	r12, qword [rbp-24]
-	imul	r12, 0
+	imul	r12, 20
 	add	r11, r12
 	add	r11, 4
 	mov	r11d, dword [r11]
 	mov	r12, qword [rbp-16]
 	push	r10
 	mov	r10, qword [rbp-24]
-	imul	r10, 0
+	imul	r10, 20
 	add	r12, r10
 	pop	r10
 	add	r12, 12
@@ -226,12 +204,12 @@ main:
 	mov	dword [r10], r11d
 	mov	r10, qword [rbp-16]
 	mov	r11, qword [rbp-24]
-	imul	r11, 0
+	imul	r11, 20
 	add	r10, r11
 	add	r10, 16
 	mov	r11, qword [rbp-16]
 	mov	r12, qword [rbp-24]
-	imul	r12, 0
+	imul	r12, 20
 	add	r11, r12
 	add	r11, 16
 	mov	r11d, dword [r11]
@@ -241,7 +219,7 @@ main:
 	mov	dword [r10], r11d
 	mov	r10, qword [rbp-16]
 	mov	r11, qword [rbp-24]
-	imul	r11, 0
+	imul	r11, 20
 	add	r10, r11
 	add	r10, 16
 	mov	r10d, dword [r10]
@@ -253,7 +231,7 @@ main:
 	jz	.L8
 	mov	r10, qword [rbp-16]
 	mov	r11, qword [rbp-24]
-	imul	r11, 0
+	imul	r11, 20
 	add	r10, r11
 	mov	rdi, r10
 	lea	r10, [rel particle_init]
@@ -291,7 +269,7 @@ main:
 	lea	r10, [rbp-28]
 	mov	r11, qword [rbp-16]
 	mov	r12, qword [rbp-24]
-	imul	r12, 0
+	imul	r12, 20
 	add	r11, r12
 	add	r11, 0
 	mov	r11d, dword [r11]
@@ -305,7 +283,7 @@ main:
 	lea	r10, [rbp-32]
 	mov	r11, qword [rbp-16]
 	mov	r12, qword [rbp-24]
-	imul	r12, 0
+	imul	r12, 20
 	add	r11, r12
 	add	r11, 4
 	mov	r11d, dword [r11]
@@ -319,7 +297,7 @@ main:
 	lea	r10, [rbp-36]
 	mov	r11, qword [rbp-16]
 	mov	r12, qword [rbp-24]
-	imul	r12, 0
+	imul	r12, 20
 	add	r11, r12
 	add	r11, 16
 	mov	r11d, dword [r11]
@@ -367,6 +345,10 @@ main:
 	test	r10b, r10b
 	jnz	.L4
 	lea	r10, [rel CloseWindow]
+	call	r10
+	mov	r10, qword [rbp-16]
+	mov	rdi, r10
+	lea	r10, [rel free]
 	call	r10
 	mov	r10, 0
 	mov	eax, r10d

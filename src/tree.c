@@ -46,6 +46,8 @@ static const char *const TREE_KIND_STRING[] = {
   "return",
   "print",
 
+  "scale",
+
   "cast",
   "call",
   "assignment",
@@ -117,6 +119,8 @@ tree_type (struct tree *tree)
       return tree->d.struct_s.type;
     case TREE_VDECLARATION:
       return tree->d.vdeclaration.type;
+    case TREE_SCALE:
+      return tree->d.scale.type;
     case TREE_CAST:
       return tree->d.cast.type;
     case TREE_CALL:
@@ -296,6 +300,17 @@ tree_print (struct tree *tree, int depth)
         type_print (node.type, depth + 1);
 
         tree_print (node.value, depth + 1);
+      }
+      break;
+    case TREE_SCALE:
+      {
+        struct tree_node_scale node = tree->d.scale;
+
+        type_print (node.type, depth + 1);
+
+        tree_print (node.value, depth + 1);
+
+        type_print (node.type_base, depth + 1);
       }
       break;
     case TREE_CALL:
