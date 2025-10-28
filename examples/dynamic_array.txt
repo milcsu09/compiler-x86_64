@@ -1,0 +1,62 @@
+
+extern fn malloc(u64) -> *void;
+extern fn realloc(*void, u64) -> *void;
+extern fn free(*void);
+
+
+struct da {
+  data     : *i64;
+  size     :  i64;
+  capacity :  i64;
+}
+
+
+fn da_create(capacity : i64) -> *struct da {
+  da : *struct da;
+  da = malloc (24); // TODO: sizeof
+
+  da->data     = malloc(8 * capacity);
+  da->size     = 0;
+  da->capacity = capacity;
+
+  return da;
+}
+
+
+fn da_destroy(da : *struct da) {
+  free(da->data);
+  free(da);
+}
+
+
+fn da_append(da : *struct da, item : i64) {
+  if da->size >= da->capacity {
+    da->capacity = da->capacity * 2;
+
+    da->data = realloc(da->data, 8 * da->capacity);
+  }
+
+  da->data[da->size] = item;
+  da->size = da->size + 1;
+}
+
+
+fn main() -> i32 {
+  da : *struct da;
+  da = da_create(4);
+
+  i : i64;
+
+  for i = 0; i < 100; i = i + 1 {
+    da_append(da, i * i);
+  }
+
+  for i = 0; i < 100; i = i + 1 {
+    print da->data[i];
+  }
+
+  da_destroy(da);
+
+  return 0;
+}
+
