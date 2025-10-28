@@ -17,6 +17,7 @@ printi:
 	extern	EndDrawing
 	extern	ClearBackground
 	extern	DrawRectangle
+	extern	DrawText
 	extern	DrawFPS
 	extern	GetRandomValue
 	global	particle_init
@@ -256,6 +257,20 @@ main:
 	mov	esi, r10d
 	lea	r10, [rel DrawFPS]
 	call	r10
+	mov	r10, LS1
+	mov	rdi, r10
+	mov	r10, 10
+	mov	esi, r10d
+	mov	r10, 600
+	mov	r11, 34
+	sub	r10, r11
+	mov	edx, r10d
+	mov	r10, 24
+	mov	ecx, r10d
+	mov	r10, 4294901760
+	mov	r8, r10
+	lea	r10, [rel DrawText]
+	call	r10
 	lea	r10, [rbp-16]
 	mov	r11, 0
 	mov	qword [r10], r11
@@ -353,11 +368,10 @@ main:
 	pop	rbp
 	ret
 
-section .data
-	printi_s: db "%ld", 10, 0
-
 section .rodata
+	printi_s: db "%ld", 10, 0
 	LS0: db 80, 97, 114, 116, 105, 99, 108, 101, 115, 33, 0
+	LS1: db 119, 104, 111, 97, 104, 0
 
 section .note.GNU-stack
 
