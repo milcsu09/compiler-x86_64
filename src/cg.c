@@ -549,7 +549,7 @@ cg_write_begin (struct cg *cg)
   cg_write (cg, "printi:\n");
   cg_write (cg, "\tmov\trsi, rdi\n");
   cg_write (cg, "\txor\teax, eax\n");
-  cg_write (cg, "\tmov\tedi, printi_s\n");
+  cg_write (cg, "\tmov\trdi, printi_s\n");
   cg_write (cg, "\tjmp\tprintf\n");
 
   cg_write (cg, "\n");

@@ -728,7 +728,7 @@ parser_parse_expression_postfix (struct parser *parser)
 {
   struct tree *result;
 
-  result = parser_parse_expression_call (parser);
+  result = parser_parse_primary (parser);
 
   while (1)
     {
@@ -787,7 +787,7 @@ parser_parse_expression_postfix (struct parser *parser)
 
           struct tree *index;
 
-          index = parser_parse_expression_assignment(parser);
+          index = parser_parse_expression_assignment (parser);
 
           parser_expect_advance (parser, TOKEN_RBRACKET);
 
@@ -809,6 +809,35 @@ parser_parse_expression_postfix (struct parser *parser)
           result = deref;
         }
 
+      else if (parser_match (parser, TOKEN_LPAREN))
+        {
+          struct tree *call;
+
+          call = tree_create (result->location, TREE_CALL);
+
+          call->d.call.callee = result;
+
+          parser_advance (parser);
+
+          while (!parser_match (parser, TOKEN_RPAREN))
+            {
+              struct tree *argument;
+
+              argument = parser_parse_expression_assignment (parser);
+
+              tree_append (&call->d.call.argument1, argument);
+
+              if (parser_match (parser, TOKEN_COMMA))
+                parser_advance (parser);
+              else
+                parser_expect (parser, TOKEN_RPAREN);
+            }
+
+          parser_expect_advance (parser, TOKEN_RPAREN);
+
+          result = call;
+        }
+
       else
         break;
     }
@@ -817,6 +846,7 @@ parser_parse_expression_postfix (struct parser *parser)
 }
 
 
+/*
 static struct tree *
 parser_parse_expression_call (struct parser *parser)
 {
@@ -855,6 +885,7 @@ parser_parse_expression_call (struct parser *parser)
 
   return result;
 }
+*/
 
 
 static struct tree *
