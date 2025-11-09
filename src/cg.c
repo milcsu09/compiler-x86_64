@@ -102,9 +102,9 @@ cg_string_push (struct cg *cg, struct cg_string *string)
 }
 
 static void
-cg_scope_push (struct cg *cg)
+cg_scope_push (struct cg *cg, size_t capacity)
 {
-  cg->scope = scope_create (cg->scope, 128);
+  cg->scope = scope_create (cg->scope, capacity);
 }
 
 
@@ -128,8 +128,6 @@ cg_create (FILE *f)
   cg->f = f;
 
   cg->scope = NULL;
-
-  cg_scope_push (cg);
 
   cg->label = 0;
 
@@ -665,7 +663,7 @@ cg_next_multiple (size_t i, size_t n)
 
 
 static void
-cg_resolve_local (struct cg *cg, struct tree *tree)
+cg_count_stack_usage (struct cg *cg, struct tree *tree)
 {
   if (!tree)
     return;
@@ -677,31 +675,31 @@ cg_resolve_local (struct cg *cg, struct tree *tree)
         struct tree_node_fdefinition node = tree->d.fdefinition;
 
         for (struct tree *t = node.parameter1; t; t = t->next)
-          cg_resolve_local (cg, t);
+          cg_count_stack_usage (cg, t);
 
-        cg_resolve_local (cg, node.body);
+        cg_count_stack_usage (cg, node.body);
       }
       break;
     case TREE_IF:
       {
         struct tree_node_if node = tree->d.if_s;
 
-        cg_resolve_local (cg, node.branch_a);
-        cg_resolve_local (cg, node.branch_b);
+        cg_count_stack_usage (cg, node.branch_a);
+        cg_count_stack_usage (cg, node.branch_b);
       }
       break;
     case TREE_WHILE:
       {
         struct tree_node_while node = tree->d.while_s;
 
-        cg_resolve_local (cg, node.body);
+        cg_count_stack_usage (cg, node.body);
       }
       break;
     case TREE_FOR:
       {
         struct tree_node_for node = tree->d.for_s;
 
-        cg_resolve_local (cg, node.body);
+        cg_count_stack_usage (cg, node.body);
       }
       break;
     case TREE_COMPOUND:
@@ -709,7 +707,7 @@ cg_resolve_local (struct cg *cg, struct tree *tree)
         struct tree_node_compound node = tree->d.compound;
 
         for (struct tree *t = node.statement1; t; t = t->next)
-          cg_resolve_local (cg, t);
+          cg_count_stack_usage (cg, t);
       }
       break;
     case TREE_VDECLARATION:
@@ -719,22 +717,7 @@ cg_resolve_local (struct cg *cg, struct tree *tree)
         size_t s = type_size (node.type);
         size_t a = type_alignment (node.type);
 
-        cg->function.stack_pointer = cg_next_multiple (cg->function.stack_pointer, a);
-
-        size_t stack_offset = cg->function.stack_pointer + s;
-
-        struct symbol symbol;
-
-        symbol.scope = SYMBOL_LOCAL;
-
-        symbol.name = node.name;
-        symbol.type = node.type;
-
-        symbol.d.local.offset = stack_offset;
-
-        scope_set_validate (cg->scope, symbol, tree->location);
-
-        cg->function.stack_pointer = cg->function.stack_pointer + s;
+        cg->function.stack_pointer = cg_next_multiple (cg->function.stack_pointer, a) + s;
       }
       break;
     case TREE_PROGRAM:
@@ -742,12 +725,14 @@ cg_resolve_local (struct cg *cg, struct tree *tree)
         struct tree_node_program node = tree->d.program;
 
         for (struct tree *t = node.top_level1; t; t = t->next)
-          cg_resolve_local (cg, t);
+          cg_count_stack_usage (cg, t);
       }
       break;
     default:
       break;
     }
+
+
 }
 
 
@@ -763,6 +748,8 @@ static void cg_generate_node_while (struct cg *, struct tree *);
 static void cg_generate_node_for (struct cg *, struct tree *);
 
 static void cg_generate_node_compound (struct cg *, struct tree *);
+
+static void cg_generate_node_vdeclaration (struct cg *, struct tree *);
 
 static void cg_generate_node_return (struct cg *, struct tree *);
 
@@ -927,6 +914,9 @@ cg_generate_statement (struct cg *cg, struct tree *tree)
     case TREE_COMPOUND:
       cg_generate_node_compound (cg, tree);
       break;
+    case TREE_VDECLARATION:
+      cg_generate_node_vdeclaration (cg, tree);
+      break;
     case TREE_RETURN:
       cg_generate_node_return (cg, tree);
       break;
@@ -982,11 +972,19 @@ cg_generate_node_fdefinition (struct cg *cg, struct tree *tree)
 
   scope_set_validate (cg->scope, symbol, tree->location);
 
-  cg_scope_push (cg);
+  const size_t count_parameter = tree_count_parameter (tree);
+  const size_t count_shallow = tree_count_shallow (node->body);
 
-  cg_resolve_local (cg, tree);
+  cg_scope_push (cg, count_parameter + count_shallow);
+
+  cg_count_stack_usage (cg, tree);
 
   size_t stack_usage = cg_next_multiple (cg->function.stack_pointer, 16);
+
+  cg->function.stack_pointer = 0;
+
+  for (struct tree *t = node->parameter1; t; t = t->next)
+    cg_generate_statement (cg, t);
 
   cg_write (cg, "\tglobal\t%s\n", cg->function.node->name);
   cg_write (cg, "%s:\n", cg->function.node->name);
@@ -1146,12 +1144,39 @@ cg_generate_node_compound (struct cg *cg, struct tree *tree)
 {
   struct tree_node_compound *node = &tree->d.compound;
 
-  cg_scope_push (cg);
+  cg_scope_push (cg, tree_count_shallow (tree));
 
   for (struct tree *t = node->statement1; t; t = t->next)
     cg_generate_statement (cg, t);
 
   cg_scope_pop (cg);
+}
+
+
+static void
+cg_generate_node_vdeclaration (struct cg *cg, struct tree *tree)
+{
+  struct tree_node_vdeclaration node = tree->d.vdeclaration;
+
+  size_t s = type_size (node.type);
+  size_t a = type_alignment (node.type);
+
+  cg->function.stack_pointer = cg_next_multiple (cg->function.stack_pointer, a);
+
+  size_t offset = cg->function.stack_pointer + s;
+
+  struct symbol symbol;
+
+  symbol.scope = SYMBOL_LOCAL;
+
+  symbol.name = node.name;
+  symbol.type = node.type;
+
+  symbol.d.local.offset = offset;
+
+  scope_set_validate (cg->scope, symbol, tree->location);
+
+  cg->function.stack_pointer = offset;
 }
 
 
@@ -1612,6 +1637,8 @@ void
 cg_generate (struct cg *cg, struct tree *tree)
 {
   cg_write_begin (cg);
+
+  cg_scope_push (cg, tree_count_global (tree));
 
   cg_generate_statement (cg, tree);
 

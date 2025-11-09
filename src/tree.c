@@ -177,6 +177,77 @@ tree_is_rvalue (struct tree *tree)
 }
 
 
+size_t
+tree_count_global (struct tree *tree)
+{
+  if (!tree)
+    return 0;
+
+  if (tree->kind != TREE_PROGRAM)
+    return 0;
+
+  size_t n = 0;
+
+  for (struct tree *t = tree->d.program.top_level1; t; t = t->next)
+    switch (t->kind)
+      {
+      case TREE_FDECLARATION:
+      case TREE_FDEFINITION:
+        n++;
+        break;
+
+      default:
+        break;
+      }
+
+  return n;
+}
+
+
+size_t
+tree_count_parameter (struct tree *tree)
+{
+  if (!tree)
+    return 0;
+
+  if (tree->kind != TREE_FDEFINITION)
+    return 0;
+
+  size_t n = 0;
+
+  for (struct tree *t = tree->d.fdefinition.parameter1; t; t = t->next)
+    n++;
+
+  return n;
+}
+
+
+size_t
+tree_count_shallow (struct tree *tree)
+{
+  if (!tree)
+    return 0;
+
+  if (tree->kind != TREE_COMPOUND)
+    return 0;
+
+  size_t n = 0;
+
+  for (struct tree *t = tree->d.compound.statement1; t; t = t->next)
+    switch (t->kind)
+      {
+      case TREE_VDECLARATION:
+        n++;
+        break;
+
+      default:
+        break;
+      }
+
+  return n;
+}
+
+
 static void
 tree_print_indent (int depth)
 {

@@ -148,7 +148,7 @@ main:
 	pop	rbp
 	ret
 
-section .data
+section .rodata
 	printi_s: db "%ld", 10, 0
 
 section .note.GNU-stack

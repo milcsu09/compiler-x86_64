@@ -318,6 +318,13 @@ bool tree_is_lvalue (struct tree *);
 bool tree_is_rvalue (struct tree *);
 
 
+size_t tree_count_global (struct tree *);
+
+size_t tree_count_parameter (struct tree *);
+
+size_t tree_count_shallow (struct tree *);
+
+
 void tree_print (struct tree *, int);
 
 

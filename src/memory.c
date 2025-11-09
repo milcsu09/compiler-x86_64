@@ -1,4 +1,5 @@
 #include "memory.h"
+#include "error.h"
 
 #include <stdint.h>
 #include <stdio.h>
@@ -86,9 +87,61 @@ void
 }
 
 
+const char *
+size_to_human (size_t bytes, char* buffer, size_t buffer_size)
+{
+  static const char *const UNITS[] = {"B", "K", "M", "G", "T", "P"};
+
+  size_t unit = 0;
+
+  double size = (double)bytes;
+
+  while (size >= 1024 && unit < sizeof (UNITS) / sizeof (char *))
+    {
+      size /= 1024;
+      unit++;
+    }
+
+  snprintf (buffer, buffer_size, "%.1f%s", size, UNITS[unit]);
+
+  return buffer;
+}
+
+
 void
 aa_free (void)
 {
+#if 1
+  {
+    size_t used = 0;
+    size_t size = 0;
+    size_t n = 0;
+
+    struct aa_chunk *chunk = head;
+
+    while (chunk)
+      {
+        used += chunk->head - chunk->data;
+        size += AA_CHUNK_SIZE;
+
+        n++;
+
+        chunk = chunk->next;
+      }
+
+    if (n != 0)
+      {
+        char buffer1[64];
+        char buffer2[64];
+
+        size_to_human (used, buffer1, sizeof buffer1);
+        size_to_human (size, buffer2, sizeof buffer2);
+
+        info (location_none, "%s / %s (%ld)", buffer1, buffer2, n);
+      }
+  }
+#endif
+
   struct aa_chunk *chunk = head;
 
   while (chunk)

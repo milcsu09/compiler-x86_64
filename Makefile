@@ -1,7 +1,7 @@
 
 CC := cc
 
-CCFLAGS := -std=c99 -Ofast -Wall -Wextra -Wpedantic
+CCFLAGS := -std=c99 -g2 -Wall -Wextra -Wpedantic
 LDFLAGS :=
 
 SRC := $(wildcard src/*.c)

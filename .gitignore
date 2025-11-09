@@ -1,6 +1,8 @@
 *.o
 *.out
 
+test/
+
 .cache/
 
 compile.sh

@@ -20,9 +20,9 @@ struct resolver
 
 
 static void
-resolver_scope_push (struct resolver *resolver)
+resolver_scope_push (struct resolver *resolver, size_t capacity)
 {
-  resolver->scope = scope_create (resolver->scope, SCOPE_CAPACITY);
+  resolver->scope = scope_create (resolver->scope, capacity);
 }
 
 
@@ -43,7 +43,7 @@ resolver_create (void)
   resolver->scope = NULL;
   resolver->scope_struct = scope_create (NULL, SCOPE_CAPACITY);
 
-  resolver_scope_push (resolver);
+  // resolver_scope_push (resolver);
 
   return resolver;
 }
@@ -412,7 +412,10 @@ resolver_resolve_node_fdefinition (struct resolver *resolver, struct tree *tree)
 
   scope_set_validate (resolver->scope, symbol, tree->location);
 
-  resolver_scope_push (resolver);
+  const size_t count_parameter = tree_count_parameter (tree);
+  const size_t count_shallow = tree_count_shallow (node->body);
+
+  resolver_scope_push (resolver, count_parameter + count_shallow);
 
   struct type_node_function *type_node = &node->type->d.function;
 
@@ -560,7 +563,7 @@ resolver_resolve_node_compound (struct resolver *resolver, struct tree *tree)
 {
   struct tree_node_compound *node = &tree->d.compound;
 
-  resolver_scope_push (resolver);
+  resolver_scope_push (resolver, tree_count_shallow (tree));
 
   for (struct tree *t = node->statement1; t; t = t->next)
     resolver_resolve_statement (resolver, t);
@@ -1028,6 +1031,8 @@ resolver_resolve_node_program (struct resolver *resolver, struct tree *tree)
 void
 resolver_resolve (struct resolver *resolver, struct tree *tree)
 {
+  resolver_scope_push (resolver, tree_count_global (tree));
+
   resolver_resolve_statement (resolver, tree);
 }
 

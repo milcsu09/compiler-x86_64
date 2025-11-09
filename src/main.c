@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <time.h>
 #include <sys/time.h>
+#include <unistd.h>
+#include <signal.h>
 
 #include "cg.h"
 #include "tree.h"
@@ -90,8 +92,8 @@ struct flags
   char *path;
 
   bool p;
-  bool s;
   bool sr;
+  bool sc;
 
   bool S;
 
@@ -104,12 +106,6 @@ struct flags
 void
 compile_file (struct flags flags)
 {
-  if (flags.path == NULL)
-    {
-      error (location_none, "no input");
-      exit (1);
-    }
-
   struct timeval t0, t1;
 
   char path_base[256];
@@ -153,7 +149,7 @@ compile_file (struct flags flags)
 
   checker_check (checker, tree);
 
-  if (flags.s)
+  if (flags.sc)
     {
       tree_print (tree, 0);
       return;
@@ -182,7 +178,7 @@ compile_file (struct flags flags)
 
   gettimeofday (&t1, NULL);
 
-  note (location_none, "Compiler %9.4fs (%s)", dt_s (t0, t1), flags.o_stdout ? "stdout" : path_s);
+  info (location_none, "Compiler %9.4fs (%s)", dt_s (t0, t1), flags.o_stdout ? "stdout" : path_s);
 
   if (flags.S)
     return;
@@ -201,7 +197,7 @@ compile_file (struct flags flags)
 
   gettimeofday (&t1, NULL);
 
-  note (location_none, "    NASM %9.4fs (%s)", dt_s (t0, t1), path_o);
+  info (location_none, "    NASM %9.4fs (%s)", dt_s (t0, t1), path_o);
 
   gettimeofday (&t0, NULL);
 
@@ -215,7 +211,97 @@ compile_file (struct flags flags)
 
   gettimeofday (&t1, NULL);
 
-  note (location_none, "     GCC %9.4fs (%s)", dt_s (t0, t1), path_u);
+  info (location_none, "     GCC %9.4fs (%s)", dt_s (t0, t1), path_u);
+}
+
+
+/*
+static const char *
+signal_name (int signal)
+{
+  switch (signal)
+    {
+    case SIGINT:
+      return "SIGINT";
+    case SIGILL:
+      return "SIGILL";
+    case SIGABRT:
+      return "SIGABRT";
+    case SIGFPE:
+      return "SIGFPE";
+    case SIGSEGV:
+      return "SIGSEGV";
+    case SIGTERM:
+      return "SIGTERM";
+    default:
+      return "UNKNOWN";
+    }
+}
+
+
+static void
+signal_to_string (int signal, char buffer[16])
+{
+  char reverse[16];
+
+  bool is_neg;
+
+  if ((is_neg = signal < 0))
+    signal = -signal;
+
+  size_t i = 0, j = 0;
+
+  do
+    reverse[i++] = signal + '0';
+  while (signal /= 10);
+
+  if (is_neg)
+    buffer[j++] = '-';
+
+  while (i > 0)
+    buffer[j++] = reverse[--i];
+
+  buffer[j++] = 0;
+}
+
+
+static void
+signal_handler (int signal)
+{
+  const char *name = signal_name (signal);
+
+  char signal_string[16];
+
+  signal_to_string (signal, signal_string);
+
+  const char message1[] = "  \033[1;91mfatal\033[0m: caught signal ";
+
+  write (STDERR_FILENO, message1, sizeof message1 - 1);
+  write (STDERR_FILENO, signal_string, strlen (signal_string));
+  write (STDERR_FILENO, " ", 1);
+  write (STDERR_FILENO, "(", 1);
+  write (STDERR_FILENO, name, strlen (name));
+  write (STDERR_FILENO, ")", 1);
+  write (STDERR_FILENO, "\n", 1);
+
+  _exit (1);
+}
+*/
+
+
+static void
+usage (const char *path)
+{
+  fprintf (stderr, "Usage: %s [options] <file>\n", path);
+  fprintf (stderr, "Options:\n");
+  fprintf (stderr, "  -h, --help         Show this help message and exit.\n");
+  fprintf (stderr, "  -p                 Stop after parsing and dump the AST.\n");
+  fprintf (stderr, "  -sr                Stop after semantic resolution and dump the AST.\n");
+  fprintf (stderr, "  -sc                Stop after semantic checking and dump the AST.\n");
+  fprintf (stderr, "  -S                 Stop after generating assembly.\n");
+  fprintf (stderr, "  --stdout           Implies -S; dump generated assembly to standard\n");
+  fprintf (stderr, "                     output.\n");
+  fprintf (stderr, "  --ldflags=<flags>  Additional linker flags.\n");
 }
 
 
@@ -224,11 +310,18 @@ main (int argc, char **argv)
 {
   atexit (aa_free);
 
+  // signal (SIGINT, signal_handler);
+  // signal (SIGILL, signal_handler);
+  // signal (SIGABRT, signal_handler);
+  // signal (SIGFPE, signal_handler);
+  // signal (SIGSEGV, signal_handler);
+  // signal (SIGTERM, signal_handler);
+
   struct flags flags;
 
   flags.p = false;
-  flags.s = false;
   flags.sr = false;
+  flags.sc = false;
   flags.S = false;
   flags.o_stdout = false;
   flags.path = NULL;
@@ -237,14 +330,20 @@ main (int argc, char **argv)
 
   for (int i = 1; i < argc; ++i)
     {
+      if (strcmp (argv[i], "-h") == 0 || strcmp (argv[i], "--help") == 0)
+        {
+          usage (argv[0]);
+          exit (0);
+        }
+
       if (strcmp (argv[i], "-p") == 0)
         flags.p = true;
 
-      else if (strcmp (argv[i], "-s") == 0)
-        flags.s = true;
-
       else if (strcmp (argv[i], "-sr") == 0)
         flags.sr = true;
+
+      else if (strcmp (argv[i], "-sc") == 0)
+        flags.sc = true;
 
       else if (strcmp (argv[i], "-S") == 0)
         flags.S = true;
@@ -260,6 +359,12 @@ main (int argc, char **argv)
 
       else
         flags.path = argv[i];
+    }
+
+  if (flags.path == NULL)
+    {
+      error (location_none, "no input");
+      exit (1);
     }
 
   compile_file (flags);
