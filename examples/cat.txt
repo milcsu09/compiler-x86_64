@@ -5,13 +5,8 @@ extern fn fgetc(*void) -> u8;
 extern fn putchar(u8);
 
 fn cat_file(path : *u8) {
-  mode : [2]u8;
-
-  mode[0] = 114; // 'r'
-  mode[1] = 0;
-
   file : *void;
-  file = fopen(path, mode);
+  file = fopen(path, "r");
 
   if file == 0 {
     return;

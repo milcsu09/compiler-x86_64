@@ -17,23 +17,11 @@ cat_file:
 	mov	rbp, rsp
 	sub	rsp, 32
 	mov	qword [rbp-8], rdi
-	lea	r10, [rbp-10]
-	mov	r11, 0
-	imul	r11, 1
-	add	r10, r11
-	mov	r11, 114
-	mov	byte [r10], r11b
-	lea	r10, [rbp-10]
-	mov	r11, 1
-	imul	r11, 1
-	add	r10, r11
-	mov	r11, 0
-	mov	byte [r10], r11b
-	lea	r10, [rbp-24]
+	lea	r10, [rbp-16]
 	push	r10
 	mov	r11, qword [rbp-8]
 	mov	rdi, r11
-	lea	r11, [rbp-10]
+	mov	r11, LS0
 	mov	rsi, r11
 	sub	rsp, 8
 	lea	r11, [rel fopen]
@@ -42,7 +30,7 @@ cat_file:
 	pop	r10
 	mov	r11, rax
 	mov	qword [r10], r11
-	mov	r10, qword [rbp-24]
+	mov	r10, qword [rbp-16]
 	mov	r11, 0
 	cmp	r10, r11
 	sete	r10b
@@ -52,14 +40,14 @@ cat_file:
 .L1:
 	jmp	.L3
 .L2:
-	mov	r10b, byte [rbp-25]
+	mov	r10b, byte [rbp-17]
 	mov	dil, r10b
 	lea	r10, [rel putchar]
 	call	r10
 .L3:
-	lea	r10, [rbp-25]
+	lea	r10, [rbp-17]
 	push	r10
-	mov	r11, qword [rbp-24]
+	mov	r11, qword [rbp-16]
 	mov	rdi, r11
 	sub	rsp, 8
 	lea	r11, [rel fgetc]
@@ -74,7 +62,7 @@ cat_file:
 	setne	r11b
 	test	r11b, r11b
 	jnz	.L2
-	mov	r10, qword [rbp-24]
+	mov	r10, qword [rbp-16]
 	mov	rdi, r10
 	lea	r10, [rel fclose]
 	call	r10
@@ -135,8 +123,9 @@ main:
 	pop	rbp
 	ret
 
-section .data
+section .rodata
 	printi_s: db "%ld", 10, 0
+	LS0: db 114, 0
 
 section .note.GNU-stack
 
