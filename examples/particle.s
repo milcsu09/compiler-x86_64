@@ -4,7 +4,7 @@ section .text
 printi:
 	mov	rsi, rdi
 	xor	eax, eax
-	mov	edi, printi_s
+	mov	rdi, printi_s
 	jmp	printf
 
 	extern	malloc
@@ -147,7 +147,8 @@ main:
 	mov	r11, 10000
 	cmp	r10, r11
 	setl	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jnz	.L2
 	jmp	.L5
 .L4:
@@ -223,7 +224,8 @@ main:
 	mov	r11, 200
 	cmp	r10, r11
 	setle	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jz	.L8
 	mov	r10, qword [rbp-8]
 	mov	r11, qword [rbp-16]
@@ -243,7 +245,8 @@ main:
 	mov	r11, 10000
 	cmp	r10, r11
 	setl	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jnz	.L6
 	lea	r10, [rel BeginDrawing]
 	call	r10
@@ -340,7 +343,8 @@ main:
 	mov	r11, 10000
 	cmp	r10, r11
 	setl	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jnz	.L9
 	lea	r10, [rel EndDrawing]
 	call	r10
@@ -352,7 +356,8 @@ main:
 	mov	r11, 1
 	cmp	r10, r11
 	setne	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jnz	.L4
 	lea	r10, [rel CloseWindow]
 	call	r10

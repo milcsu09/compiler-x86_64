@@ -4,7 +4,7 @@ section .text
 printi:
 	mov	rsi, rdi
 	xor	eax, eax
-	mov	edi, printi_s
+	mov	rdi, printi_s
 	jmp	printf
 
 	extern	malloc
@@ -51,7 +51,8 @@ main:
 	mov	r11, 4
 	cmp	r10, r11
 	setl	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jnz	.L1
 	lea	r10, [rbp-16]
 	mov	r11, 0
@@ -76,7 +77,8 @@ main:
 	mov	r11, 4
 	cmp	r10, r11
 	setl	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jnz	.L3
 	mov	r10, qword [rbp-8]
 	mov	rdi, r10
@@ -90,7 +92,7 @@ main:
 	pop	rbp
 	ret
 
-section .data
+section .rodata
 	printi_s: db "%ld", 10, 0
 
 section .note.GNU-stack

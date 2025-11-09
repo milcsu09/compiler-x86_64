@@ -4,7 +4,7 @@ section .text
 printi:
 	mov	rsi, rdi
 	xor	eax, eax
-	mov	edi, printi_s
+	mov	rdi, printi_s
 	jmp	printf
 
 	extern	InitWindow
@@ -64,7 +64,8 @@ main:
 	mov	r11, 1
 	cmp	r10, r11
 	setne	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jnz	.L1
 	lea	r10, [rel CloseWindow]
 	call	r10

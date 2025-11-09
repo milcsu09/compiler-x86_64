@@ -4,7 +4,7 @@ section .text
 printi:
 	mov	rsi, rdi
 	xor	eax, eax
-	mov	edi, printi_s
+	mov	rdi, printi_s
 	jmp	printf
 
 	extern	putchar
@@ -31,7 +31,8 @@ main:
 .L2:
 	mov	r10, qword [rbp-8]
 	mov	r10b, byte [r10]
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jnz	.L1
 	mov	r10, 0
 	mov	eax, r10d

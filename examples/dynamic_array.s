@@ -4,7 +4,7 @@ section .text
 printi:
 	mov	rsi, rdi
 	xor	eax, eax
-	mov	edi, printi_s
+	mov	rdi, printi_s
 	jmp	printf
 
 	extern	malloc
@@ -93,7 +93,8 @@ da_append:
 	mov	r11, qword [r11]
 	cmp	r10, r11
 	setge	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jz	.L3
 	mov	r10, qword [rbp-8]
 	add	r10, 16
@@ -186,7 +187,8 @@ main:
 	mov	r11, 100
 	cmp	r10, r11
 	setl	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jnz	.L5
 	lea	r10, [rbp-16]
 	mov	r11, 0
@@ -212,7 +214,8 @@ main:
 	mov	r11, 100
 	cmp	r10, r11
 	setl	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jnz	.L7
 	mov	r10, qword [rbp-8]
 	mov	rdi, r10

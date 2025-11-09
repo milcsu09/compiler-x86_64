@@ -4,7 +4,7 @@ section .text
 printi:
 	mov	rsi, rdi
 	xor	eax, eax
-	mov	edi, printi_s
+	mov	rdi, printi_s
 	jmp	printf
 
 	global	bubble_sort
@@ -31,14 +31,17 @@ bubble_sort:
 	mov	r10d, dword [r10]
 	mov	r11, qword [rbp-8]
 	mov	r12, qword [rbp-32]
-	mov	r13, 1
-	add	r12, r13
+	push	r10
+	mov	r10, 1
+	add	r12, r10
+	pop	r10
 	imul	r12, 4
 	add	r11, r12
 	mov	r11d, dword [r11]
 	cmp	r10d, r11d
 	setg	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jz	.L5
 	lea	r10, [rbp-40]
 	mov	r11, qword [rbp-8]
@@ -54,8 +57,10 @@ bubble_sort:
 	add	r10, r11
 	mov	r11, qword [rbp-8]
 	mov	r12, qword [rbp-32]
-	mov	r13, 1
-	add	r12, r13
+	push	r10
+	mov	r10, 1
+	add	r12, r10
+	pop	r10
 	imul	r12, 4
 	add	r11, r12
 	mov	r11d, dword [r11]
@@ -83,7 +88,8 @@ bubble_sort:
 	sub	r11, r12
 	cmp	r10, r11
 	setl	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jnz	.L3
 	lea	r10, [rbp-24]
 	mov	r11, qword [rbp-24]
@@ -95,7 +101,8 @@ bubble_sort:
 	mov	r11, qword [rbp-16]
 	cmp	r10, r11
 	setl	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jnz	.L1
 .L0:
 	add	rsp, 48
@@ -166,7 +173,8 @@ main:
 	mov	r11, 5
 	cmp	r10, r11
 	setl	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jnz	.L7
 	mov	r10, 0
 	mov	eax, r10d
@@ -176,7 +184,7 @@ main:
 	pop	rbp
 	ret
 
-section .data
+section .rodata
 	printi_s: db "%ld", 10, 0
 
 section .note.GNU-stack

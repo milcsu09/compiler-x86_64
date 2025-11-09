@@ -4,7 +4,7 @@ section .text
 printi:
 	mov	rsi, rdi
 	xor	eax, eax
-	mov	edi, printi_s
+	mov	rdi, printi_s
 	jmp	printf
 
 	extern	putchar
@@ -39,7 +39,8 @@ rule110:
 	mov	r11, 7
 	cmp	r10, r11
 	sete	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jz	.L1
 	mov	r10, 0
 	mov	al, r10b
@@ -50,7 +51,8 @@ rule110:
 	mov	r11, 6
 	cmp	r10, r11
 	sete	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jz	.L2
 	mov	r10, 1
 	mov	al, r10b
@@ -61,7 +63,8 @@ rule110:
 	mov	r11, 5
 	cmp	r10, r11
 	sete	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jz	.L3
 	mov	r10, 1
 	mov	al, r10b
@@ -72,7 +75,8 @@ rule110:
 	mov	r11, 4
 	cmp	r10, r11
 	sete	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jz	.L4
 	mov	r10, 0
 	mov	al, r10b
@@ -83,7 +87,8 @@ rule110:
 	mov	r11, 3
 	cmp	r10, r11
 	sete	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jz	.L5
 	mov	r10, 1
 	mov	al, r10b
@@ -94,7 +99,8 @@ rule110:
 	mov	r11, 2
 	cmp	r10, r11
 	sete	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jz	.L6
 	mov	r10, 1
 	mov	al, r10b
@@ -105,7 +111,8 @@ rule110:
 	mov	r11, 1
 	cmp	r10, r11
 	sete	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jz	.L7
 	mov	r10, 1
 	mov	al, r10b
@@ -116,7 +123,8 @@ rule110:
 	mov	r11, 0
 	cmp	r10, r11
 	sete	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jz	.L8
 	mov	r10, 0
 	mov	al, r10b
@@ -146,7 +154,8 @@ print_cells:
 	mov	r11, 1
 	cmp	r10, r11
 	sete	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jz	.L12
 	mov	r10, 42
 	mov	dil, r10b
@@ -169,7 +178,8 @@ print_cells:
 	mov	r11, 80
 	cmp	r10, r11
 	setl	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jnz	.L10
 	mov	r10, 10
 	mov	dil, r10b
@@ -209,7 +219,8 @@ main:
 	mov	r11, 80
 	cmp	r10, r11
 	setl	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jnz	.L15
 	lea	r10, [rbp-80]
 	mov	r11, 79
@@ -246,7 +257,8 @@ main:
 	mov	r11, 0
 	cmp	r10, r11
 	setne	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jz	.L21
 	lea	r10, [rbp-177]
 	lea	r11, [rbp-80]
@@ -263,7 +275,8 @@ main:
 	mov	r11, 79
 	cmp	r10, r11
 	setne	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jz	.L22
 	lea	r10, [rbp-179]
 	lea	r11, [rbp-80]
@@ -303,7 +316,8 @@ main:
 	mov	r11, 80
 	cmp	r10, r11
 	setl	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jnz	.L19
 	lea	r10, [rbp-168]
 	mov	r11, 0
@@ -328,7 +342,8 @@ main:
 	mov	r11, 80
 	cmp	r10, r11
 	setl	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jnz	.L23
 	lea	r10, [rbp-176]
 	mov	r11, qword [rbp-176]
@@ -340,7 +355,8 @@ main:
 	mov	r11, 80
 	cmp	r10, r11
 	setl	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jnz	.L17
 	mov	r10, 0
 	mov	eax, r10d

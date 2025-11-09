@@ -4,7 +4,7 @@ section .text
 printi:
 	mov	rsi, rdi
 	xor	eax, eax
-	mov	edi, printi_s
+	mov	rdi, printi_s
 	jmp	printf
 
 	global	main
@@ -54,7 +54,7 @@ main:
 	mov	qword [r10], r11
 .L2:
 	mov	r10, qword [rbp-56]
-	test	r10b, r10b
+	test	r10, r10
 	jnz	.L1
 	mov	r10, 0
 	mov	eax, r10d
@@ -64,7 +64,7 @@ main:
 	pop	rbp
 	ret
 
-section .data
+section .rodata
 	printi_s: db "%ld", 10, 0
 
 section .note.GNU-stack

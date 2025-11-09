@@ -4,7 +4,7 @@ section .text
 printi:
 	mov	rsi, rdi
 	xor	eax, eax
-	mov	edi, printi_s
+	mov	rdi, printi_s
 	jmp	printf
 
 	extern	fopen
@@ -34,7 +34,8 @@ cat_file:
 	mov	r11, 0
 	cmp	r10, r11
 	sete	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jz	.L1
 	jmp	.L0
 .L1:
@@ -60,7 +61,8 @@ cat_file:
 	mov	r10, 255
 	cmp	r11, r10
 	setne	r11b
-	test	r11b, r11b
+	movzx	r11, r11b
+	test	r11, r11
 	jnz	.L2
 	mov	r10, qword [rbp-16]
 	mov	rdi, r10
@@ -83,7 +85,8 @@ main:
 	mov	r11, 2
 	cmp	r10, r11
 	setl	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jz	.L5
 	mov	r10, 1
 	mov	eax, r10d
@@ -113,7 +116,8 @@ main:
 	movsx	r11, r11d
 	cmp	r10, r11
 	setl	r10b
-	test	r10b, r10b
+	movzx	r10, r10b
+	test	r10, r10
 	jnz	.L6
 	mov	r10, 0
 	mov	eax, r10d

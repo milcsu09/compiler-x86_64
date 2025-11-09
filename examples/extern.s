@@ -4,7 +4,7 @@ section .text
 printi:
 	mov	rsi, rdi
 	xor	eax, eax
-	mov	edi, printi_s
+	mov	rdi, printi_s
 	jmp	printf
 
 	extern	printi
@@ -27,7 +27,7 @@ main:
 	pop	rbp
 	ret
 
-section .data
+section .rodata
 	printi_s: db "%ld", 10, 0
 
 section .note.GNU-stack
