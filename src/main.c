@@ -215,80 +215,6 @@ compile_file (struct flags flags)
 }
 
 
-/*
-static const char *
-signal_name (int signal)
-{
-  switch (signal)
-    {
-    case SIGINT:
-      return "SIGINT";
-    case SIGILL:
-      return "SIGILL";
-    case SIGABRT:
-      return "SIGABRT";
-    case SIGFPE:
-      return "SIGFPE";
-    case SIGSEGV:
-      return "SIGSEGV";
-    case SIGTERM:
-      return "SIGTERM";
-    default:
-      return "UNKNOWN";
-    }
-}
-
-
-static void
-signal_to_string (int signal, char buffer[16])
-{
-  char reverse[16];
-
-  bool is_neg;
-
-  if ((is_neg = signal < 0))
-    signal = -signal;
-
-  size_t i = 0, j = 0;
-
-  do
-    reverse[i++] = signal + '0';
-  while (signal /= 10);
-
-  if (is_neg)
-    buffer[j++] = '-';
-
-  while (i > 0)
-    buffer[j++] = reverse[--i];
-
-  buffer[j++] = 0;
-}
-
-
-static void
-signal_handler (int signal)
-{
-  const char *name = signal_name (signal);
-
-  char signal_string[16];
-
-  signal_to_string (signal, signal_string);
-
-  const char message1[] = "  \033[1;91mfatal\033[0m: caught signal ";
-
-  write (STDERR_FILENO, message1, sizeof message1 - 1);
-  write (STDERR_FILENO, signal_string, strlen (signal_string));
-  write (STDERR_FILENO, " ", 1);
-  write (STDERR_FILENO, "(", 1);
-  write (STDERR_FILENO, name, strlen (name));
-  write (STDERR_FILENO, ")", 1);
-  write (STDERR_FILENO, "\n", 1);
-
-  _exit (1);
-}
-*/
-
-
 static void
 usage (const char *path)
 {
@@ -309,13 +235,6 @@ int
 main (int argc, char **argv)
 {
   atexit (aa_free);
-
-  // signal (SIGINT, signal_handler);
-  // signal (SIGILL, signal_handler);
-  // signal (SIGABRT, signal_handler);
-  // signal (SIGFPE, signal_handler);
-  // signal (SIGSEGV, signal_handler);
-  // signal (SIGTERM, signal_handler);
 
   struct flags flags;
 

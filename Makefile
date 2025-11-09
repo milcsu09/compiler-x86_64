@@ -7,8 +7,12 @@ LDFLAGS :=
 SRC := $(wildcard src/*.c)
 OBJ := $(SRC:.c=.o)
 
-all: $(OBJ)
-	$(CC) $^ $(LDFLAGS)
+TARGET := a
+
+all: $(TARGET)
+
+$(TARGET): $(OBJ)
+	$(CC) $^ $(LDFLAGS) -o $@
 
 %.o: %.c
 	$(CC) $(CCFLAGS) -c $< -o $@
