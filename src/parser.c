@@ -188,13 +188,7 @@ static struct tree *parser_parse_expression_binary (struct parser *);
 
 static struct tree *parser_parse_expression_cast (struct parser *);
 
-// static struct tree *parser_parse_expression_access (struct parser *);
-
 static struct tree *parser_parse_expression_postfix (struct parser *);
-
-static struct tree *parser_parse_expression_call (struct parser *);
-
-// static struct tree *parser_parse_expression_index (struct parser *);
 
 
 static struct tree *parser_parse_primary (struct parser *);
