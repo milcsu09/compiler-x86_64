@@ -1638,7 +1638,7 @@ cg_generate (struct cg *cg, struct tree *tree)
 {
   cg_write_begin (cg);
 
-  cg_scope_push (cg, tree_count_global (tree));
+  cg_scope_push (cg, tree_count_global_function (tree));
 
   cg_generate_statement (cg, tree);
 

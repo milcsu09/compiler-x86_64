@@ -41,9 +41,10 @@ resolver_create (void)
   resolver = aa_malloc (sizeof (struct resolver));
 
   resolver->scope = NULL;
-  resolver->scope_struct = scope_create (NULL, SCOPE_CAPACITY);
+  resolver->scope_struct = NULL;
 
   // resolver_scope_push (resolver);
+  // resolver->scope_struct = scope_create (NULL, SCOPE_CAPACITY);
 
   return resolver;
 }
@@ -456,7 +457,12 @@ resolver_resolve_node_struct (struct resolver *resolver, struct tree *tree)
 
   struct scope *save = resolver->scope;
 
-  resolver->scope = type_node->scope = scope_create (NULL, SCOPE_CAPACITY);
+  size_t fields = 0;
+
+  for (struct tree *t = node->field1; t; t = t->next)
+    fields++;
+
+  resolver->scope = type_node->scope = scope_create (NULL, fields);
 
   struct type *prev_t = type_node->field1;
 
@@ -1034,7 +1040,9 @@ resolver_resolve_node_program (struct resolver *resolver, struct tree *tree)
 void
 resolver_resolve (struct resolver *resolver, struct tree *tree)
 {
-  resolver_scope_push (resolver, tree_count_global (tree));
+  resolver_scope_push (resolver, tree_count_global_function (tree));
+
+  resolver->scope_struct = scope_create (NULL, tree_count_global_struct (tree));
 
   resolver_resolve_statement (resolver, tree);
 }

@@ -318,7 +318,9 @@ bool tree_is_lvalue (struct tree *);
 bool tree_is_rvalue (struct tree *);
 
 
-size_t tree_count_global (struct tree *);
+size_t tree_count_global_function (struct tree *);
+
+size_t tree_count_global_struct (struct tree *);
 
 size_t tree_count_parameter (struct tree *);
 

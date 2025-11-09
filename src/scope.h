@@ -8,9 +8,6 @@
 #include <stddef.h>
 
 
-#define SCOPE_CAPACITY 128
-
-
 struct tree;
 
 

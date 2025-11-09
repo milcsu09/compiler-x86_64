@@ -178,7 +178,7 @@ tree_is_rvalue (struct tree *tree)
 
 
 size_t
-tree_count_global (struct tree *tree)
+tree_count_global_function (struct tree *tree)
 {
   if (!tree)
     return 0;
@@ -202,6 +202,34 @@ tree_count_global (struct tree *tree)
 
   return n;
 }
+
+
+size_t
+tree_count_global_struct (struct tree *tree)
+{
+  if (!tree)
+    return 0;
+
+  if (tree->kind != TREE_PROGRAM)
+    return 0;
+
+  size_t n = 0;
+
+  for (struct tree *t = tree->d.program.top_level1; t; t = t->next)
+    switch (t->kind)
+      {
+      case TREE_STRUCT:
+        n++;
+        break;
+
+      default:
+        break;
+      }
+
+  return n;
+}
+
+
 
 
 size_t
