@@ -102,9 +102,9 @@ cg_string_push (struct cg *cg, struct cg_string *string)
 }
 
 static void
-cg_scope_push (struct cg *cg, size_t capacity)
+cg_scope_push (struct cg *cg)
 {
-  cg->scope = scope_create (cg->scope, capacity);
+  cg->scope = scope_create (cg->scope);
 }
 
 
@@ -134,6 +134,8 @@ cg_create (FILE *f)
   cg->register_spill = 0;
 
   cg_register_free_all (cg);
+
+  cg_scope_push (cg);
 
   return cg;
 }
@@ -833,20 +835,20 @@ cg_generate_lvalue (struct cg *cg, struct tree *tree)
       {
         struct tree_node_identifier *node = &tree->d.identifier;
 
-        struct symbol symbol;
+        struct symbol *symbol;
 
-        scope_get_validate (cg->scope, node->value, &symbol, tree->location);
+        scope_get_assert (cg->scope, node->value, &symbol);
 
         struct cg_register r = cg_register_allocate (cg, WIDTH_8);
 
-        switch (symbol.scope)
+        switch (symbol->kind)
           {
           case SYMBOL_LOCAL:
-            cg_write_load_local_address (cg, r, symbol.d.local.offset);
+            cg_write_load_local_address (cg, r, symbol->d.local.offset);
             break;
 
           case SYMBOL_GLOBAL:
-            cg_write_load_global_address (cg, r, symbol.name);
+            cg_write_load_global_address (cg, r, symbol->key);
             break;
 
           default:
@@ -862,13 +864,13 @@ cg_generate_lvalue (struct cg *cg, struct tree *tree)
 
         struct cg_register s = cg_generate_lvalue (cg, node->s);
 
-        struct symbol symbol;
+        struct symbol *symbol;
 
         struct type_node_struct type_node = tree_type (node->s)->d.struct_t;
 
-        scope_get_validate (type_node.scope, node->field, &symbol, tree->location);
+        scope_get_assert (type_node.scope, node->field, &symbol);
 
-        cg_write (cg, "\tadd\t%s, %zu\n", register_string (s), symbol.d.field.offset);
+        cg_write (cg, "\tadd\t%s, %zu\n", register_string (s), symbol->d.field.offset);
 
         return s;
 
@@ -940,13 +942,7 @@ cg_generate_node_fdeclaration (struct cg *cg, struct tree *tree)
 {
   struct tree_node_fdeclaration *node = &tree->d.fdeclaration;
 
-  struct symbol symbol;
-
-  symbol.scope = SYMBOL_GLOBAL;
-  symbol.name = node->name;
-  symbol.type = node->type;
-
-  scope_set_validate (cg->scope, symbol, tree->location);
+  scope_set_assert (cg->scope, symbol_create (SYMBOL_GLOBAL, node->name, node->type));
 
   cg_write (cg, "\textern\t%s\n", node->name);
 }
@@ -963,28 +959,15 @@ cg_generate_node_fdefinition (struct cg *cg, struct tree *tree)
 
   cg->function.label_return = cg_label (cg);
 
-  struct symbol symbol;
+  scope_set_assert (cg->scope, symbol_create (SYMBOL_GLOBAL, node->name, node->type));
 
-  symbol.scope = SYMBOL_GLOBAL;
-
-  symbol.name = node->name;
-  symbol.type = node->type;
-
-  scope_set_validate (cg->scope, symbol, tree->location);
-
-  const size_t count_parameter = tree_count_parameter (tree);
-  const size_t count_shallow = tree_count_shallow (node->body);
-
-  cg_scope_push (cg, count_parameter + count_shallow);
+  cg_scope_push (cg);
 
   cg_count_stack_usage (cg, tree);
 
   size_t stack_usage = cg_next_multiple (cg->function.stack_pointer, 16);
 
   cg->function.stack_pointer = 0;
-
-  for (struct tree *t = node->parameter1; t; t = t->next)
-    cg_generate_statement (cg, t);
 
   cg_write (cg, "\tglobal\t%s\n", cg->function.node->name);
   cg_write (cg, "%s:\n", cg->function.node->name);
@@ -1005,10 +988,12 @@ cg_generate_node_fdefinition (struct cg *cg, struct tree *tree)
 
   for (struct tree *t = node->parameter1; t; t = t->next)
     {
-      // NOTE: Exploit the fact that the first N symbols are the parameters.
-      struct symbol symbol = cg->scope->data[p_n];
+      cg_generate_statement (cg, t);
 
-      enum type_width w = type_width (symbol.type);
+      // NOTE: Last symbol pushed is the current parameters's symbol.
+      struct symbol *symbol = cg->scope->head;
+
+      enum type_width w = type_width (symbol->value);
 
       const char *s = cg_operand_size_string (w);
 
@@ -1017,7 +1002,7 @@ cg_generate_node_fdefinition (struct cg *cg, struct tree *tree)
         {
           struct cg_register r = register_create (p_register[p_n], w);
 
-          size_t offset_s = symbol.d.local.offset;
+          size_t offset_s = symbol->d.local.offset;
 
           cg_write (cg, "\tmov\t%s [rbp-%zu], %s\n", s, offset_s, register_string (r));
         }
@@ -1028,7 +1013,7 @@ cg_generate_node_fdefinition (struct cg *cg, struct tree *tree)
           struct cg_register r = cg_register_allocate (cg, w);
 
           size_t offset_p = (p_n - 6) * 8 + 16;
-          size_t offset_s = symbol.d.local.offset;
+          size_t offset_s = symbol->d.local.offset;
 
           cg_write (cg, "\tmov\t%s, %s [rbp+%zu]\n", register_string (r), s, offset_p);
           cg_write (cg, "\tmov\t%s [rbp-%zu], %s\n", s, offset_s, register_string (r));
@@ -1144,7 +1129,7 @@ cg_generate_node_compound (struct cg *cg, struct tree *tree)
 {
   struct tree_node_compound *node = &tree->d.compound;
 
-  cg_scope_push (cg, tree_count_shallow (tree));
+  cg_scope_push (cg);
 
   for (struct tree *t = node->statement1; t; t = t->next)
     cg_generate_statement (cg, t);
@@ -1156,25 +1141,22 @@ cg_generate_node_compound (struct cg *cg, struct tree *tree)
 static void
 cg_generate_node_vdeclaration (struct cg *cg, struct tree *tree)
 {
-  struct tree_node_vdeclaration node = tree->d.vdeclaration;
+  struct tree_node_vdeclaration *node = &tree->d.vdeclaration;
 
-  size_t s = type_size (node.type);
-  size_t a = type_alignment (node.type);
+  size_t s = type_size (node->type);
+  size_t a = type_alignment (node->type);
 
   cg->function.stack_pointer = cg_next_multiple (cg->function.stack_pointer, a);
 
   size_t offset = cg->function.stack_pointer + s;
 
-  struct symbol symbol;
+  struct symbol *symbol;
 
-  symbol.scope = SYMBOL_LOCAL;
+  symbol = symbol_create (SYMBOL_LOCAL, node->name, node->type);
 
-  symbol.name = node.name;
-  symbol.type = node.type;
+  symbol->d.local.offset = offset;
 
-  symbol.d.local.offset = offset;
-
-  scope_set_validate (cg->scope, symbol, tree->location);
+  scope_set_assert (cg->scope, symbol);
 
   cg->function.stack_pointer = offset;
 }
@@ -1402,13 +1384,13 @@ cg_generate_node_access (struct cg *cg, struct tree *tree)
 
   struct cg_register s = cg_generate_lvalue (cg, node->s);
 
-  struct symbol symbol;
+  struct symbol *symbol;
 
   struct type_node_struct type_node = tree_type (node->s)->d.struct_t;
 
-  scope_get_validate (type_node.scope, node->field, &symbol, tree->location);
+  scope_get_assert (type_node.scope, node->field, &symbol);
 
-  cg_write (cg, "\tadd\t%s, %zu\n", register_string (s), symbol.d.field.offset);
+  cg_write (cg, "\tadd\t%s, %zu\n", register_string (s), symbol->d.field.offset);
 
   struct cg_register r = register_modify (s, type_width (node->type));
 
@@ -1599,20 +1581,20 @@ cg_generate_node_identifier (struct cg *cg, struct tree *tree)
 {
   struct tree_node_identifier *node = &tree->d.identifier;
 
-  struct symbol symbol;
+  struct symbol *symbol;
 
-  scope_get_validate (cg->scope, node->value, &symbol, tree->location);
+  scope_get_assert (cg->scope, node->value, &symbol);
 
   struct cg_register r = cg_register_allocate (cg, type_width (node->type));
 
-  switch (symbol.scope)
+  switch (symbol->kind)
     {
     case SYMBOL_LOCAL:
-      cg_write_load_local (cg, r, symbol.d.local.offset);
+      cg_write_load_local (cg, r, symbol->d.local.offset);
       break;
 
     case SYMBOL_GLOBAL:
-      cg_write_load_global (cg, r, symbol.name);
+      cg_write_load_global (cg, r, symbol->key);
       break;
 
     default:
@@ -1637,8 +1619,6 @@ void
 cg_generate (struct cg *cg, struct tree *tree)
 {
   cg_write_begin (cg);
-
-  cg_scope_push (cg, tree_count_global_function (tree));
 
   cg_generate_statement (cg, tree);
 

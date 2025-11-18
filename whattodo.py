@@ -42,7 +42,7 @@ def whattodo_file(path: str, text: List[str]):
             m_cont = PATTERN_CONT.match(line)
 
             if not m_cont:
-                break;
+                break
 
             for line in textwrap.wrap(m_cont.group(1).strip(), width=80):
                 print("    {}".format(line))

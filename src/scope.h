@@ -11,17 +11,13 @@
 struct tree;
 
 
-enum symbol_scope
+enum symbol_kind
 {
   SYMBOL_GLOBAL,
   SYMBOL_LOCAL,
+
   SYMBOL_FIELD,
 };
-
-
-// struct symbol_global
-// {
-// };
 
 
 struct symbol_local
@@ -38,8 +34,6 @@ struct symbol_field
 
 union symbol_data
 {
-  // struct symbol_global global;
-
   struct symbol_local local;
   struct symbol_field field;
 };
@@ -47,28 +41,30 @@ union symbol_data
 
 struct symbol
 {
-  enum symbol_scope scope;
-
-  const char *name;
-
-  struct type *type;
-
   union symbol_data d;
+
+  struct symbol *next;
+
+  enum symbol_kind kind;
+
+  const char *key;
+
+  struct type *value;
 };
+
+
+struct symbol *symbol_create (enum symbol_kind, const char *, struct type *);
 
 
 struct scope
 {
   struct scope *parent;
 
-  size_t size;
-  size_t capacity;
-
-  struct symbol data[];
+  struct symbol *head;
 };
 
 
-struct scope *scope_create (struct scope *, size_t);
+struct scope *scope_create (struct scope *);
 
 
 enum scope_set_result
@@ -85,13 +81,17 @@ enum scope_get_result
 };
 
 
-enum scope_set_result scope_set (struct scope *, struct symbol);
+enum scope_set_result scope_set (struct scope *, struct symbol *);
 
-enum scope_get_result scope_get (struct scope *, const char *, struct symbol *);
+enum scope_get_result scope_get (struct scope *, const char *, struct symbol **);
 
-void scope_set_validate (struct scope *, struct symbol, struct location);
+void scope_set_validate (struct scope *, struct symbol *, struct location);
 
-void scope_get_validate (struct scope *, const char *, struct symbol *, struct location);
+void scope_get_validate (struct scope *, const char *, struct symbol **, struct location);
+
+void scope_set_assert (struct scope *, struct symbol *);
+
+void scope_get_assert (struct scope *, const char *, struct symbol **);
 
 
 #endif // SCOPE_H

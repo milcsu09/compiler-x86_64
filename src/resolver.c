@@ -20,9 +20,9 @@ struct resolver
 
 
 static void
-resolver_scope_push (struct resolver *resolver, size_t capacity)
+resolver_scope_push (struct resolver *resolver)
 {
-  resolver->scope = scope_create (resolver->scope, capacity);
+  resolver->scope = scope_create (resolver->scope);
 }
 
 
@@ -43,8 +43,9 @@ resolver_create (void)
   resolver->scope = NULL;
   resolver->scope_struct = NULL;
 
-  // resolver_scope_push (resolver);
-  // resolver->scope_struct = scope_create (NULL, SCOPE_CAPACITY);
+  resolver_scope_push (resolver);
+
+  resolver->scope_struct = scope_create (NULL);
 
   return resolver;
 }
@@ -158,23 +159,6 @@ resolver_resolve_type (struct resolver *resolver, struct type *type)
 
   switch (type->kind)
     {
-    // case TYPE_POINTER:
-    //   {
-    //     struct type_node_pointer *node = &type->d.pointer;
-
-    //     node->base = resolver_resolve_type (resolver, node->base);
-
-    //     return type;
-    //     // switch (node->base->kind)
-    //     //   {
-    //     //   case TYPE_STRUCT_NAME:
-    //     //     return type;
-    //     //   default:
-    //     //     node->base = resolver_resolve_type (resolver, node->base);
-    //     //     return type;
-    //     //   }
-    //   }
-
     case TYPE_ARRAY:
       {
         struct type_node_array *node = &type->d.array;
@@ -236,15 +220,15 @@ resolver_resolve_type (struct resolver *resolver, struct type *type)
       {
         struct type_node_struct_name *node = &type->d.struct_name;
 
-        struct symbol symbol;
+        struct symbol *symbol;
 
-        // NOTE: Don't check for invalidity
+        // NOTE: Ignore invalidity
         enum scope_get_result result = scope_get (resolver->scope_struct, node->name, &symbol);
 
         switch (result)
           {
           case SCOPE_GET_OK:
-            return type_shallow_copy (symbol.type);
+            return type_shallow_copy (symbol->value);
 
           default:
             return type;
@@ -385,13 +369,8 @@ resolver_resolve_node_fdeclaration (struct resolver *resolver, struct tree *tree
 
   node->type = resolver_resolve_type (resolver, node->type);
 
-  struct symbol symbol;
-
-  symbol.scope = SYMBOL_GLOBAL;
-  symbol.name = node->name;
-  symbol.type = node->type;
-
-  scope_set_validate (resolver->scope, symbol, tree->location);
+  scope_set_validate (resolver->scope, symbol_create (SYMBOL_GLOBAL, node->name, node->type),
+                      tree->location);
 }
 
 
@@ -400,40 +379,30 @@ resolver_resolve_node_fdefinition (struct resolver *resolver, struct tree *tree)
 {
   struct tree_node_fdefinition *node = &tree->d.fdefinition;
 
-  assert (node->type != NULL);
+  struct type_node_function *node_type = &node->type->d.function;
 
   resolver->function = node;
 
   // NOTE: Set BEFORE resolve. Functions can refer to themselves.
-  struct symbol symbol;
+  scope_set_validate (resolver->scope, symbol_create (SYMBOL_GLOBAL, node->name, node->type),
+                      tree->location);
 
-  symbol.scope = SYMBOL_GLOBAL;
-  symbol.name = node->name;
-  symbol.type = node->type;
+  resolver_scope_push (resolver);
 
-  scope_set_validate (resolver->scope, symbol, tree->location);
-
-  const size_t count_parameter = tree_count_parameter (tree);
-  const size_t count_shallow = tree_count_shallow (node->body);
-
-  resolver_scope_push (resolver, count_parameter + count_shallow);
-
-  struct type_node_function *type_node = &node->type->d.function;
-
-  struct type *prev_t = type_node->from1;
+  struct type *prev_type = node_type->from1;
 
   for (struct tree *t = node->parameter1; t; t = t->next)
     {
       resolver_resolve_statement (resolver, t);
 
-      struct type *curr_t = tree_type (t);
+      struct type *curr_type = tree_type (t);
 
-      if (prev_t)
-        prev_t->next = curr_t;
+      if (prev_type)
+        prev_type->next = curr_type;
       else
-        type_node->from1 = curr_t;
+        node_type->from1 = curr_type;
 
-      prev_t = curr_t;
+      prev_type = curr_type;
     }
 
   // NOTE: Resolve body iteratively to avoid scope creation.
@@ -451,72 +420,54 @@ resolver_resolve_node_struct (struct resolver *resolver, struct tree *tree)
 {
   struct tree_node_struct *node = &tree->d.struct_s;
 
-  assert (node->type != NULL);
+  struct type_node_struct *node_type = &node->type->d.struct_t;
 
-  struct type_node_struct *type_node = &node->type->d.struct_t;
+  struct scope *prev_scope = resolver->scope;
 
-  struct scope *save = resolver->scope;
+  resolver->scope = node_type->scope = scope_create (NULL);
 
-  size_t fields = 0;
+  struct type *prev_type = node_type->field1;
 
-  for (struct tree *t = node->field1; t; t = t->next)
-    fields++;
-
-  resolver->scope = type_node->scope = scope_create (NULL, fields);
-
-  struct type *prev_t = type_node->field1;
+  size_t offset = 0;
 
   for (struct tree *t = node->field1; t; t = t->next)
     {
       resolver_resolve_statement (resolver, t);
 
-      struct type *curr_t = tree_type (t);
+      struct type *curr_type = tree_type (t);
 
-      if (prev_t)
-        prev_t->next = curr_t;
-      else
-        type_node->field1 = curr_t;
+      size_t alignment = type_alignment (curr_type);
+      size_t size = type_size (curr_type);
 
-      prev_t = curr_t;
-    }
+      // NOTE: Last symbol pushed is the current field's symbol.
+      struct symbol *symbol = resolver->scope->head;
 
-  // Compute field offsets.
-  // TODO: Hacky. Resolver should probably not do this.
-  size_t offset = 0;
+      symbol->kind = SYMBOL_FIELD;
 
-  size_t i = 0;
-
-  for (struct tree *t = node->field1; t; t = t->next, ++i)
-    {
-      assert (i < type_node->scope->size);
-
-      struct symbol *symbol = &type_node->scope->data[i];
-
-      size_t t_alignment = type_alignment (symbol->type);
-      size_t t_size = type_size (symbol->type);
-
-      symbol->scope = SYMBOL_FIELD;
-
-      offset = (offset + t_alignment - 1) & ~(t_alignment - 1);
+      offset = (offset + alignment - 1) & ~(alignment - 1);
 
       symbol->d.field.offset = offset;
 
-      offset += t_size;
+      offset = offset + size;
+
+      // Construct a "struct" type.
+      if (prev_type)
+        prev_type->next = curr_type;
+      else
+        node_type->field1 = curr_type;
+
+      prev_type = curr_type;
     }
 
-  resolver->scope = save;
+  resolver->scope = prev_scope;
 
   node->type = resolver_resolve_type (resolver, node->type);
 
   // NOTE: Set AFTER resolve. Structures cannot refer to themselves.
-  struct symbol symbol;
+  scope_set_validate (resolver->scope_struct, symbol_create (SYMBOL_GLOBAL, node->name, node->type),
+                      tree->location);
 
-  symbol.name = node->name;
-  symbol.type = node->type;
-
-  scope_set_validate (resolver->scope_struct, symbol, tree->location);
-
-  type_node->name = node->name;
+  node_type->name = node->name;
 }
 
 
@@ -572,7 +523,7 @@ resolver_resolve_node_compound (struct resolver *resolver, struct tree *tree)
 {
   struct tree_node_compound *node = &tree->d.compound;
 
-  resolver_scope_push (resolver, tree_count_shallow (tree));
+  resolver_scope_push (resolver);
 
   for (struct tree *t = node->statement1; t; t = t->next)
     resolver_resolve_statement (resolver, t);
@@ -588,13 +539,8 @@ resolver_resolve_node_vdeclaration (struct resolver *resolver, struct tree *tree
 
   node->type = resolver_resolve_type (resolver, node->type);
 
-  struct symbol symbol;
-
-  symbol.scope = SYMBOL_LOCAL;
-  symbol.name = node->name;
-  symbol.type = node->type;
-
-  scope_set_validate (resolver->scope, symbol, tree->location);
+  scope_set_validate (resolver->scope, symbol_create (SYMBOL_LOCAL, node->name, node->type),
+                      tree->location);
 }
 
 
@@ -740,32 +686,17 @@ resolver_resolve_node_access (struct resolver *resolver, struct tree *tree)
 
   node->s = resolver_resolve_lvalue (resolver, node->s);
 
-  // if (type_is_pointer_to_k (tree_type (node->s), TYPE_STRUCT_NAME))
-  //   {
-  //     struct tree *deref;
-
-  //     deref = tree_create (tree->location, TREE_DEREFERENCE);
-
-  //     deref->next = node->s->next;
-
-  //     node->s->next = NULL;
-
-  //     deref->d.dereference.value = node->s;
-
-  //     node->s = resolver_resolve_lvalue (resolver, deref);
-  //   }
-
   struct type *type = tree_type (node->s);
 
   if (type_is_composite (type))
     {
       struct type_node_struct type_node = type->d.struct_t;
 
-      struct symbol symbol;
+      struct symbol *symbol;
 
       scope_get_validate (type_node.scope, node->field, &symbol, tree->location);
 
-      node->type = resolver_resolve_type (resolver, symbol.type);
+      node->type = resolver_resolve_type (resolver, symbol->value);
     }
 
   return tree;
@@ -1017,11 +948,11 @@ resolver_resolve_node_identifier (struct resolver *resolver, struct tree *tree)
 {
   struct tree_node_identifier *node = &tree->d.identifier;
 
-  struct symbol symbol;
+  struct symbol *symbol;
 
   scope_get_validate (resolver->scope, node->value, &symbol, tree->location);
 
-  node->type = resolver_resolve_type (resolver, symbol.type);
+  node->type = resolver_resolve_type (resolver, symbol->value);
 
   return tree;
 }
@@ -1040,10 +971,6 @@ resolver_resolve_node_program (struct resolver *resolver, struct tree *tree)
 void
 resolver_resolve (struct resolver *resolver, struct tree *tree)
 {
-  resolver_scope_push (resolver, tree_count_global_function (tree));
-
-  resolver->scope_struct = scope_create (NULL, tree_count_global_struct (tree));
-
   resolver_resolve_statement (resolver, tree);
 }
 
