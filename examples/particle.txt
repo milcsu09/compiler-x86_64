@@ -32,10 +32,10 @@ fn particle_init(particle : *struct particle) {
   particle->x = 400 * 256;
   particle->y = 300 * 256;
 
-  particle->vx = (GetRandomValue(0, 512) - 256) * 4;
-  particle->vy = (GetRandomValue(0, 512) - 256) * 4;
+  particle->vx = (GetRandomValue(0, 512) - 256) * 2;
+  particle->vy = (GetRandomValue(0, 512) - 256) * 2;
 
-  particle->size = GetRandomValue(200, 500);
+  particle->size = GetRandomValue(200, 1000);
 }
 
 
@@ -53,7 +53,7 @@ fn main() -> i32 {
     particle_init(&particles[i]);
   }
 
-  while WindowShouldClose() != 1 {
+  while !WindowShouldClose() {
     for i = 0; i < 10000; i = i + 1 {
       particles[i].x = particles[i].x + particles[i].vx;
       particles[i].y = particles[i].y + particles[i].vy;
@@ -71,8 +71,6 @@ fn main() -> i32 {
 
     DrawFPS(10, 10);
 
-    DrawText("whoah", 10, 600 - 34, 24, 0xFFFF0000);
-
     for i = 0; i < 10000; i = i + 1 {
       x : i32;
       y : i32;
@@ -83,6 +81,7 @@ fn main() -> i32 {
       size : i32;
       size = particles[i].size / 100;
 
+      DrawRectangle(x - 1, y - 1, size + 2, size + 2, 0xFF000000);
       DrawRectangle(x, y, size, size, 0xFF0000FF);
     }
 

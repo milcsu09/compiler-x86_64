@@ -177,7 +177,7 @@ compile_file (struct flags flags)
 
   gettimeofday (&t1, NULL);
 
-  info (location_none, "Compiler %9.4fs (%s)", dt_s (t0, t1), flags.o_stdout ? "stdout" : path_s);
+  info (location_none, "     %9.4fs (%s)", dt_s (t0, t1), flags.o_stdout ? "stdout" : path_s);
 
   if (flags.S)
     return;
@@ -196,7 +196,7 @@ compile_file (struct flags flags)
 
   gettimeofday (&t1, NULL);
 
-  info (location_none, "    NASM %9.4fs (%s)", dt_s (t0, t1), path_o);
+  info (location_none, "NASM %9.4fs (%s)", dt_s (t0, t1), path_o);
 
   gettimeofday (&t0, NULL);
 
@@ -210,7 +210,7 @@ compile_file (struct flags flags)
 
   gettimeofday (&t1, NULL);
 
-  info (location_none, "     GCC %9.4fs (%s)", dt_s (t0, t1), path_u);
+  info (location_none, " GCC %9.4fs (%s)", dt_s (t0, t1), path_u);
 }
 
 

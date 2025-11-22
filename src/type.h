@@ -166,6 +166,8 @@ struct type *type_element (struct type *);
 
 struct type *type_decay (struct type *);
 
+struct type *type_promote_integer (struct type *);
+
 struct type *type_promote (struct type *, struct type *);
 
 

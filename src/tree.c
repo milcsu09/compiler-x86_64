@@ -6,6 +6,20 @@
 #include <stdio.h>
 
 
+static const char *const UNARY_OPERATOR_STRING[] = {
+  "-",
+  "!",
+  "~",
+};
+
+
+const char *
+unary_operator_string (enum unary_operator operator)
+{
+  return UNARY_OPERATOR_STRING[operator];
+}
+
+
 static const char *const BINARY_OPERATOR_STRING[] = {
   "+",
   "-",
@@ -59,6 +73,7 @@ static const char *const TREE_KIND_STRING[] = {
   "call",
   "assignment",
   "access",
+  "unary",
   "binary",
   "reference",
   "dereference",
@@ -125,8 +140,24 @@ tree_type (struct tree *tree)
       return tree->d.fdefinition.type;
     case TREE_STRUCT:
       return tree->d.struct_s.type;
+
+    case TREE_EMPTY:
+      break;
+    case TREE_IF:
+      break;
+    case TREE_WHILE:
+      break;
+    case TREE_FOR:
+      break;
+    case TREE_COMPOUND:
+      break;
     case TREE_VDECLARATION:
       return tree->d.vdeclaration.type;
+    case TREE_RETURN:
+      break;
+    case TREE_PRINT:
+      break;
+
     case TREE_SCALE:
       return tree->d.scale.type;
     case TREE_CAST:
@@ -137,6 +168,8 @@ tree_type (struct tree *tree)
       return tree->d.assignment.type;
     case TREE_ACCESS:
       return tree->d.access.type;
+    case TREE_UNARY:
+      return tree->d.unary.type;
     case TREE_BINARY:
       return tree->d.binary.type;
     case TREE_REFERENCE:
@@ -149,9 +182,12 @@ tree_type (struct tree *tree)
       return tree->d.string.type;
     case TREE_IDENTIFIER:
       return tree->d.identifier.type;
-    default:
-      return NULL;
+
+    case TREE_PROGRAM:
+      break;
     }
+
+  return NULL;
 }
 
 
@@ -356,6 +392,19 @@ tree_print (struct tree *tree, int depth)
         tree_print_indent (depth + 1);
 
         fprintf (stderr, "\033[91m%s\033[0m\n", node.field);
+      }
+      break;
+    case TREE_UNARY:
+      {
+        struct tree_node_unary node = tree->d.unary;
+
+        type_print (node.type, depth + 1);
+
+        tree_print_indent (depth + 1);
+
+        fprintf (stderr, "%s\n", unary_operator_string (node.o));
+
+        tree_print (node.value, depth + 1);
       }
       break;
     case TREE_BINARY:

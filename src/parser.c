@@ -840,46 +840,26 @@ parser_parse_expression_postfix (struct parser *parser)
 }
 
 
-/*
 static struct tree *
-parser_parse_expression_call (struct parser *parser)
+parser_parse_primary_unary (struct parser *parser, enum unary_operator o)
 {
+  struct location location = parser->location;
+
+  parser_advance (parser);
+
+  struct tree *value;
+
+  value = parser_parse_expression_postfix (parser);
+
   struct tree *result;
 
-  result = parser_parse_primary (parser);
+  result = tree_create (location, TREE_UNARY);
 
-  while (parser_match (parser, TOKEN_LPAREN))
-    {
-      struct tree *call;
-
-      call = tree_create (result->location, TREE_CALL);
-
-      call->d.call.callee = result;
-
-      parser_advance (parser);
-
-      while (!parser_match (parser, TOKEN_RPAREN))
-        {
-          struct tree *argument;
-
-          argument = parser_parse_expression_assignment (parser);
-
-          tree_append (&call->d.call.argument1, argument);
-
-          if (parser_match (parser, TOKEN_COMMA))
-            parser_advance (parser);
-          else
-            parser_expect (parser, TOKEN_RPAREN);
-        }
-
-      parser_expect_advance (parser, TOKEN_RPAREN);
-
-      result = call;
-    }
+  result->d.unary.o = o;
+  result->d.unary.value = value;
 
   return result;
 }
-*/
 
 
 static struct tree *
@@ -891,6 +871,12 @@ parser_parse_primary (struct parser *parser)
       return parser_parse_primary_reference (parser);
     case TOKEN_STAR:
       return parser_parse_primary_dereference (parser);
+    case TOKEN_MINUS:
+      return parser_parse_primary_unary (parser, UNARY_NEG);
+    case TOKEN_EXCLAMATION:
+      return parser_parse_primary_unary (parser, UNARY_LNOT);
+    case TOKEN_TILDE:
+      return parser_parse_primary_unary (parser, UNARY_BNOT);
     case TOKEN_LPAREN:
       return parser_parse_primary_group (parser);
     case TOKEN_INTEGER:

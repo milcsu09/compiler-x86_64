@@ -56,6 +56,8 @@ static void checker_check_node_assignment (struct checker *, struct tree *);
 
 static void checker_check_node_access (struct checker *, struct tree *);
 
+static void checker_check_node_unary (struct checker *, struct tree *);
+
 static void checker_check_node_binary (struct checker *, struct tree *);
 
 static void checker_check_node_reference (struct checker *, struct tree *);
@@ -84,21 +86,6 @@ static void checker_check_type (struct checker *checker, struct type *type)
 
   switch (type->kind)
     {
-    // case TYPE_POINTER:
-    //   {
-    //     struct type_node_pointer *node = &type->d.pointer;
-
-    //     switch (node->base->kind)
-    //       {
-    //       case TYPE_STRUCT_NAME:
-    //         break;
-    //       default:
-    //         checker_check_type (checker, node->base);
-    //         break;
-    //       }
-    //   }
-    //   break;
-
     case TYPE_ARRAY:
       {
         struct type_node_array *node = &type->d.array;
@@ -173,6 +160,9 @@ checker_check_expression (struct checker *checker, struct tree *tree)
       break;
     case TREE_ACCESS:
       checker_check_node_access (checker, tree);
+      break;
+    case TREE_UNARY:
+      checker_check_node_unary (checker, tree);
       break;
     case TREE_BINARY:
       checker_check_node_binary (checker, tree);
@@ -512,6 +502,44 @@ checker_check_node_access (struct checker *checker, struct tree *tree)
 
       exit (1);
     }
+}
+
+
+static void
+checker_check_node_unary (struct checker *checker, struct tree *tree)
+{
+  struct tree_node_unary *node = &tree->d.unary;
+
+  checker_check_rvalue (checker, node->value);
+
+  struct type *type = tree_type (node->value);
+
+  enum unary_operator o = node->o;
+
+  bool i = type_is_integer (type);
+
+  switch (o)
+    {
+    case UNARY_NEG:
+    case UNARY_LNOT:
+    case UNARY_BNOT:
+      if (i)
+        return;
+
+    default:
+      break;
+    }
+
+  const char *name_operator = unary_operator_string (o);
+
+  char name[512];
+
+  type_string (type, name, sizeof name);
+
+  error (tree->location, "operator '%s' before '%s' is not allowed", name_operator, name);
+
+  exit (1);
+
 }
 
 

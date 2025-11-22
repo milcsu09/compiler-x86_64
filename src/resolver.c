@@ -135,6 +135,8 @@ static struct tree *resolver_resolve_node_assignment (struct resolver *, struct 
 
 static struct tree *resolver_resolve_node_access (struct resolver *, struct tree *);
 
+static struct tree *resolver_resolve_node_unary (struct resolver *, struct tree *);
+
 static struct tree *resolver_resolve_node_binary (struct resolver *, struct tree *);
 
 static struct tree *resolver_resolve_node_reference (struct resolver *, struct tree *);
@@ -257,6 +259,8 @@ resolver_resolve_expression (struct resolver *resolver, struct tree *tree)
       return resolver_resolve_node_assignment (resolver, tree);
     case TREE_ACCESS:
       return resolver_resolve_node_access (resolver, tree);
+    case TREE_UNARY:
+      return resolver_resolve_node_unary (resolver, tree);
     case TREE_BINARY:
       return resolver_resolve_node_binary (resolver, tree);
     case TREE_REFERENCE:
@@ -615,7 +619,7 @@ resolver_resolve_node_call (struct resolver *resolver, struct tree *tree)
 
       n = resolver_resolve_rvalue (resolver, a);
 
-      // First 6 arguments are casted to their expected type
+      // First 6 arguments are casted to their expected typ and are promoted
       if (p_n < 6)
         n = resolver_tree_create_cast (n, b);
 
@@ -698,6 +702,23 @@ resolver_resolve_node_access (struct resolver *resolver, struct tree *tree)
 
       node->type = resolver_resolve_type (resolver, symbol->value);
     }
+
+  return tree;
+}
+
+
+static struct tree *
+resolver_resolve_node_unary (struct resolver *resolver, struct tree *tree)
+{
+  struct tree_node_unary *node = &tree->d.unary;
+
+  node->value = resolver_resolve_rvalue (resolver, node->value);
+
+  struct type *type = type_promote_integer (tree_type (node->value));
+
+  node->value = resolver_tree_create_cast (node->value, type);
+
+  node->type = resolver_resolve_type (resolver, type);
 
   return tree;
 }

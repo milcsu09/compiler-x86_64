@@ -45,7 +45,7 @@ fn print_cells(cells : *u8) {
 
   for i = 0; i < 80; i = i + 1 {
     if cells[i] == 1 {
-      putchar('*');
+      putchar('.');
     } else {
       putchar(' ');
     }

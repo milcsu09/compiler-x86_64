@@ -7,6 +7,17 @@
 #include <stdbool.h>
 
 
+enum unary_operator
+{
+  UNARY_NEG,
+  UNARY_LNOT,
+  UNARY_BNOT,
+};
+
+
+const char *unary_operator_string (enum unary_operator);
+
+
 enum binary_operator
 {
   BINARY_ADD,
@@ -61,6 +72,7 @@ enum tree_kind
   TREE_CALL,
   TREE_ASSIGNMENT,
   TREE_ACCESS,
+  TREE_UNARY,
   TREE_BINARY,
   TREE_REFERENCE,
   TREE_DEREFERENCE,
@@ -203,6 +215,16 @@ struct tree_node_access
 };
 
 
+struct tree_node_unary
+{
+  enum unary_operator o;
+
+  struct tree *value;
+
+  struct type *type;
+};
+
+
 struct tree_node_binary
 {
   enum binary_operator o;
@@ -281,6 +303,7 @@ union tree_data
   struct tree_node_call         call;
   struct tree_node_assignment   assignment;
   struct tree_node_access       access;
+  struct tree_node_unary        unary;
   struct tree_node_binary       binary;
   struct tree_node_reference    reference;
   struct tree_node_dereference  dereference;
@@ -316,15 +339,6 @@ struct type *tree_type (struct tree *);
 bool tree_is_lvalue (struct tree *);
 
 bool tree_is_rvalue (struct tree *);
-
-
-// size_t tree_count_global_function (struct tree *);
-// 
-// size_t tree_count_global_struct (struct tree *);
-// 
-// size_t tree_count_parameter (struct tree *);
-// 
-// size_t tree_count_shallow (struct tree *);
 
 
 void tree_print (struct tree *, int);

@@ -328,7 +328,7 @@ lexer_next (struct lexer *lexer)
         case '!':
           if (lexer_match_start (lexer, "!="))
             return lexer_advance_n_token (lexer, 2, TOKEN_NE);
-          break;
+          return lexer_advance_token (lexer, TOKEN_EXCLAMATION);
 
         case '<':
           if (lexer_match_start (lexer, "<="))
@@ -343,6 +343,8 @@ lexer_next (struct lexer *lexer)
             return lexer_advance_n_token (lexer, 2, TOKEN_SHR);
           return lexer_advance_token (lexer, TOKEN_G);
 
+        case '~':
+          return lexer_advance_token (lexer, TOKEN_TILDE);
         case '^':
           return lexer_advance_token (lexer, TOKEN_CARET);
         case '|':

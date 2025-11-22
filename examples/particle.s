@@ -30,13 +30,13 @@ particle_init:
 	add	r10, 0
 	mov	r11, 400
 	mov	r12, 256
-	imul	r11, r12
+	imul	r11d, r12d
 	mov	dword [r10], r11d
 	mov	r10, qword [rbp-8]
 	add	r10, 4
 	mov	r11, 300
 	mov	r12, 256
-	imul	r11, r12
+	imul	r11d, r12d
 	mov	dword [r10], r11d
 	mov	r10, qword [rbp-8]
 	add	r10, 8
@@ -51,11 +51,10 @@ particle_init:
 	add	rsp, 8
 	pop	r10
 	mov	r11d, eax
-	movsx	r11, r11d
 	mov	r12, 256
-	sub	r11, r12
-	mov	r12, 4
-	imul	r11, r12
+	sub	r11d, r12d
+	mov	r12, 2
+	imul	r11d, r12d
 	mov	dword [r10], r11d
 	mov	r10, qword [rbp-8]
 	add	r10, 12
@@ -70,18 +69,17 @@ particle_init:
 	add	rsp, 8
 	pop	r10
 	mov	r11d, eax
-	movsx	r11, r11d
 	mov	r12, 256
-	sub	r11, r12
-	mov	r12, 4
-	imul	r11, r12
+	sub	r11d, r12d
+	mov	r12, 2
+	imul	r11d, r12d
 	mov	dword [r10], r11d
 	mov	r10, qword [rbp-8]
 	add	r10, 16
 	push	r10
 	mov	r11, 200
 	mov	edi, r11d
-	mov	r11, 500
+	mov	r11, 1000
 	mov	esi, r11d
 	sub	rsp, 8
 	lea	r11, [rel GetRandomValue]
@@ -116,7 +114,7 @@ main:
 	push	r10
 	mov	r11, 20
 	mov	r12, 10000
-	imul	r11, r12
+	imul	r11d, r12d
 	mov	rdi, r11
 	sub	rsp, 8
 	lea	r11, [rel malloc]
@@ -140,12 +138,13 @@ main:
 	lea	r10, [rbp-16]
 	mov	r11, qword [rbp-16]
 	mov	r12, 1
-	add	r11, r12
+	add	r11d, r12d
+	movsx	r11, r11d
 	mov	qword [r10], r11
 .L3:
 	mov	r10, qword [rbp-16]
 	mov	r11, 10000
-	cmp	r10, r11
+	cmp	r10d, r11d
 	setl	r10b
 	movzx	r10, r10b
 	test	r10, r10
@@ -210,9 +209,8 @@ main:
 	add	r11, r12
 	add	r11, 16
 	mov	r11d, dword [r11]
-	movsx	r11, r11d
 	mov	r12, 5
-	sub	r11, r12
+	sub	r11d, r12d
 	mov	dword [r10], r11d
 	mov	r10, qword [rbp-8]
 	mov	r11, qword [rbp-16]
@@ -220,9 +218,8 @@ main:
 	add	r10, r11
 	add	r10, 16
 	mov	r10d, dword [r10]
-	movsx	r10, r10d
 	mov	r11, 200
-	cmp	r10, r11
+	cmp	r10d, r11d
 	setle	r10b
 	movzx	r10, r10b
 	test	r10, r10
@@ -238,12 +235,13 @@ main:
 	lea	r10, [rbp-16]
 	mov	r11, qword [rbp-16]
 	mov	r12, 1
-	add	r11, r12
+	add	r11d, r12d
+	movsx	r11, r11d
 	mov	qword [r10], r11
 .L7:
 	mov	r10, qword [rbp-16]
 	mov	r11, 10000
-	cmp	r10, r11
+	cmp	r10d, r11d
 	setl	r10b
 	movzx	r10, r10b
 	test	r10, r10
@@ -260,20 +258,6 @@ main:
 	mov	esi, r10d
 	lea	r10, [rel DrawFPS]
 	call	r10
-	mov	r10, LS1
-	mov	rdi, r10
-	mov	r10, 10
-	mov	esi, r10d
-	mov	r10, 600
-	mov	r11, 34
-	sub	r10, r11
-	mov	edx, r10d
-	mov	r10, 24
-	mov	ecx, r10d
-	mov	r10, 4294901760
-	mov	r8, r10
-	lea	r10, [rel DrawText]
-	call	r10
 	lea	r10, [rbp-16]
 	mov	r11, 0
 	mov	qword [r10], r11
@@ -286,12 +270,11 @@ main:
 	add	r11, r12
 	add	r11, 0
 	mov	r11d, dword [r11]
-	movsx	r11, r11d
 	mov	r12, 256
-	mov	rax, r11
+	mov	eax, r11d
 	cqo
-	idiv	r12
-	mov	r11, rax
+	idiv	r12d
+	mov	r11d, eax
 	mov	dword [r10], r11d
 	lea	r10, [rbp-24]
 	mov	r11, qword [rbp-8]
@@ -300,12 +283,11 @@ main:
 	add	r11, r12
 	add	r11, 4
 	mov	r11d, dword [r11]
-	movsx	r11, r11d
 	mov	r12, 256
-	mov	rax, r11
+	mov	eax, r11d
 	cqo
-	idiv	r12
-	mov	r11, rax
+	idiv	r12d
+	mov	r11d, eax
 	mov	dword [r10], r11d
 	lea	r10, [rbp-28]
 	mov	r11, qword [rbp-8]
@@ -314,13 +296,32 @@ main:
 	add	r11, r12
 	add	r11, 16
 	mov	r11d, dword [r11]
-	movsx	r11, r11d
 	mov	r12, 100
-	mov	rax, r11
+	mov	eax, r11d
 	cqo
-	idiv	r12
-	mov	r11, rax
+	idiv	r12d
+	mov	r11d, eax
 	mov	dword [r10], r11d
+	mov	r10d, dword [rbp-20]
+	mov	r11, 1
+	sub	r10d, r11d
+	mov	edi, r10d
+	mov	r10d, dword [rbp-24]
+	mov	r11, 1
+	sub	r10d, r11d
+	mov	esi, r10d
+	mov	r10d, dword [rbp-28]
+	mov	r11, 2
+	add	r10d, r11d
+	mov	edx, r10d
+	mov	r10d, dword [rbp-28]
+	mov	r11, 2
+	add	r10d, r11d
+	mov	ecx, r10d
+	mov	r10, 4278190080
+	mov	r8, r10
+	lea	r10, [rel DrawRectangle]
+	call	r10
 	mov	r10d, dword [rbp-20]
 	mov	edi, r10d
 	mov	r10d, dword [rbp-24]
@@ -336,12 +337,13 @@ main:
 	lea	r10, [rbp-16]
 	mov	r11, qword [rbp-16]
 	mov	r12, 1
-	add	r11, r12
+	add	r11d, r12d
+	movsx	r11, r11d
 	mov	qword [r10], r11
 .L10:
 	mov	r10, qword [rbp-16]
 	mov	r11, 10000
-	cmp	r10, r11
+	cmp	r10d, r11d
 	setl	r10b
 	movzx	r10, r10b
 	test	r10, r10
@@ -352,11 +354,10 @@ main:
 	lea	r10, [rel WindowShouldClose]
 	call	r10
 	mov	r10b, al
-	movzx	r10, r10b
-	mov	r11, 1
-	cmp	r10, r11
-	setne	r10b
-	movzx	r10, r10b
+	movzx	r10d, r10b
+	test	r10d, r10d
+	sete	al
+	movzx	r10d, al
 	test	r10, r10
 	jnz	.L4
 	lea	r10, [rel CloseWindow]
@@ -376,7 +377,6 @@ main:
 section .rodata
 	printi_s: db "%ld", 10, 0
 	LS0: db 80, 97, 114, 116, 105, 99, 108, 101, 115, 33, 0
-	LS1: db 119, 104, 111, 97, 104, 0
 
 section .note.GNU-stack
 

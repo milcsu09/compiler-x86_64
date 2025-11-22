@@ -157,7 +157,7 @@ print_cells:
 	movzx	r10, r10b
 	test	r10, r10
 	jz	.L12
-	mov	r10, 42
+	mov	r10, 46
 	mov	dil, r10b
 	lea	r10, [rel putchar]
 	call	r10

@@ -275,7 +275,7 @@ type_string (struct type *type, char *buffer, size_t size)
       break;
 
     default:
-      snprintf (buffer, size, "%s", type_kind_string(type->kind));
+      snprintf (buffer, size, "%s", type_kind_string (type->kind));
       break;
     }
 }
@@ -641,8 +641,27 @@ type_decay (struct type *type)
 
 
 struct type *
+type_promote_integer (struct type *type)
+{
+  if (type_is_integer (type))
+    return type_create (type->location, type_is_integer_signed (type) ? TYPE_I32 : TYPE_U32);
+
+  return type;
+}
+
+
+struct type *
 type_promote (struct type *a, struct type *b)
 {
+  if (a == TYPE_ERROR)
+    return NULL;
+
+  if (b == TYPE_ERROR)
+    return NULL;
+
+  a = type_promote_integer (a);
+  b = type_promote_integer (b);
+
   enum type_width wa = type_width (a);
   enum type_width wb = type_width (b);
 

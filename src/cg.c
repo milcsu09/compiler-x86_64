@@ -483,6 +483,29 @@ cg_write_ucompare_ge (struct cg *cg, struct cg_register a, struct cg_register b)
 
 
 static void
+cg_write_neg (struct cg *cg, struct cg_register a)
+{
+  cg_write (cg, "\tneg\t%s\n", register_string (a));
+}
+
+
+static void
+cg_write_lnot (struct cg *cg, struct cg_register a)
+{
+  cg_write (cg, "\ttest\t%s, %s\n", register_string (a), register_string (a));
+  cg_write (cg, "\tsete\tal\n");
+  cg_write (cg, "\tmovzx\t%s, al\n", register_string (a));
+}
+
+
+static void
+cg_write_bnot (struct cg *cg, struct cg_register a)
+{
+  cg_write (cg, "\tnot\t%s\n", register_string (a));
+}
+
+
+static void
 cg_write_label (struct cg *cg, cg_label_t label)
 {
   cg_write (cg, ".L%zu:\n", label);
@@ -768,6 +791,8 @@ static struct cg_register cg_generate_node_assignment (struct cg *, struct tree 
 
 static struct cg_register cg_generate_node_access (struct cg *, struct tree *);
 
+static struct cg_register cg_generate_node_unary (struct cg *, struct tree *);
+
 static struct cg_register cg_generate_node_binary (struct cg *, struct tree *);
 
 static struct cg_register cg_generate_node_reference (struct cg *, struct tree *);
@@ -802,6 +827,8 @@ cg_generate_expression (struct cg *cg, struct tree *tree)
       return cg_generate_node_assignment (cg, tree);
     case TREE_ACCESS:
       return cg_generate_node_access (cg, tree);
+    case TREE_UNARY:
+      return cg_generate_node_unary (cg, tree);
     case TREE_BINARY:
       return cg_generate_node_binary (cg, tree);
     case TREE_REFERENCE:
@@ -1401,6 +1428,35 @@ cg_generate_node_access (struct cg *cg, struct tree *tree)
 
 
 static struct cg_register
+cg_generate_node_unary (struct cg *cg, struct tree *tree)
+{
+  struct tree_node_unary *node = &tree->d.unary;
+
+  struct cg_register a = cg_generate_rvalue (cg, node->value);
+
+  enum unary_operator o = node->o;
+
+  switch (o)
+    {
+    case UNARY_NEG:
+      cg_write_neg (cg, a);
+      break;
+    case UNARY_LNOT:
+      cg_write_lnot (cg, a);
+      break;
+    case UNARY_BNOT:
+      cg_write_bnot (cg, a);
+      break;
+    default:
+      break;
+    }
+
+  return a;
+
+}
+
+
+static struct cg_register
 cg_generate_node_binary (struct cg *cg, struct tree *tree)
 {
   struct tree_node_binary *node = &tree->d.binary;
@@ -1421,7 +1477,6 @@ cg_generate_node_binary (struct cg *cg, struct tree *tree)
 
   enum binary_operator o = node->o;
 
-  // TODO: Factor out repetition.
   switch (o)
     {
     case BINARY_ADD:
