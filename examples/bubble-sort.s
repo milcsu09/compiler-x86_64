@@ -33,9 +33,8 @@ bubble_sort:
 	mov	r12, qword [rbp-32]
 	push	r10
 	mov	r10, 1
-	add	r12d, r10d
+	add	r12, r10
 	pop	r10
-	movsx	r12, r12d
 	imul	r12, 4
 	add	r11, r12
 	mov	r11d, dword [r11]
@@ -60,9 +59,8 @@ bubble_sort:
 	mov	r12, qword [rbp-32]
 	push	r10
 	mov	r10, 1
-	add	r12d, r10d
+	add	r12, r10
 	pop	r10
-	movsx	r12, r12d
 	imul	r12, 4
 	add	r11, r12
 	mov	r11d, dword [r11]
@@ -70,8 +68,7 @@ bubble_sort:
 	mov	r10, qword [rbp-8]
 	mov	r11, qword [rbp-32]
 	mov	r12, 1
-	add	r11d, r12d
-	movsx	r11, r11d
+	add	r11, r12
 	imul	r11, 4
 	add	r10, r11
 	mov	r11, qword [rbp-40]
@@ -80,17 +77,16 @@ bubble_sort:
 	lea	r10, [rbp-32]
 	mov	r11, qword [rbp-32]
 	mov	r12, 1
-	add	r11d, r12d
-	movsx	r11, r11d
+	add	r11, r12
 	mov	qword [r10], r11
 .L4:
 	mov	r10, qword [rbp-32]
 	mov	r11, qword [rbp-16]
 	mov	r12, qword [rbp-24]
-	sub	r11d, r12d
+	sub	r11, r12
 	mov	r12, 1
-	sub	r11d, r12d
-	cmp	r10d, r11d
+	sub	r11, r12
+	cmp	r10, r11
 	setl	r10b
 	movzx	r10, r10b
 	test	r10, r10
@@ -98,13 +94,12 @@ bubble_sort:
 	lea	r10, [rbp-24]
 	mov	r11, qword [rbp-24]
 	mov	r12, 1
-	add	r11d, r12d
-	movsx	r11, r11d
+	add	r11, r12
 	mov	qword [r10], r11
 .L2:
 	mov	r10, qword [rbp-24]
 	mov	r11, qword [rbp-16]
-	cmp	r10d, r11d
+	cmp	r10, r11
 	setl	r10b
 	movzx	r10, r10b
 	test	r10, r10
@@ -171,13 +166,12 @@ main:
 	lea	r10, [rbp-32]
 	mov	r11, qword [rbp-32]
 	mov	r12, 1
-	add	r11d, r12d
-	movsx	r11, r11d
+	add	r11, r12
 	mov	qword [r10], r11
 .L8:
 	mov	r10, qword [rbp-32]
 	mov	r11, 5
-	cmp	r10d, r11d
+	cmp	r10, r11
 	setl	r10b
 	movzx	r10, r10b
 	test	r10, r10

@@ -57,9 +57,9 @@ cat_file:
 	pop	r10
 	mov	r11b, al
 	mov	byte [r10], r11b
-	movzx	r11d, r11b
+	movzx	r11, r11b
 	mov	r10, 255
-	cmp	r11d, r10d
+	cmp	r11, r10
 	setne	r11b
 	movzx	r11, r11b
 	test	r11, r11
@@ -81,8 +81,9 @@ main:
 	mov	dword [rbp-4], edi
 	mov	qword [rbp-16], rsi
 	mov	r10d, dword [rbp-4]
+	movsx	r10, r10d
 	mov	r11, 2
-	cmp	r10d, r11d
+	cmp	r10, r11
 	setl	r10b
 	movzx	r10, r10b
 	test	r10, r10
@@ -107,13 +108,13 @@ main:
 	lea	r10, [rbp-24]
 	mov	r11, qword [rbp-24]
 	mov	r12, 1
-	add	r11d, r12d
-	movsx	r11, r11d
+	add	r11, r12
 	mov	qword [r10], r11
 .L7:
 	mov	r10, qword [rbp-24]
 	mov	r11d, dword [rbp-4]
-	cmp	r10d, r11d
+	movsx	r11, r11d
+	cmp	r10, r11
 	setl	r10b
 	movzx	r10, r10b
 	test	r10, r10

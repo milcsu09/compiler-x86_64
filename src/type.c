@@ -633,7 +633,8 @@ struct type *
 type_promote_integer (struct type *type)
 {
   if (type_is_integer (type))
-    return type_create (type->location, type_is_integer_signed (type) ? TYPE_I32 : TYPE_U32);
+    if (type_width (type) < WIDTH_4)
+      return type_create (type->location, type_is_integer_signed (type) ? TYPE_I32 : TYPE_U32);
 
   return type;
 }
@@ -757,7 +758,6 @@ type_print (struct type *type, int depth)
       }
       break;
     default:
-      unreachable ();
       break;
     }
 }

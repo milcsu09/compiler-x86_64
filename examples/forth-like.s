@@ -73,8 +73,7 @@ lexer_next:
 	lea	r10, [rbp-24]
 	mov	r11, qword [rbp-24]
 	mov	r12, 10
-	imul	r11d, r12d
-	movsx	r11, r11d
+	imul	r11, r12
 	mov	qword [r10], r11
 	lea	r10, [rbp-24]
 	mov	r11, qword [rbp-24]
@@ -82,10 +81,10 @@ lexer_next:
 	add	r12, 0
 	mov	r12, qword [r12]
 	mov	r12b, byte [r12]
-	movzx	r12d, r12b
-	add	r11d, r12d
+	movzx	r12, r12b
+	add	r11, r12
 	mov	r12, 48
-	sub	r11d, r12d
+	sub	r11, r12
 	mov	qword [r10], r11
 	mov	r10, qword [rbp-8]
 	mov	rdi, r10
@@ -117,9 +116,9 @@ lexer_next:
 	add	r10, 0
 	mov	r10, qword [r10]
 	mov	r10b, byte [r10]
-	movzx	r10d, r10b
+	movzx	r10, r10b
 	mov	r11, 43
-	cmp	r10d, r11d
+	cmp	r10, r11
 	sete	r10b
 	movzx	r10, r10b
 	test	r10, r10
@@ -138,9 +137,9 @@ lexer_next:
 	add	r10, 0
 	mov	r10, qword [r10]
 	mov	r10b, byte [r10]
-	movzx	r10d, r10b
+	movzx	r10, r10b
 	mov	r11, 45
-	cmp	r10d, r11d
+	cmp	r10, r11
 	sete	r10b
 	movzx	r10, r10b
 	test	r10, r10
@@ -159,9 +158,9 @@ lexer_next:
 	add	r10, 0
 	mov	r10, qword [r10]
 	mov	r10b, byte [r10]
-	movzx	r10d, r10b
+	movzx	r10, r10b
 	mov	r11, 42
-	cmp	r10d, r11d
+	cmp	r10, r11
 	sete	r10b
 	movzx	r10, r10b
 	test	r10, r10
@@ -180,9 +179,9 @@ lexer_next:
 	add	r10, 0
 	mov	r10, qword [r10]
 	mov	r10b, byte [r10]
-	movzx	r10d, r10b
+	movzx	r10, r10b
 	mov	r11, 47
-	cmp	r10d, r11d
+	cmp	r10, r11
 	sete	r10b
 	movzx	r10, r10b
 	test	r10, r10
@@ -201,9 +200,9 @@ lexer_next:
 	add	r10, 0
 	mov	r10, qword [r10]
 	mov	r10b, byte [r10]
-	movzx	r10d, r10b
+	movzx	r10, r10b
 	mov	r11, 46
-	cmp	r10d, r11d
+	cmp	r10, r11
 	sete	r10b
 	movzx	r10, r10b
 	test	r10, r10
@@ -255,7 +254,7 @@ main:
 	add	r10, 0
 	mov	r10d, dword [r10]
 	mov	r11, 1
-	cmp	r10d, r11d
+	cmp	r10, r11
 	sete	r10b
 	movzx	r10, r10b
 	test	r10, r10
@@ -271,8 +270,7 @@ main:
 	lea	r10, [rbp-544]
 	mov	r11, qword [rbp-544]
 	mov	r12, 1
-	add	r11d, r12d
-	movsx	r11, r11d
+	add	r11, r12
 	mov	qword [r10], r11
 	jmp	.L16
 .L15:
@@ -280,7 +278,7 @@ main:
 	add	r10, 0
 	mov	r10d, dword [r10]
 	mov	r11, 2
-	cmp	r10d, r11d
+	cmp	r10, r11
 	sete	r10b
 	movzx	r10, r10b
 	test	r10, r10
@@ -290,9 +288,8 @@ main:
 	mov	r12, qword [rbp-544]
 	push	r10
 	mov	r10, 1
-	sub	r12d, r10d
+	sub	r12, r10
 	pop	r10
-	movsx	r12, r12d
 	imul	r12, 8
 	add	r11, r12
 	mov	r11, qword [r11]
@@ -302,9 +299,8 @@ main:
 	mov	r12, qword [rbp-544]
 	push	r10
 	mov	r10, 2
-	sub	r12d, r10d
+	sub	r12, r10
 	pop	r10
-	movsx	r12, r12d
 	imul	r12, 8
 	add	r11, r12
 	mov	r11, qword [r11]
@@ -312,8 +308,7 @@ main:
 	lea	r10, [rbp-544]
 	mov	r11, qword [rbp-544]
 	mov	r12, 2
-	sub	r11d, r12d
-	movsx	r11, r11d
+	sub	r11, r12
 	mov	qword [r10], r11
 	lea	r10, [rbp-536]
 	mov	r11, qword [rbp-544]
@@ -321,14 +316,12 @@ main:
 	add	r10, r11
 	mov	r11, qword [rbp-552]
 	mov	r12, qword [rbp-560]
-	add	r11d, r12d
-	movsx	r11, r11d
+	add	r11, r12
 	mov	qword [r10], r11
 	lea	r10, [rbp-544]
 	mov	r11, qword [rbp-544]
 	mov	r12, 1
-	add	r11d, r12d
-	movsx	r11, r11d
+	add	r11, r12
 	mov	qword [r10], r11
 	jmp	.L18
 .L17:
@@ -336,7 +329,7 @@ main:
 	add	r10, 0
 	mov	r10d, dword [r10]
 	mov	r11, 3
-	cmp	r10d, r11d
+	cmp	r10, r11
 	sete	r10b
 	movzx	r10, r10b
 	test	r10, r10
@@ -346,9 +339,8 @@ main:
 	mov	r12, qword [rbp-544]
 	push	r10
 	mov	r10, 1
-	sub	r12d, r10d
+	sub	r12, r10
 	pop	r10
-	movsx	r12, r12d
 	imul	r12, 8
 	add	r11, r12
 	mov	r11, qword [r11]
@@ -358,9 +350,8 @@ main:
 	mov	r12, qword [rbp-544]
 	push	r10
 	mov	r10, 2
-	sub	r12d, r10d
+	sub	r12, r10
 	pop	r10
-	movsx	r12, r12d
 	imul	r12, 8
 	add	r11, r12
 	mov	r11, qword [r11]
@@ -368,8 +359,7 @@ main:
 	lea	r10, [rbp-544]
 	mov	r11, qword [rbp-544]
 	mov	r12, 2
-	sub	r11d, r12d
-	movsx	r11, r11d
+	sub	r11, r12
 	mov	qword [r10], r11
 	lea	r10, [rbp-536]
 	mov	r11, qword [rbp-544]
@@ -377,14 +367,12 @@ main:
 	add	r10, r11
 	mov	r11, qword [rbp-568]
 	mov	r12, qword [rbp-576]
-	sub	r11d, r12d
-	movsx	r11, r11d
+	sub	r11, r12
 	mov	qword [r10], r11
 	lea	r10, [rbp-544]
 	mov	r11, qword [rbp-544]
 	mov	r12, 1
-	add	r11d, r12d
-	movsx	r11, r11d
+	add	r11, r12
 	mov	qword [r10], r11
 	jmp	.L20
 .L19:
@@ -392,7 +380,7 @@ main:
 	add	r10, 0
 	mov	r10d, dword [r10]
 	mov	r11, 4
-	cmp	r10d, r11d
+	cmp	r10, r11
 	sete	r10b
 	movzx	r10, r10b
 	test	r10, r10
@@ -402,9 +390,8 @@ main:
 	mov	r12, qword [rbp-544]
 	push	r10
 	mov	r10, 1
-	sub	r12d, r10d
+	sub	r12, r10
 	pop	r10
-	movsx	r12, r12d
 	imul	r12, 8
 	add	r11, r12
 	mov	r11, qword [r11]
@@ -414,9 +401,8 @@ main:
 	mov	r12, qword [rbp-544]
 	push	r10
 	mov	r10, 2
-	sub	r12d, r10d
+	sub	r12, r10
 	pop	r10
-	movsx	r12, r12d
 	imul	r12, 8
 	add	r11, r12
 	mov	r11, qword [r11]
@@ -424,8 +410,7 @@ main:
 	lea	r10, [rbp-544]
 	mov	r11, qword [rbp-544]
 	mov	r12, 2
-	sub	r11d, r12d
-	movsx	r11, r11d
+	sub	r11, r12
 	mov	qword [r10], r11
 	lea	r10, [rbp-536]
 	mov	r11, qword [rbp-544]
@@ -433,14 +418,12 @@ main:
 	add	r10, r11
 	mov	r11, qword [rbp-584]
 	mov	r12, qword [rbp-592]
-	imul	r11d, r12d
-	movsx	r11, r11d
+	imul	r11, r12
 	mov	qword [r10], r11
 	lea	r10, [rbp-544]
 	mov	r11, qword [rbp-544]
 	mov	r12, 1
-	add	r11d, r12d
-	movsx	r11, r11d
+	add	r11, r12
 	mov	qword [r10], r11
 	jmp	.L22
 .L21:
@@ -448,7 +431,7 @@ main:
 	add	r10, 0
 	mov	r10d, dword [r10]
 	mov	r11, 5
-	cmp	r10d, r11d
+	cmp	r10, r11
 	sete	r10b
 	movzx	r10, r10b
 	test	r10, r10
@@ -458,9 +441,8 @@ main:
 	mov	r12, qword [rbp-544]
 	push	r10
 	mov	r10, 1
-	sub	r12d, r10d
+	sub	r12, r10
 	pop	r10
-	movsx	r12, r12d
 	imul	r12, 8
 	add	r11, r12
 	mov	r11, qword [r11]
@@ -470,9 +452,8 @@ main:
 	mov	r12, qword [rbp-544]
 	push	r10
 	mov	r10, 2
-	sub	r12d, r10d
+	sub	r12, r10
 	pop	r10
-	movsx	r12, r12d
 	imul	r12, 8
 	add	r11, r12
 	mov	r11, qword [r11]
@@ -480,8 +461,7 @@ main:
 	lea	r10, [rbp-544]
 	mov	r11, qword [rbp-544]
 	mov	r12, 2
-	sub	r11d, r12d
-	movsx	r11, r11d
+	sub	r11, r12
 	mov	qword [r10], r11
 	lea	r10, [rbp-536]
 	mov	r11, qword [rbp-544]
@@ -489,17 +469,15 @@ main:
 	add	r10, r11
 	mov	r11, qword [rbp-600]
 	mov	r12, qword [rbp-608]
-	mov	eax, r11d
+	mov	rax, r11
 	cqo
-	idiv	r12d
-	mov	r11d, eax
-	movsx	r11, r11d
+	idiv	r12
+	mov	r11, rax
 	mov	qword [r10], r11
 	lea	r10, [rbp-544]
 	mov	r11, qword [rbp-544]
 	mov	r12, 1
-	add	r11d, r12d
-	movsx	r11, r11d
+	add	r11, r12
 	mov	qword [r10], r11
 	jmp	.L24
 .L23:
@@ -507,7 +485,7 @@ main:
 	add	r10, 0
 	mov	r10d, dword [r10]
 	mov	r11, 6
-	cmp	r10d, r11d
+	cmp	r10, r11
 	sete	r10b
 	movzx	r10, r10b
 	test	r10, r10
@@ -515,8 +493,7 @@ main:
 	lea	r10, [rbp-536]
 	mov	r11, qword [rbp-544]
 	mov	r12, 1
-	sub	r11d, r12d
-	movsx	r11, r11d
+	sub	r11, r12
 	imul	r11, 8
 	add	r10, r11
 	mov	r10, qword [r10]
@@ -525,8 +502,7 @@ main:
 	lea	r10, [rbp-544]
 	mov	r11, qword [rbp-544]
 	mov	r12, 1
-	sub	r11d, r12d
-	movsx	r11, r11d
+	sub	r11, r12
 	mov	qword [r10], r11
 .L25:
 .L24:
@@ -539,7 +515,7 @@ main:
 	add	r10, 0
 	mov	r10d, dword [r10]
 	mov	r11, 0
-	cmp	r10d, r11d
+	cmp	r10, r11
 	setne	r10b
 	movzx	r10, r10b
 	test	r10, r10

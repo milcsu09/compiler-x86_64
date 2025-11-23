@@ -30,13 +30,13 @@ particle_init:
 	add	r10, 0
 	mov	r11, 400
 	mov	r12, 256
-	imul	r11d, r12d
+	imul	r11, r12
 	mov	dword [r10], r11d
 	mov	r10, qword [rbp-8]
 	add	r10, 4
 	mov	r11, 300
 	mov	r12, 256
-	imul	r11d, r12d
+	imul	r11, r12
 	mov	dword [r10], r11d
 	mov	r10, qword [rbp-8]
 	add	r10, 8
@@ -51,10 +51,11 @@ particle_init:
 	add	rsp, 8
 	pop	r10
 	mov	r11d, eax
+	movsx	r11, r11d
 	mov	r12, 256
-	sub	r11d, r12d
+	sub	r11, r12
 	mov	r12, 2
-	imul	r11d, r12d
+	imul	r11, r12
 	mov	dword [r10], r11d
 	mov	r10, qword [rbp-8]
 	add	r10, 12
@@ -69,10 +70,11 @@ particle_init:
 	add	rsp, 8
 	pop	r10
 	mov	r11d, eax
+	movsx	r11, r11d
 	mov	r12, 256
-	sub	r11d, r12d
+	sub	r11, r12
 	mov	r12, 2
-	imul	r11d, r12d
+	imul	r11, r12
 	mov	dword [r10], r11d
 	mov	r10, qword [rbp-8]
 	add	r10, 16
@@ -114,7 +116,7 @@ main:
 	push	r10
 	mov	r11, 20
 	mov	r12, 10000
-	imul	r11d, r12d
+	imul	r11, r12
 	mov	rdi, r11
 	sub	rsp, 8
 	lea	r11, [rel malloc]
@@ -138,13 +140,12 @@ main:
 	lea	r10, [rbp-16]
 	mov	r11, qword [rbp-16]
 	mov	r12, 1
-	add	r11d, r12d
-	movsx	r11, r11d
+	add	r11, r12
 	mov	qword [r10], r11
 .L3:
 	mov	r10, qword [rbp-16]
 	mov	r11, 10000
-	cmp	r10d, r11d
+	cmp	r10, r11
 	setl	r10b
 	movzx	r10, r10b
 	test	r10, r10
@@ -209,8 +210,9 @@ main:
 	add	r11, r12
 	add	r11, 16
 	mov	r11d, dword [r11]
+	movsx	r11, r11d
 	mov	r12, 5
-	sub	r11d, r12d
+	sub	r11, r12
 	mov	dword [r10], r11d
 	mov	r10, qword [rbp-8]
 	mov	r11, qword [rbp-16]
@@ -218,8 +220,9 @@ main:
 	add	r10, r11
 	add	r10, 16
 	mov	r10d, dword [r10]
+	movsx	r10, r10d
 	mov	r11, 200
-	cmp	r10d, r11d
+	cmp	r10, r11
 	setle	r10b
 	movzx	r10, r10b
 	test	r10, r10
@@ -235,13 +238,12 @@ main:
 	lea	r10, [rbp-16]
 	mov	r11, qword [rbp-16]
 	mov	r12, 1
-	add	r11d, r12d
-	movsx	r11, r11d
+	add	r11, r12
 	mov	qword [r10], r11
 .L7:
 	mov	r10, qword [rbp-16]
 	mov	r11, 10000
-	cmp	r10d, r11d
+	cmp	r10, r11
 	setl	r10b
 	movzx	r10, r10b
 	test	r10, r10
@@ -270,11 +272,12 @@ main:
 	add	r11, r12
 	add	r11, 0
 	mov	r11d, dword [r11]
+	movsx	r11, r11d
 	mov	r12, 256
-	mov	eax, r11d
+	mov	rax, r11
 	cqo
-	idiv	r12d
-	mov	r11d, eax
+	idiv	r12
+	mov	r11, rax
 	mov	dword [r10], r11d
 	lea	r10, [rbp-24]
 	mov	r11, qword [rbp-8]
@@ -283,11 +286,12 @@ main:
 	add	r11, r12
 	add	r11, 4
 	mov	r11d, dword [r11]
+	movsx	r11, r11d
 	mov	r12, 256
-	mov	eax, r11d
+	mov	rax, r11
 	cqo
-	idiv	r12d
-	mov	r11d, eax
+	idiv	r12
+	mov	r11, rax
 	mov	dword [r10], r11d
 	lea	r10, [rbp-28]
 	mov	r11, qword [rbp-8]
@@ -296,27 +300,32 @@ main:
 	add	r11, r12
 	add	r11, 16
 	mov	r11d, dword [r11]
+	movsx	r11, r11d
 	mov	r12, 100
-	mov	eax, r11d
+	mov	rax, r11
 	cqo
-	idiv	r12d
-	mov	r11d, eax
+	idiv	r12
+	mov	r11, rax
 	mov	dword [r10], r11d
 	mov	r10d, dword [rbp-20]
+	movsx	r10, r10d
 	mov	r11, 1
-	sub	r10d, r11d
+	sub	r10, r11
 	mov	edi, r10d
 	mov	r10d, dword [rbp-24]
+	movsx	r10, r10d
 	mov	r11, 1
-	sub	r10d, r11d
+	sub	r10, r11
 	mov	esi, r10d
 	mov	r10d, dword [rbp-28]
+	movsx	r10, r10d
 	mov	r11, 2
-	add	r10d, r11d
+	add	r10, r11
 	mov	edx, r10d
 	mov	r10d, dword [rbp-28]
+	movsx	r10, r10d
 	mov	r11, 2
-	add	r10d, r11d
+	add	r10, r11
 	mov	ecx, r10d
 	mov	r10, 4278190080
 	mov	r8, r10
@@ -337,13 +346,12 @@ main:
 	lea	r10, [rbp-16]
 	mov	r11, qword [rbp-16]
 	mov	r12, 1
-	add	r11d, r12d
-	movsx	r11, r11d
+	add	r11, r12
 	mov	qword [r10], r11
 .L10:
 	mov	r10, qword [rbp-16]
 	mov	r11, 10000
-	cmp	r10d, r11d
+	cmp	r10, r11
 	setl	r10b
 	movzx	r10, r10b
 	test	r10, r10

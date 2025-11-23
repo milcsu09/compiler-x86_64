@@ -39,18 +39,17 @@ main:
 	add	r10, r11
 	mov	r11, qword [rbp-16]
 	mov	r12, qword [rbp-16]
-	imul	r11d, r12d
+	imul	r11, r12
 	mov	dword [r10], r11d
 	lea	r10, [rbp-16]
 	mov	r11, qword [rbp-16]
 	mov	r12, 1
-	add	r11d, r12d
-	movsx	r11, r11d
+	add	r11, r12
 	mov	qword [r10], r11
 .L2:
 	mov	r10, qword [rbp-16]
 	mov	r11, 4
-	cmp	r10d, r11d
+	cmp	r10, r11
 	setl	r10b
 	movzx	r10, r10b
 	test	r10, r10
@@ -71,13 +70,12 @@ main:
 	lea	r10, [rbp-16]
 	mov	r11, qword [rbp-16]
 	mov	r12, 1
-	add	r11d, r12d
-	movsx	r11, r11d
+	add	r11, r12
 	mov	qword [r10], r11
 .L4:
 	mov	r10, qword [rbp-16]
 	mov	r11, 4
-	cmp	r10d, r11d
+	cmp	r10, r11
 	setl	r10b
 	movzx	r10, r10b
 	test	r10, r10

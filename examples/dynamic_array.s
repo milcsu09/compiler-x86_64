@@ -32,7 +32,7 @@ da_create:
 	push	r10
 	mov	r11, 8
 	mov	r12, qword [rbp-8]
-	imul	r11d, r12d
+	imul	r11, r12
 	mov	rdi, r11
 	sub	rsp, 8
 	lea	r11, [rel malloc]
@@ -91,7 +91,7 @@ da_append:
 	mov	r11, qword [rbp-8]
 	add	r11, 16
 	mov	r11, qword [r11]
-	cmp	r10d, r11d
+	cmp	r10, r11
 	setge	r10b
 	movzx	r10, r10b
 	test	r10, r10
@@ -102,8 +102,7 @@ da_append:
 	add	r11, 16
 	mov	r11, qword [r11]
 	mov	r12, 2
-	imul	r11d, r12d
-	movsx	r11, r11d
+	imul	r11, r12
 	mov	qword [r10], r11
 	mov	r10, qword [rbp-8]
 	add	r10, 0
@@ -116,7 +115,7 @@ da_append:
 	mov	r12, qword [rbp-8]
 	add	r12, 16
 	mov	r12, qword [r12]
-	imul	r11d, r12d
+	imul	r11, r12
 	mov	rsi, r11
 	sub	rsp, 8
 	lea	r11, [rel realloc]
@@ -142,8 +141,7 @@ da_append:
 	add	r11, 8
 	mov	r11, qword [r11]
 	mov	r12, 1
-	add	r11d, r12d
-	movsx	r11, r11d
+	add	r11, r12
 	mov	qword [r10], r11
 .L2:
 	add	rsp, 16
@@ -175,21 +173,19 @@ main:
 	mov	rdi, r10
 	mov	r10, qword [rbp-16]
 	mov	r11, qword [rbp-16]
-	imul	r10d, r11d
-	movsx	r10, r10d
+	imul	r10, r11
 	mov	rsi, r10
 	lea	r10, [rel da_append]
 	call	r10
 	lea	r10, [rbp-16]
 	mov	r11, qword [rbp-16]
 	mov	r12, 1
-	add	r11d, r12d
-	movsx	r11, r11d
+	add	r11, r12
 	mov	qword [r10], r11
 .L6:
 	mov	r10, qword [rbp-16]
 	mov	r11, 100
-	cmp	r10d, r11d
+	cmp	r10, r11
 	setl	r10b
 	movzx	r10, r10b
 	test	r10, r10
@@ -211,13 +207,12 @@ main:
 	lea	r10, [rbp-16]
 	mov	r11, qword [rbp-16]
 	mov	r12, 1
-	add	r11d, r12d
-	movsx	r11, r11d
+	add	r11, r12
 	mov	qword [r10], r11
 .L8:
 	mov	r10, qword [rbp-16]
 	mov	r11, 100
-	cmp	r10d, r11d
+	cmp	r10, r11
 	setl	r10b
 	movzx	r10, r10b
 	test	r10, r10
