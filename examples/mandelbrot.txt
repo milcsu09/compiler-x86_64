@@ -1,0 +1,95 @@
+
+fn mandelbrot(cr : i64, ci : i64, iter_max : i64) -> i64
+{
+  zr : i64;
+  zi : i64;
+
+  zr = 0;
+  zi = 0;
+
+  iter : i64;
+  iter = 0;
+
+  b : u8;
+  b = 1;
+
+  while iter < iter_max and b
+  {
+    zr2 : i64;
+    zi2 : i64;
+
+    zr2 = (zr * zr) / 65536;
+    zi2 = (zi * zi) / 65536;
+
+    if zr2 + zi2 > 4 * 65536
+    {
+      b = 0;
+    }
+    else
+    {
+      zi_next : i64;
+      zr_next : i64;
+
+      zi_next = (2 * zr * zi) / 65536 + ci;
+      zr_next = zr2 - zi2 + cr;
+
+      zr = zr_next;
+      zi = zi_next;
+
+      iter = iter + 1;
+    }
+  }
+
+  return iter;
+}
+
+
+extern fn putchar(u8);
+
+
+fn main() -> i32
+{
+  x_min : i64;
+  x_max : i64;
+  y_min : i64;
+  y_max : i64;
+
+  x_min = -131072;
+  x_max = 65536;
+  y_min = -98304;
+  y_max = 98304;
+
+  dx : i64;
+  dy : i64;
+
+  dx = (x_max - x_min) / 80;
+  dy = (y_max - y_min) / 40;
+
+  charset : *u8;
+  charset = " .:-=+*#%@";
+
+  j : i64;
+  i : i64;
+
+  for j = 0; j < 40; j = j + 1
+  {
+    ci : i64;
+    ci = y_max - j * dy;
+
+    for i = 0; i < 80; i = i + 1
+    {
+      cr : i64;
+      cr = x_min + i * dx;
+
+      iter : i64;
+      iter = mandelbrot(cr, ci, 50);
+
+      putchar(charset[iter * 9 / 50]);
+    }
+
+    putchar('\n');
+  }
+
+  return 0;
+}
+
