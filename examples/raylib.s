@@ -67,6 +67,7 @@ main:
 	movzx	r10, r10b
 	test	r10, r10
 	jnz	.L1
+.L3:
 	lea	r10, [rel CloseWindow]
 	call	r10
 	mov	r10, 0

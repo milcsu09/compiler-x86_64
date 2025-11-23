@@ -10,10 +10,7 @@ fn mandelbrot(cr : i64, ci : i64, iter_max : i64) -> i64
   iter : i64;
   iter = 0;
 
-  b : u8;
-  b = 1;
-
-  while iter < iter_max and b
+  while iter < iter_max
   {
     zr2 : i64;
     zi2 : i64;
@@ -23,7 +20,7 @@ fn mandelbrot(cr : i64, ci : i64, iter_max : i64) -> i64
 
     if zr2 + zi2 > 4 * 65536
     {
-      b = 0;
+      break;
     }
     else
     {
@@ -82,9 +79,9 @@ fn main() -> i32
       cr = x_min + i * dx;
 
       iter : i64;
-      iter = mandelbrot(cr, ci, 50);
+      iter = mandelbrot(cr, ci, 500000);
 
-      putchar(charset[iter * 9 / 50]);
+      putchar(charset[iter * 9 / 500000]);
     }
 
     putchar('\n');

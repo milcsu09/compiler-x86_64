@@ -41,6 +41,7 @@ main:
 	mov	r12, qword [rbp-16]
 	imul	r11, r12
 	mov	dword [r10], r11d
+.L4:
 	lea	r10, [rbp-16]
 	mov	r11, qword [rbp-16]
 	mov	r12, 1
@@ -54,11 +55,12 @@ main:
 	movzx	r10, r10b
 	test	r10, r10
 	jnz	.L1
+.L3:
 	lea	r10, [rbp-16]
 	mov	r11, 0
 	mov	qword [r10], r11
-	jmp	.L4
-.L3:
+	jmp	.L6
+.L5:
 	mov	r10, qword [rbp-8]
 	mov	r11, qword [rbp-16]
 	imul	r11, 4
@@ -67,19 +69,21 @@ main:
 	movsx	r10, r10d
 	mov	rdi, r10
 	call	printi
+.L8:
 	lea	r10, [rbp-16]
 	mov	r11, qword [rbp-16]
 	mov	r12, 1
 	add	r11, r12
 	mov	qword [r10], r11
-.L4:
+.L6:
 	mov	r10, qword [rbp-16]
 	mov	r11, 4
 	cmp	r10, r11
 	setl	r10b
 	movzx	r10, r10b
 	test	r10, r10
-	jnz	.L3
+	jnz	.L5
+.L7:
 	mov	r10, qword [rbp-8]
 	mov	rdi, r10
 	lea	r10, [rel free]

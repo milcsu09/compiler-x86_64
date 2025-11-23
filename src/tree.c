@@ -65,6 +65,8 @@ static const char *const TREE_KIND_STRING[] = {
   "compound",
   "vdeclaration",
   "return",
+  "break",
+  "continue",
   "print",
 
   "scale",
@@ -315,6 +317,10 @@ tree_print (struct tree *tree, int depth)
 
         tree_print (node.value, depth + 1);
       }
+      break;
+    case TREE_BREAK:
+      break;
+    case TREE_CONTINUE:
       break;
     case TREE_PRINT:
       {

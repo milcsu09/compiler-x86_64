@@ -179,6 +179,10 @@ static struct tree *parser_parse_statement_vdeclaration (struct parser *);
 
 static struct tree *parser_parse_statement_return (struct parser *);
 
+static struct tree *parser_parse_statement_break (struct parser *);
+
+static struct tree *parser_parse_statement_continue (struct parser *);
+
 static struct tree *parser_parse_statement_print (struct parser *);
 
 
@@ -434,6 +438,12 @@ parser_parse_statement (struct parser *parser)
   if (parser_match (parser, TOKEN_RETURN))
     return parser_parse_statement_return (parser);
 
+  if (parser_match (parser, TOKEN_BREAK))
+    return parser_parse_statement_break (parser);
+
+  if (parser_match (parser, TOKEN_CONTINUE))
+    return parser_parse_statement_continue (parser);
+
   if (parser_match (parser, TOKEN_PRINT))
     return parser_parse_statement_print (parser);
 
@@ -592,6 +602,32 @@ parser_parse_statement_return (struct parser *parser)
     return result;
 
   result->d.return_s.value = parser_parse_expression_assignment (parser);
+
+  return result;
+}
+
+
+static struct tree *
+parser_parse_statement_break (struct parser *parser)
+{
+  struct tree *result;
+
+  result = tree_create (parser->location, TREE_BREAK);
+
+  parser_expect_advance (parser, TOKEN_BREAK);
+
+  return result;
+}
+
+
+static struct tree *
+parser_parse_statement_continue (struct parser *parser)
+{
+  struct tree *result;
+
+  result = tree_create (parser->location, TREE_CONTINUE);
+
+  parser_expect_advance (parser, TOKEN_CONTINUE);
 
   return result;
 }

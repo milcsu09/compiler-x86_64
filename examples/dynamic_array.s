@@ -177,6 +177,7 @@ main:
 	mov	rsi, r10
 	lea	r10, [rel da_append]
 	call	r10
+.L8:
 	lea	r10, [rbp-16]
 	mov	r11, qword [rbp-16]
 	mov	r12, 1
@@ -190,11 +191,12 @@ main:
 	movzx	r10, r10b
 	test	r10, r10
 	jnz	.L5
+.L7:
 	lea	r10, [rbp-16]
 	mov	r11, 0
 	mov	qword [r10], r11
-	jmp	.L8
-.L7:
+	jmp	.L10
+.L9:
 	mov	r10, qword [rbp-8]
 	add	r10, 0
 	mov	r10, qword [r10]
@@ -204,19 +206,21 @@ main:
 	mov	r10, qword [r10]
 	mov	rdi, r10
 	call	printi
+.L12:
 	lea	r10, [rbp-16]
 	mov	r11, qword [rbp-16]
 	mov	r12, 1
 	add	r11, r12
 	mov	qword [r10], r11
-.L8:
+.L10:
 	mov	r10, qword [rbp-16]
 	mov	r11, 100
 	cmp	r10, r11
 	setl	r10b
 	movzx	r10, r10b
 	test	r10, r10
-	jnz	.L7
+	jnz	.L9
+.L11:
 	mov	r10, qword [rbp-8]
 	mov	rdi, r10
 	lea	r10, [rel da_destroy]

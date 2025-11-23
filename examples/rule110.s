@@ -156,17 +156,18 @@ print_cells:
 	sete	r10b
 	movzx	r10, r10b
 	test	r10, r10
-	jz	.L12
+	jz	.L14
 	mov	r10, 46
 	mov	dil, r10b
 	lea	r10, [rel putchar]
 	call	r10
-	jmp	.L13
-.L12:
+	jmp	.L15
+.L14:
 	mov	r10, 32
 	mov	dil, r10b
 	lea	r10, [rel putchar]
 	call	r10
+.L15:
 .L13:
 	lea	r10, [rbp-16]
 	mov	r11, qword [rbp-16]
@@ -181,6 +182,7 @@ print_cells:
 	movzx	r10, r10b
 	test	r10, r10
 	jnz	.L10
+.L12:
 	mov	r10, 10
 	mov	dil, r10b
 	lea	r10, [rel putchar]
@@ -198,8 +200,8 @@ main:
 	lea	r10, [rbp-168]
 	mov	r11, 0
 	mov	qword [r10], r11
-	jmp	.L16
-.L15:
+	jmp	.L18
+.L17:
 	lea	r10, [rbp-80]
 	mov	r11, qword [rbp-168]
 	add	r10, r11
@@ -209,19 +211,21 @@ main:
 	mov	r12, 0
 	mov	byte [r11], r12b
 	mov	byte [r10], r12b
+.L20:
 	lea	r10, [rbp-168]
 	mov	r11, qword [rbp-168]
 	mov	r12, 1
 	add	r11, r12
 	mov	qword [r10], r11
-.L16:
+.L18:
 	mov	r10, qword [rbp-168]
 	mov	r11, 80
 	cmp	r10, r11
 	setl	r10b
 	movzx	r10, r10b
 	test	r10, r10
-	jnz	.L15
+	jnz	.L17
+.L19:
 	lea	r10, [rbp-80]
 	mov	r11, 79
 	add	r10, r11
@@ -230,8 +234,8 @@ main:
 	lea	r10, [rbp-176]
 	mov	r11, 0
 	mov	qword [r10], r11
-	jmp	.L18
-.L17:
+	jmp	.L22
+.L21:
 	lea	r10, [rbp-80]
 	mov	rdi, r10
 	lea	r10, [rel print_cells]
@@ -239,8 +243,8 @@ main:
 	lea	r10, [rbp-168]
 	mov	r11, 0
 	mov	qword [r10], r11
-	jmp	.L20
-.L19:
+	jmp	.L26
+.L25:
 	lea	r10, [rbp-177]
 	mov	r11, 0
 	mov	byte [r10], r11b
@@ -259,7 +263,7 @@ main:
 	setne	r10b
 	movzx	r10, r10b
 	test	r10, r10
-	jz	.L21
+	jz	.L29
 	lea	r10, [rbp-177]
 	lea	r11, [rbp-80]
 	mov	r12, qword [rbp-168]
@@ -270,14 +274,14 @@ main:
 	add	r11, r12
 	mov	r11b, byte [r11]
 	mov	byte [r10], r11b
-.L21:
+.L29:
 	mov	r10, qword [rbp-168]
 	mov	r11, 79
 	cmp	r10, r11
 	setne	r10b
 	movzx	r10, r10b
 	test	r10, r10
-	jz	.L22
+	jz	.L30
 	lea	r10, [rbp-179]
 	lea	r11, [rbp-80]
 	mov	r12, qword [rbp-168]
@@ -288,7 +292,7 @@ main:
 	add	r11, r12
 	mov	r11b, byte [r11]
 	mov	byte [r10], r11b
-.L22:
+.L30:
 	lea	r10, [rbp-160]
 	mov	r11, qword [rbp-168]
 	add	r10, r11
@@ -306,24 +310,26 @@ main:
 	pop	r10
 	mov	r11b, al
 	mov	byte [r10], r11b
+.L28:
 	lea	r10, [rbp-168]
 	mov	r11, qword [rbp-168]
 	mov	r12, 1
 	add	r11, r12
 	mov	qword [r10], r11
-.L20:
+.L26:
 	mov	r10, qword [rbp-168]
 	mov	r11, 80
 	cmp	r10, r11
 	setl	r10b
 	movzx	r10, r10b
 	test	r10, r10
-	jnz	.L19
+	jnz	.L25
+.L27:
 	lea	r10, [rbp-168]
 	mov	r11, 0
 	mov	qword [r10], r11
-	jmp	.L24
-.L23:
+	jmp	.L32
+.L31:
 	lea	r10, [rbp-80]
 	mov	r11, qword [rbp-168]
 	add	r10, r11
@@ -332,36 +338,40 @@ main:
 	add	r11, r12
 	mov	r11b, byte [r11]
 	mov	byte [r10], r11b
+.L34:
 	lea	r10, [rbp-168]
 	mov	r11, qword [rbp-168]
 	mov	r12, 1
 	add	r11, r12
 	mov	qword [r10], r11
-.L24:
+.L32:
 	mov	r10, qword [rbp-168]
 	mov	r11, 80
 	cmp	r10, r11
 	setl	r10b
 	movzx	r10, r10b
 	test	r10, r10
-	jnz	.L23
+	jnz	.L31
+.L33:
+.L24:
 	lea	r10, [rbp-176]
 	mov	r11, qword [rbp-176]
 	mov	r12, 1
 	add	r11, r12
 	mov	qword [r10], r11
-.L18:
+.L22:
 	mov	r10, qword [rbp-176]
 	mov	r11, 80
 	cmp	r10, r11
 	setl	r10b
 	movzx	r10, r10b
 	test	r10, r10
-	jnz	.L17
+	jnz	.L21
+.L23:
 	mov	r10, 0
 	mov	eax, r10d
-	jmp	.L14
-.L14:
+	jmp	.L16
+.L16:
 	add	rsp, 192
 	pop	rbp
 	ret

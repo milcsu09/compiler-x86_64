@@ -137,6 +137,7 @@ main:
 	mov	rdi, r10
 	lea	r10, [rel particle_init]
 	call	r10
+.L5:
 	lea	r10, [rbp-16]
 	mov	r11, qword [rbp-16]
 	mov	r12, 1
@@ -150,13 +151,14 @@ main:
 	movzx	r10, r10b
 	test	r10, r10
 	jnz	.L2
-	jmp	.L5
 .L4:
+	jmp	.L7
+.L6:
 	lea	r10, [rbp-16]
 	mov	r11, 0
 	mov	qword [r10], r11
-	jmp	.L7
-.L6:
+	jmp	.L10
+.L9:
 	mov	r10, qword [rbp-8]
 	mov	r11, qword [rbp-16]
 	imul	r11, 20
@@ -226,7 +228,7 @@ main:
 	setle	r10b
 	movzx	r10, r10b
 	test	r10, r10
-	jz	.L8
+	jz	.L13
 	mov	r10, qword [rbp-8]
 	mov	r11, qword [rbp-16]
 	imul	r11, 20
@@ -234,20 +236,22 @@ main:
 	mov	rdi, r10
 	lea	r10, [rel particle_init]
 	call	r10
-.L8:
+.L13:
+.L12:
 	lea	r10, [rbp-16]
 	mov	r11, qword [rbp-16]
 	mov	r12, 1
 	add	r11, r12
 	mov	qword [r10], r11
-.L7:
+.L10:
 	mov	r10, qword [rbp-16]
 	mov	r11, 10000
 	cmp	r10, r11
 	setl	r10b
 	movzx	r10, r10b
 	test	r10, r10
-	jnz	.L6
+	jnz	.L9
+.L11:
 	lea	r10, [rel BeginDrawing]
 	call	r10
 	mov	r10, 4278979596
@@ -263,8 +267,8 @@ main:
 	lea	r10, [rbp-16]
 	mov	r11, 0
 	mov	qword [r10], r11
-	jmp	.L10
-.L9:
+	jmp	.L15
+.L14:
 	lea	r10, [rbp-20]
 	mov	r11, qword [rbp-8]
 	mov	r12, qword [rbp-16]
@@ -343,22 +347,24 @@ main:
 	mov	r8, r10
 	lea	r10, [rel DrawRectangle]
 	call	r10
+.L17:
 	lea	r10, [rbp-16]
 	mov	r11, qword [rbp-16]
 	mov	r12, 1
 	add	r11, r12
 	mov	qword [r10], r11
-.L10:
+.L15:
 	mov	r10, qword [rbp-16]
 	mov	r11, 10000
 	cmp	r10, r11
 	setl	r10b
 	movzx	r10, r10b
 	test	r10, r10
-	jnz	.L9
+	jnz	.L14
+.L16:
 	lea	r10, [rel EndDrawing]
 	call	r10
-.L5:
+.L7:
 	lea	r10, [rel WindowShouldClose]
 	call	r10
 	mov	r10b, al
@@ -367,7 +373,8 @@ main:
 	sete	al
 	movzx	r10d, al
 	test	r10, r10
-	jnz	.L4
+	jnz	.L6
+.L8:
 	lea	r10, [rel CloseWindow]
 	call	r10
 	mov	r10, qword [rbp-8]

@@ -55,6 +55,8 @@ static const char *const TOKEN_KIND_STRING[] = {
   "'else'",
   "'while'",
   "'for'",
+  "'break'",
+  "'continue'",
   "'print'",
 
   "'void'",

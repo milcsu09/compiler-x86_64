@@ -23,6 +23,7 @@ main:
 	mov	dil, r10b
 	lea	r10, [rel putchar]
 	call	r10
+.L4:
 	lea	r10, [rbp-8]
 	mov	r11, qword [rbp-8]
 	mov	r12, 1
@@ -34,6 +35,7 @@ main:
 	movzx	r10, r10b
 	test	r10, r10
 	jnz	.L1
+.L3:
 	mov	r10, 0
 	mov	eax, r10d
 	jmp	.L0

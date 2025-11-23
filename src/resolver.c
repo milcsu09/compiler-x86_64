@@ -334,6 +334,8 @@ resolver_resolve_statement (struct resolver *resolver, struct tree *tree)
     case TREE_STRUCT:
       resolver_resolve_node_struct (resolver, tree);
       break;
+    case TREE_EMPTY:
+      break;
     case TREE_IF:
       resolver_resolve_node_if (resolver, tree);
       break;
@@ -351,6 +353,10 @@ resolver_resolve_statement (struct resolver *resolver, struct tree *tree)
       break;
     case TREE_RETURN:
       resolver_resolve_node_return (resolver, tree);
+      break;
+    case TREE_BREAK:
+      break;
+    case TREE_CONTINUE:
       break;
     case TREE_PRINT:
       resolver_resolve_node_print (resolver, tree);

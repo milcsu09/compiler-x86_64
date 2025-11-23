@@ -47,6 +47,7 @@ main:
 	movsx	r10, r10d
 	mov	rdi, r10
 	call	printi
+.L4:
 	lea	r10, [rbp-56]
 	mov	r11, qword [rbp-56]
 	add	r11, 8
@@ -56,6 +57,7 @@ main:
 	mov	r10, qword [rbp-56]
 	test	r10, r10
 	jnz	.L1
+.L3:
 	mov	r10, 0
 	mov	eax, r10d
 	jmp	.L0

@@ -64,6 +64,7 @@ cat_file:
 	movzx	r11, r11b
 	test	r11, r11
 	jnz	.L2
+.L4:
 	mov	r10, qword [rbp-16]
 	mov	rdi, r10
 	lea	r10, [rel fclose]
@@ -87,16 +88,16 @@ main:
 	setl	r10b
 	movzx	r10, r10b
 	test	r10, r10
-	jz	.L5
+	jz	.L6
 	mov	r10, 1
 	mov	eax, r10d
-	jmp	.L4
-.L5:
+	jmp	.L5
+.L6:
 	lea	r10, [rbp-24]
 	mov	r11, 1
 	mov	qword [r10], r11
-	jmp	.L7
-.L6:
+	jmp	.L8
+.L7:
 	mov	r10, qword [rbp-16]
 	mov	r11, qword [rbp-24]
 	imul	r11, 8
@@ -105,12 +106,13 @@ main:
 	mov	rdi, r10
 	lea	r10, [rel cat_file]
 	call	r10
+.L10:
 	lea	r10, [rbp-24]
 	mov	r11, qword [rbp-24]
 	mov	r12, 1
 	add	r11, r12
 	mov	qword [r10], r11
-.L7:
+.L8:
 	mov	r10, qword [rbp-24]
 	mov	r11d, dword [rbp-4]
 	movsx	r11, r11d
@@ -118,11 +120,12 @@ main:
 	setl	r10b
 	movzx	r10, r10b
 	test	r10, r10
-	jnz	.L6
+	jnz	.L7
+.L9:
 	mov	r10, 0
 	mov	eax, r10d
-	jmp	.L4
-.L4:
+	jmp	.L5
+.L5:
 	add	rsp, 32
 	pop	rbp
 	ret

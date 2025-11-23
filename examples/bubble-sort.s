@@ -22,8 +22,8 @@ bubble_sort:
 	lea	r10, [rbp-32]
 	mov	r11, 0
 	mov	qword [r10], r11
-	jmp	.L4
-.L3:
+	jmp	.L6
+.L5:
 	mov	r10, qword [rbp-8]
 	mov	r11, qword [rbp-32]
 	imul	r11, 4
@@ -42,7 +42,7 @@ bubble_sort:
 	setg	r10b
 	movzx	r10, r10b
 	test	r10, r10
-	jz	.L5
+	jz	.L9
 	lea	r10, [rbp-40]
 	mov	r11, qword [rbp-8]
 	mov	r12, qword [rbp-32]
@@ -73,13 +73,14 @@ bubble_sort:
 	add	r10, r11
 	mov	r11, qword [rbp-40]
 	mov	dword [r10], r11d
-.L5:
+.L9:
+.L8:
 	lea	r10, [rbp-32]
 	mov	r11, qword [rbp-32]
 	mov	r12, 1
 	add	r11, r12
 	mov	qword [r10], r11
-.L4:
+.L6:
 	mov	r10, qword [rbp-32]
 	mov	r11, qword [rbp-16]
 	mov	r12, qword [rbp-24]
@@ -90,7 +91,9 @@ bubble_sort:
 	setl	r10b
 	movzx	r10, r10b
 	test	r10, r10
-	jnz	.L3
+	jnz	.L5
+.L7:
+.L4:
 	lea	r10, [rbp-24]
 	mov	r11, qword [rbp-24]
 	mov	r12, 1
@@ -104,6 +107,7 @@ bubble_sort:
 	movzx	r10, r10b
 	test	r10, r10
 	jnz	.L1
+.L3:
 .L0:
 	add	rsp, 48
 	pop	rbp
@@ -153,8 +157,8 @@ main:
 	lea	r10, [rbp-32]
 	mov	r11, 0
 	mov	qword [r10], r11
-	jmp	.L8
-.L7:
+	jmp	.L12
+.L11:
 	lea	r10, [rbp-20]
 	mov	r11, qword [rbp-32]
 	imul	r11, 4
@@ -163,23 +167,25 @@ main:
 	movsx	r10, r10d
 	mov	rdi, r10
 	call	printi
+.L14:
 	lea	r10, [rbp-32]
 	mov	r11, qword [rbp-32]
 	mov	r12, 1
 	add	r11, r12
 	mov	qword [r10], r11
-.L8:
+.L12:
 	mov	r10, qword [rbp-32]
 	mov	r11, 5
 	cmp	r10, r11
 	setl	r10b
 	movzx	r10, r10b
 	test	r10, r10
-	jnz	.L7
+	jnz	.L11
+.L13:
 	mov	r10, 0
 	mov	eax, r10d
-	jmp	.L6
-.L6:
+	jmp	.L10
+.L10:
 	add	rsp, 32
 	pop	rbp
 	ret

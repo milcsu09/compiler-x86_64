@@ -32,6 +32,16 @@ cg_operand_size_string (enum type_width w)
 typedef size_t cg_label_t;
 
 
+struct cg_function
+{
+  struct tree_node_fdefinition *node;
+
+  size_t stack_pointer;
+
+  cg_label_t label_return;
+};
+
+
 struct cg_string
 {
   struct cg_string *next;
@@ -56,14 +66,29 @@ cg_string_create (char *value, cg_label_t label)
 }
 
 
-struct cg_function
+struct cg_loop
 {
-  struct tree_node_fdefinition *node;
+  struct cg_loop *parent;
 
-  size_t stack_pointer;
-
-  cg_label_t label_return;
+  cg_label_t label_break;
+  cg_label_t label_continue;
 };
+
+
+static struct cg_loop *
+cg_loop_create (struct cg_loop *parent, cg_label_t label_break, cg_label_t label_continue)
+{
+  struct cg_loop *loop;
+
+  loop = aa_malloc (sizeof (struct cg_string));
+
+  loop->parent = parent;
+
+  loop->label_break = label_break;
+  loop->label_continue = label_continue;
+
+  return loop;
+}
 
 
 struct cg
@@ -83,7 +108,26 @@ struct cg
 
   struct cg_string *string_head;
   struct cg_string *string_tail;
+
+  struct cg_loop *loop;
 };
+
+
+static void
+cg_scope_push (struct cg *cg)
+{
+  cg->scope = scope_create (cg->scope);
+}
+
+
+static void
+cg_scope_pop (struct cg *cg)
+{
+  cg->scope = cg->scope->parent;
+}
+
+
+static void cg_register_free_all (struct cg *);
 
 
 static void
@@ -101,21 +145,19 @@ cg_string_push (struct cg *cg, struct cg_string *string)
     }
 }
 
+
 static void
-cg_scope_push (struct cg *cg)
+cg_loop_push (struct cg *cg, struct cg_loop *loop)
 {
-  cg->scope = scope_create (cg->scope);
+  cg->loop = loop;
 }
 
 
 static void
-cg_scope_pop (struct cg *cg)
+cg_loop_pop (struct cg *cg)
 {
-  cg->scope = cg->scope->parent;
+  cg->loop = cg->loop->parent;
 }
-
-
-static void cg_register_free_all (struct cg *);
 
 
 struct cg *
@@ -778,6 +820,10 @@ static void cg_generate_node_vdeclaration (struct cg *, struct tree *);
 
 static void cg_generate_node_return (struct cg *, struct tree *);
 
+static void cg_generate_node_break (struct cg *, struct tree *);
+
+static void cg_generate_node_continue (struct cg *, struct tree *);
+
 static void cg_generate_node_print (struct cg *, struct tree *);
 
 
@@ -952,6 +998,12 @@ cg_generate_statement (struct cg *cg, struct tree *tree)
     case TREE_RETURN:
       cg_generate_node_return (cg, tree);
       break;
+    case TREE_BREAK:
+      cg_generate_node_break (cg, tree);
+      break;
+    case TREE_CONTINUE:
+      cg_generate_node_continue (cg, tree);
+      break;
     case TREE_PRINT:
       cg_generate_node_print (cg, tree);
       break;
@@ -1112,11 +1164,18 @@ cg_generate_node_while (struct cg *cg, struct tree *tree)
   cg_label_t label_start = cg_label (cg);
   cg_label_t label_end = cg_label (cg);
 
+  cg_label_t label_break = cg_label (cg);
+  cg_label_t label_continue = label_end;
+
   cg_write_jmp (cg, label_end);
 
   cg_write_label (cg, label_start);
 
+  cg_loop_push (cg, cg_loop_create (cg->loop, label_break, label_continue));
+
   cg_generate_statement (cg, node->body);
+
+  cg_loop_pop (cg);
 
   cg_write_label (cg, label_end);
 
@@ -1124,6 +1183,8 @@ cg_generate_node_while (struct cg *cg, struct tree *tree)
 
   cg_write_test (cg, c);
   cg_write_jnz (cg, label_start);
+
+  cg_write_label (cg, label_break);
 }
 
 
@@ -1135,13 +1196,22 @@ cg_generate_node_for (struct cg *cg, struct tree *tree)
   cg_label_t label_start = cg_label (cg);
   cg_label_t label_end = cg_label (cg);
 
+  cg_label_t label_break = cg_label (cg);
+  cg_label_t label_continue = cg_label (cg);
+
   cg_generate_statement (cg, node->init);
 
   cg_write_jmp (cg, label_end);
 
   cg_write_label (cg, label_start);
 
+  cg_loop_push (cg, cg_loop_create (cg->loop, label_break, label_continue));
+
   cg_generate_statement (cg, node->body);
+
+  cg_loop_pop (cg);
+
+  cg_write_label (cg, label_continue);
 
   cg_generate_statement (cg, node->increment);
 
@@ -1151,6 +1221,8 @@ cg_generate_node_for (struct cg *cg, struct tree *tree)
 
   cg_write_test (cg, c);
   cg_write_jnz (cg, label_start);
+
+  cg_write_label (cg, label_break);
 }
 
 
@@ -1206,6 +1278,24 @@ cg_generate_node_return (struct cg *cg, struct tree *tree)
     }
 
   cg_write_jmp (cg, cg->function.label_return);
+}
+
+
+static void
+cg_generate_node_break (struct cg *cg, struct tree *tree)
+{
+  (void)tree;
+
+  cg_write_jmp (cg, cg->loop->label_break);
+}
+
+
+static void
+cg_generate_node_continue (struct cg *cg, struct tree *tree)
+{
+  (void)tree;
+
+  cg_write_jmp (cg, cg->loop->label_continue);
 }
 
 

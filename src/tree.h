@@ -63,6 +63,8 @@ enum tree_kind
   TREE_COMPOUND,
   TREE_VDECLARATION,
   TREE_RETURN,
+  TREE_BREAK,
+  TREE_CONTINUE,
   TREE_PRINT,
 
   // Expression

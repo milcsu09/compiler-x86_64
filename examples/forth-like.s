@@ -54,6 +54,7 @@ lexer_next:
 	mov	r10d, eax
 	test	r10, r10
 	jnz	.L2
+.L4:
 	mov	r10, qword [rbp-8]
 	add	r10, 0
 	mov	r10, qword [r10]
@@ -64,12 +65,12 @@ lexer_next:
 	call	r10
 	mov	r10d, eax
 	test	r10, r10
-	jz	.L4
+	jz	.L5
 	lea	r10, [rbp-24]
 	mov	r11, 0
 	mov	qword [r10], r11
-	jmp	.L6
-.L5:
+	jmp	.L7
+.L6:
 	lea	r10, [rbp-24]
 	mov	r11, qword [rbp-24]
 	mov	r12, 10
@@ -90,7 +91,7 @@ lexer_next:
 	mov	rdi, r10
 	lea	r10, [rel lexer_advance]
 	call	r10
-.L6:
+.L7:
 	mov	r10, qword [rbp-8]
 	add	r10, 0
 	mov	r10, qword [r10]
@@ -101,7 +102,8 @@ lexer_next:
 	call	r10
 	mov	r10d, eax
 	test	r10, r10
-	jnz	.L5
+	jnz	.L6
+.L8:
 	mov	r10, qword [rbp-16]
 	add	r10, 0
 	mov	r11, 1
@@ -111,7 +113,7 @@ lexer_next:
 	mov	r11, qword [rbp-24]
 	mov	qword [r10], r11
 	jmp	.L1
-.L4:
+.L5:
 	mov	r10, qword [rbp-8]
 	add	r10, 0
 	mov	r10, qword [r10]
@@ -122,52 +124,10 @@ lexer_next:
 	sete	r10b
 	movzx	r10, r10b
 	test	r10, r10
-	jz	.L7
-	mov	r10, qword [rbp-16]
-	add	r10, 0
-	mov	r11, 2
-	mov	dword [r10], r11d
-	mov	r10, qword [rbp-8]
-	mov	rdi, r10
-	lea	r10, [rel lexer_advance]
-	call	r10
-	jmp	.L1
-.L7:
-	mov	r10, qword [rbp-8]
-	add	r10, 0
-	mov	r10, qword [r10]
-	mov	r10b, byte [r10]
-	movzx	r10, r10b
-	mov	r11, 45
-	cmp	r10, r11
-	sete	r10b
-	movzx	r10, r10b
-	test	r10, r10
-	jz	.L8
-	mov	r10, qword [rbp-16]
-	add	r10, 0
-	mov	r11, 3
-	mov	dword [r10], r11d
-	mov	r10, qword [rbp-8]
-	mov	rdi, r10
-	lea	r10, [rel lexer_advance]
-	call	r10
-	jmp	.L1
-.L8:
-	mov	r10, qword [rbp-8]
-	add	r10, 0
-	mov	r10, qword [r10]
-	mov	r10b, byte [r10]
-	movzx	r10, r10b
-	mov	r11, 42
-	cmp	r10, r11
-	sete	r10b
-	movzx	r10, r10b
-	test	r10, r10
 	jz	.L9
 	mov	r10, qword [rbp-16]
 	add	r10, 0
-	mov	r11, 4
+	mov	r11, 2
 	mov	dword [r10], r11d
 	mov	r10, qword [rbp-8]
 	mov	rdi, r10
@@ -180,7 +140,7 @@ lexer_next:
 	mov	r10, qword [r10]
 	mov	r10b, byte [r10]
 	movzx	r10, r10b
-	mov	r11, 47
+	mov	r11, 45
 	cmp	r10, r11
 	sete	r10b
 	movzx	r10, r10b
@@ -188,7 +148,7 @@ lexer_next:
 	jz	.L10
 	mov	r10, qword [rbp-16]
 	add	r10, 0
-	mov	r11, 5
+	mov	r11, 3
 	mov	dword [r10], r11d
 	mov	r10, qword [rbp-8]
 	mov	rdi, r10
@@ -201,12 +161,54 @@ lexer_next:
 	mov	r10, qword [r10]
 	mov	r10b, byte [r10]
 	movzx	r10, r10b
-	mov	r11, 46
+	mov	r11, 42
 	cmp	r10, r11
 	sete	r10b
 	movzx	r10, r10b
 	test	r10, r10
 	jz	.L11
+	mov	r10, qword [rbp-16]
+	add	r10, 0
+	mov	r11, 4
+	mov	dword [r10], r11d
+	mov	r10, qword [rbp-8]
+	mov	rdi, r10
+	lea	r10, [rel lexer_advance]
+	call	r10
+	jmp	.L1
+.L11:
+	mov	r10, qword [rbp-8]
+	add	r10, 0
+	mov	r10, qword [r10]
+	mov	r10b, byte [r10]
+	movzx	r10, r10b
+	mov	r11, 47
+	cmp	r10, r11
+	sete	r10b
+	movzx	r10, r10b
+	test	r10, r10
+	jz	.L12
+	mov	r10, qword [rbp-16]
+	add	r10, 0
+	mov	r11, 5
+	mov	dword [r10], r11d
+	mov	r10, qword [rbp-8]
+	mov	rdi, r10
+	lea	r10, [rel lexer_advance]
+	call	r10
+	jmp	.L1
+.L12:
+	mov	r10, qword [rbp-8]
+	add	r10, 0
+	mov	r10, qword [r10]
+	mov	r10b, byte [r10]
+	movzx	r10, r10b
+	mov	r11, 46
+	cmp	r10, r11
+	sete	r10b
+	movzx	r10, r10b
+	test	r10, r10
+	jz	.L13
 	mov	r10, qword [rbp-16]
 	add	r10, 0
 	mov	r11, 6
@@ -216,7 +218,7 @@ lexer_next:
 	lea	r10, [rel lexer_advance]
 	call	r10
 	jmp	.L1
-.L11:
+.L13:
 	mov	r10, qword [rbp-16]
 	add	r10, 0
 	mov	r11, 0
@@ -242,8 +244,8 @@ main:
 	lea	r10, [rbp-544]
 	mov	r11, 0
 	mov	qword [r10], r11
-	jmp	.L14
-.L13:
+	jmp	.L16
+.L15:
 	lea	r10, [rbp-8]
 	mov	rdi, r10
 	lea	r10, [rbp-24]
@@ -258,7 +260,7 @@ main:
 	sete	r10b
 	movzx	r10, r10b
 	test	r10, r10
-	jz	.L15
+	jz	.L18
 	lea	r10, [rbp-536]
 	mov	r11, qword [rbp-544]
 	imul	r11, 8
@@ -272,8 +274,8 @@ main:
 	mov	r12, 1
 	add	r11, r12
 	mov	qword [r10], r11
-	jmp	.L16
-.L15:
+	jmp	.L19
+.L18:
 	lea	r10, [rbp-24]
 	add	r10, 0
 	mov	r10d, dword [r10]
@@ -282,7 +284,7 @@ main:
 	sete	r10b
 	movzx	r10, r10b
 	test	r10, r10
-	jz	.L17
+	jz	.L20
 	lea	r10, [rbp-552]
 	lea	r11, [rbp-536]
 	mov	r12, qword [rbp-544]
@@ -323,8 +325,8 @@ main:
 	mov	r12, 1
 	add	r11, r12
 	mov	qword [r10], r11
-	jmp	.L18
-.L17:
+	jmp	.L21
+.L20:
 	lea	r10, [rbp-24]
 	add	r10, 0
 	mov	r10d, dword [r10]
@@ -333,7 +335,7 @@ main:
 	sete	r10b
 	movzx	r10, r10b
 	test	r10, r10
-	jz	.L19
+	jz	.L22
 	lea	r10, [rbp-568]
 	lea	r11, [rbp-536]
 	mov	r12, qword [rbp-544]
@@ -374,8 +376,8 @@ main:
 	mov	r12, 1
 	add	r11, r12
 	mov	qword [r10], r11
-	jmp	.L20
-.L19:
+	jmp	.L23
+.L22:
 	lea	r10, [rbp-24]
 	add	r10, 0
 	mov	r10d, dword [r10]
@@ -384,7 +386,7 @@ main:
 	sete	r10b
 	movzx	r10, r10b
 	test	r10, r10
-	jz	.L21
+	jz	.L24
 	lea	r10, [rbp-584]
 	lea	r11, [rbp-536]
 	mov	r12, qword [rbp-544]
@@ -425,8 +427,8 @@ main:
 	mov	r12, 1
 	add	r11, r12
 	mov	qword [r10], r11
-	jmp	.L22
-.L21:
+	jmp	.L25
+.L24:
 	lea	r10, [rbp-24]
 	add	r10, 0
 	mov	r10d, dword [r10]
@@ -435,7 +437,7 @@ main:
 	sete	r10b
 	movzx	r10, r10b
 	test	r10, r10
-	jz	.L23
+	jz	.L26
 	lea	r10, [rbp-600]
 	lea	r11, [rbp-536]
 	mov	r12, qword [rbp-544]
@@ -479,8 +481,8 @@ main:
 	mov	r12, 1
 	add	r11, r12
 	mov	qword [r10], r11
-	jmp	.L24
-.L23:
+	jmp	.L27
+.L26:
 	lea	r10, [rbp-24]
 	add	r10, 0
 	mov	r10d, dword [r10]
@@ -489,7 +491,7 @@ main:
 	sete	r10b
 	movzx	r10, r10b
 	test	r10, r10
-	jz	.L25
+	jz	.L28
 	lea	r10, [rbp-536]
 	mov	r11, qword [rbp-544]
 	mov	r12, 1
@@ -504,13 +506,13 @@ main:
 	mov	r12, 1
 	sub	r11, r12
 	mov	qword [r10], r11
+.L28:
+.L27:
 .L25:
-.L24:
-.L22:
-.L20:
-.L18:
+.L23:
+.L21:
+.L19:
 .L16:
-.L14:
 	lea	r10, [rbp-24]
 	add	r10, 0
 	mov	r10d, dword [r10]
@@ -519,11 +521,12 @@ main:
 	setne	r10b
 	movzx	r10, r10b
 	test	r10, r10
-	jnz	.L13
+	jnz	.L15
+.L17:
 	mov	r10, 0
 	mov	eax, r10d
-	jmp	.L12
-.L12:
+	jmp	.L14
+.L14:
 	add	rsp, 608
 	pop	rbp
 	ret

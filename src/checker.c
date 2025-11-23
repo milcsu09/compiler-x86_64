@@ -9,7 +9,7 @@
 
 struct checker
 {
-  char dummy;
+  size_t loop;
 };
 
 
@@ -42,6 +42,10 @@ static void checker_check_node_compound (struct checker *, struct tree *);
 static void checker_check_node_vdeclaration (struct checker *, struct tree *);
 
 static void checker_check_node_return (struct checker *, struct tree *);
+
+static void checker_check_node_break (struct checker *, struct tree *);
+
+static void checker_check_node_continue (struct checker *, struct tree *);
 
 static void checker_check_node_print (struct checker *, struct tree *);
 
@@ -232,6 +236,8 @@ checker_check_statement (struct checker *checker, struct tree *tree)
     case TREE_STRUCT:
       checker_check_node_struct (checker, tree);
       break;
+    case TREE_EMPTY:
+      break;
     case TREE_IF:
       checker_check_node_if (checker, tree);
       break;
@@ -249,6 +255,12 @@ checker_check_statement (struct checker *checker, struct tree *tree)
       break;
     case TREE_RETURN:
       checker_check_node_return (checker, tree);
+      break;
+    case TREE_BREAK:
+      checker_check_node_break (checker, tree);
+      break;
+    case TREE_CONTINUE:
+      checker_check_node_continue (checker, tree);
       break;
     case TREE_PRINT:
       checker_check_node_print (checker, tree);
@@ -317,7 +329,11 @@ checker_check_node_while (struct checker *checker, struct tree *tree)
 
   checker_check_rvalue (checker, node->condition);
 
+  checker->loop++;
+
   checker_check_statement (checker, node->body);
+
+  checker->loop--;
 }
 
 
@@ -330,7 +346,11 @@ checker_check_node_for (struct checker *checker, struct tree *tree)
   checker_check_rvalue (checker, node->condition);
   checker_check_expression (checker, node->increment);
 
+  checker->loop++;
+
   checker_check_statement (checker, node->body);
+
+  checker->loop--;
 }
 
 
@@ -370,6 +390,30 @@ checker_check_node_return (struct checker *checker, struct tree *tree)
   struct tree_node_return *node = &tree->d.return_s;
 
   checker_check_rvalue (checker, node->value);
+}
+
+
+static void
+checker_check_node_break (struct checker *checker, struct tree *tree)
+{
+  if (checker->loop == 0)
+    {
+      error (tree->location, "'break' used outside of a loop");
+
+      exit (1);
+    }
+}
+
+
+static void
+checker_check_node_continue (struct checker *checker, struct tree *tree)
+{
+  if (checker->loop == 0)
+    {
+      error (tree->location, "'continue' used outside of a loop");
+
+      exit (1);
+    }
 }
 
 
