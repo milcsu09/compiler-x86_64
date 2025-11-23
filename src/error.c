@@ -5,6 +5,14 @@
 #include <stdlib.h>
 
 
+void
+unreachable_at (char *file, int line)
+{
+  fprintf (stderr, "%s:%d: unreachable branch reached\n", file, line);
+  abort ();
+}
+
+
 const struct location location_none = {0};
 
 

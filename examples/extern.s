@@ -15,7 +15,8 @@ main:
 	sub	rsp, 0
 	mov	r10, 34
 	mov	r11, 35
-	add	r10, r11
+	add	r10d, r11d
+	movsx	r10, r10d
 	mov	rdi, r10
 	lea	r10, [rel printi]
 	call	r10

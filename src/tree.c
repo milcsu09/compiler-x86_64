@@ -141,22 +141,8 @@ tree_type (struct tree *tree)
     case TREE_STRUCT:
       return tree->d.struct_s.type;
 
-    case TREE_EMPTY:
-      break;
-    case TREE_IF:
-      break;
-    case TREE_WHILE:
-      break;
-    case TREE_FOR:
-      break;
-    case TREE_COMPOUND:
-      break;
     case TREE_VDECLARATION:
       return tree->d.vdeclaration.type;
-    case TREE_RETURN:
-      break;
-    case TREE_PRINT:
-      break;
 
     case TREE_SCALE:
       return tree->d.scale.type;
@@ -183,11 +169,9 @@ tree_type (struct tree *tree)
     case TREE_IDENTIFIER:
       return tree->d.identifier.type;
 
-    case TREE_PROGRAM:
-      break;
+    default:
+      return unreachable1 (NULL);
     }
-
-  return NULL;
 }
 
 
@@ -489,6 +473,9 @@ tree_print (struct tree *tree, int depth)
         for (struct tree *t = node.top_level1; t; t = t->next)
           tree_print (t, depth + 1);
       }
+      break;
+    default:
+      unreachable ();
       break;
     }
 }

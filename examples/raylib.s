@@ -60,9 +60,9 @@ main:
 	lea	r10, [rel WindowShouldClose]
 	call	r10
 	mov	r10b, al
-	movzx	r10, r10b
+	movzx	r10d, r10b
 	mov	r11, 1
-	cmp	r10, r11
+	cmp	r10d, r11d
 	setne	r10b
 	movzx	r10, r10b
 	test	r10, r10

@@ -24,7 +24,7 @@ cg_operand_size_string (enum type_width w)
     case WIDTH_8:
       return "qword";
     default:
-      assert (!"Invalid type_width");
+      return unreachable1 (NULL);
     }
 }
 
@@ -842,7 +842,7 @@ cg_generate_expression (struct cg *cg, struct tree *tree)
     case TREE_IDENTIFIER:
       return cg_generate_node_identifier (cg, tree);
     default:
-      return register_none;
+      return unreachable1 (register_none);
     }
 }
 
@@ -902,8 +902,9 @@ cg_generate_lvalue (struct cg *cg, struct tree *tree)
         return s;
 
       }
+
     default:
-      return register_none;
+      return unreachable1 (register_none);
     }
 }
 
@@ -930,6 +931,8 @@ cg_generate_statement (struct cg *cg, struct tree *tree)
       break;
     case TREE_FDEFINITION:
       cg_generate_node_fdefinition (cg, tree);
+      break;
+    case TREE_STRUCT:
       break;
     case TREE_IF:
       cg_generate_node_if (cg, tree);
@@ -1441,13 +1444,17 @@ cg_generate_node_unary (struct cg *cg, struct tree *tree)
     case UNARY_NEG:
       cg_write_neg (cg, a);
       break;
+
     case UNARY_LNOT:
       cg_write_lnot (cg, a);
       break;
+
     case UNARY_BNOT:
       cg_write_bnot (cg, a);
       break;
+
     default:
+      unreachable ();
       break;
     }
 
@@ -1568,6 +1575,7 @@ cg_generate_node_binary (struct cg *cg, struct tree *tree)
       break;
 
     default:
+      unreachable ();
       break;
     }
 

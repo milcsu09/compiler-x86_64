@@ -122,8 +122,9 @@ register_string (struct cg_register r)
       return register_d_string (r);
     case WIDTH_8:
       return register_q_string (r);
+
     default:
-      assert (!"Invalid");
+      return unreachable1 (NULL);
     }
 }
 

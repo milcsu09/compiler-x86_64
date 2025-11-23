@@ -173,7 +173,12 @@ checker_check_expression (struct checker *checker, struct tree *tree)
     case TREE_DEREFERENCE:
       checker_check_node_dereference (checker, tree);
       break;
+    case TREE_INTEGER:
+    case TREE_STRING:
+    case TREE_IDENTIFIER:
+      break;
     default:
+      unreachable ();
       break;
     }
 }
@@ -195,13 +200,6 @@ checker_check_lvalue (struct checker *checker, struct tree *tree)
     }
 
   checker_check_expression (checker, tree);
-
-  // if (type_is_void (tree_type (tree)))
-  //   {
-  //     error (tree->location, "void expression used as left-value");
-
-  //     exit (1);
-  //   }
 }
 
 
@@ -214,13 +212,6 @@ checker_check_rvalue (struct checker *checker, struct tree *tree)
   checker_check_type (checker, tree_type (tree));
 
   checker_check_expression (checker, tree);
-
-  // if (type_is_void (tree_type (tree)))
-  //   {
-  //     error (tree->location, "void expression used as right-value");
-
-  //     exit (1);
-  //   }
 }
 
 
@@ -525,8 +516,10 @@ checker_check_node_unary (struct checker *checker, struct tree *tree)
     case UNARY_BNOT:
       if (i)
         return;
+      break;
 
     default:
+      unreachable ();
       break;
     }
 
@@ -621,6 +614,7 @@ checker_check_node_binary (struct checker *checker, struct tree *tree)
       return;
 
     default:
+      unreachable ();
       break;
     }
 

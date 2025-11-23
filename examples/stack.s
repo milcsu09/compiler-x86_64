@@ -29,7 +29,8 @@ stack_push:
 	add	r11, 512
 	mov	r11, qword [r11]
 	mov	r12, 1
-	add	r11, r12
+	add	r11d, r12d
+	movsx	r11, r11d
 	mov	qword [r10], r11
 .L0:
 	add	rsp, 16
@@ -48,7 +49,8 @@ stack_pop:
 	add	r11, 512
 	mov	r11, qword [r11]
 	mov	r12, 1
-	sub	r11, r12
+	sub	r11d, r12d
+	movsx	r11, r11d
 	mov	qword [r10], r11
 	mov	r10, qword [rbp-8]
 	add	r10, 0
@@ -100,7 +102,8 @@ main:
 	add	rsp, 8
 	pop	r10
 	mov	r11, rax
-	add	r10, r11
+	add	r10d, r11d
+	movsx	r10, r10d
 	mov	rdi, r10
 	call	printi
 	mov	r10, 0

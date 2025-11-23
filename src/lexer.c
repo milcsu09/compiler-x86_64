@@ -114,9 +114,9 @@ lexer_is_digit (char c, int base)
       return isdigit ((unsigned char)c);
     case 16:
       return isxdigit ((unsigned char)c);
+    default:
+      return unreachable1 (false);
     }
-
-  return false;
 }
 
 

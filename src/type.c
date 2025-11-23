@@ -68,11 +68,6 @@ type_width (struct type *type)
     case TYPE_POINTER:
       return WIDTH_8;
 
-    case TYPE_ARRAY:
-      return WIDTH_0;
-    case TYPE_FUNCTION:
-      return WIDTH_0;
-
     default:
       return WIDTH_0;
     }
@@ -145,9 +140,6 @@ type_size (struct type *type)
 
         return offset;
       }
-
-    case TYPE_FUNCTION:
-      return 0;
 
     default:
       return 0;
@@ -226,9 +218,6 @@ type_alignment (struct type *type)
 
         return alignment;
       }
-
-    case TYPE_FUNCTION:
-      return 0;
 
     default:
       return 0;
@@ -768,6 +757,7 @@ type_print (struct type *type, int depth)
       }
       break;
     default:
+      unreachable ();
       break;
     }
 }

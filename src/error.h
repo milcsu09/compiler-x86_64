@@ -5,6 +5,15 @@
 #include <stddef.h>
 
 
+#define unreachable()                                                                              \
+  unreachable_at (__FILE__, __LINE__)
+
+#define unreachable1(x)                                                                            \
+  (unreachable_at (__FILE__, __LINE__), x)
+
+void unreachable_at (char *, int);
+
+
 struct location
 {
   const char *file;

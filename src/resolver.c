@@ -274,7 +274,7 @@ resolver_resolve_expression (struct resolver *resolver, struct tree *tree)
     case TREE_IDENTIFIER:
       return resolver_resolve_node_identifier (resolver, tree);
     default:
-      return NULL;
+      return unreachable1 (NULL);
     }
 }
 
@@ -897,6 +897,7 @@ resolver_resolve_node_binary (struct resolver *resolver, struct tree *tree)
       break;
 
     default:
+      unreachable ();
       break;
     }
 

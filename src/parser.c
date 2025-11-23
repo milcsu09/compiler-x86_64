@@ -1167,6 +1167,7 @@ parser_parse_type (struct parser *parser)
         return type_create_pointer (location, result);
       }
       break;
+
     default:
       return parser_parse_type_primary (parser);
     }
