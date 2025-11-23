@@ -509,14 +509,14 @@ resolver_resolve_node_for (struct resolver *resolver, struct tree *tree)
 {
   struct tree_node_for *node = &tree->d.for_s;
 
-  node->init = resolver_resolve_rvalue (resolver, node->init);
+  node->init = resolver_resolve_expression (resolver, node->init);
 
   node->condition = resolver_resolve_rvalue (resolver, node->condition);
 
   node->condition = resolver_tree_create_cast (node->condition,
                                                type_create (tree->location, TYPE_U64));
 
-  node->increment = resolver_resolve_rvalue (resolver, node->increment);
+  node->increment = resolver_resolve_expression (resolver, node->increment);
 
   resolver_resolve_statement (resolver, node->body);
 }

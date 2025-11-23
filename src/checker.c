@@ -326,9 +326,9 @@ checker_check_node_for (struct checker *checker, struct tree *tree)
 {
   struct tree_node_for *node = &tree->d.for_s;
 
-  checker_check_rvalue (checker, node->init);
+  checker_check_expression (checker, node->init);
   checker_check_rvalue (checker, node->condition);
-  checker_check_rvalue (checker, node->increment);
+  checker_check_expression (checker, node->increment);
 
   checker_check_statement (checker, node->body);
 }
