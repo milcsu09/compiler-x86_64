@@ -58,7 +58,6 @@ mandelbrot:
 	test	r10, r10
 	jz	.L4
 	jmp	.L3
-	jmp	.L5
 .L4:
 	lea	r10, [rbp-72]
 	mov	r11, 2
@@ -92,7 +91,6 @@ mandelbrot:
 	mov	r12, 1
 	add	r11, r12
 	mov	qword [r10], r11
-.L5:
 .L2:
 	mov	r10, qword [rbp-48]
 	mov	r11, qword [rbp-24]
@@ -156,8 +154,8 @@ main:
 	lea	r10, [rbp-64]
 	mov	r11, 0
 	mov	qword [r10], r11
-	jmp	.L8
-.L7:
+	jmp	.L7
+.L6:
 	lea	r10, [rbp-80]
 	mov	r11, qword [rbp-32]
 	mov	r12, qword [rbp-64]
@@ -170,8 +168,8 @@ main:
 	lea	r10, [rbp-72]
 	mov	r11, 0
 	mov	qword [r10], r11
-	jmp	.L12
-.L11:
+	jmp	.L11
+.L10:
 	lea	r10, [rbp-88]
 	mov	r11, qword [rbp-8]
 	mov	r12, qword [rbp-72]
@@ -187,7 +185,7 @@ main:
 	mov	rdi, r11
 	mov	r11, qword [rbp-80]
 	mov	rsi, r11
-	mov	r11, 500000
+	mov	r11, 50
 	mov	rdx, r11
 	sub	rsp, 8
 	lea	r11, [rel mandelbrot]
@@ -200,7 +198,7 @@ main:
 	mov	r11, qword [rbp-96]
 	mov	r12, 9
 	imul	r11, r12
-	mov	r12, 500000
+	mov	r12, 50
 	mov	rax, r11
 	cqo
 	idiv	r12
@@ -210,44 +208,44 @@ main:
 	mov	dil, r10b
 	lea	r10, [rel putchar]
 	call	r10
-.L14:
+.L13:
 	lea	r10, [rbp-72]
 	mov	r11, qword [rbp-72]
 	mov	r12, 1
 	add	r11, r12
 	mov	qword [r10], r11
-.L12:
+.L11:
 	mov	r10, qword [rbp-72]
 	mov	r11, 80
 	cmp	r10, r11
 	setl	r10b
 	movzx	r10, r10b
 	test	r10, r10
-	jnz	.L11
-.L13:
+	jnz	.L10
+.L12:
 	mov	r10, 10
 	mov	dil, r10b
 	lea	r10, [rel putchar]
 	call	r10
-.L10:
+.L9:
 	lea	r10, [rbp-64]
 	mov	r11, qword [rbp-64]
 	mov	r12, 1
 	add	r11, r12
 	mov	qword [r10], r11
-.L8:
+.L7:
 	mov	r10, qword [rbp-64]
 	mov	r11, 40
 	cmp	r10, r11
 	setl	r10b
 	movzx	r10, r10b
 	test	r10, r10
-	jnz	.L7
-.L9:
+	jnz	.L6
+.L8:
 	mov	r10, 0
 	mov	eax, r10d
-	jmp	.L6
-.L6:
+	jmp	.L5
+.L5:
 	add	rsp, 96
 	pop	rbp
 	ret

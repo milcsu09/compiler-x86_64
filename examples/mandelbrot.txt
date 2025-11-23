@@ -22,19 +22,17 @@ fn mandelbrot(cr : i64, ci : i64, iter_max : i64) -> i64
     {
       break;
     }
-    else
-    {
-      zi_next : i64;
-      zr_next : i64;
 
-      zi_next = (2 * zr * zi) / 65536 + ci;
-      zr_next = zr2 - zi2 + cr;
+    zi_next : i64;
+    zr_next : i64;
 
-      zr = zr_next;
-      zi = zi_next;
+    zi_next = (2 * zr * zi) / 65536 + ci;
+    zr_next = zr2 - zi2 + cr;
 
-      iter = iter + 1;
-    }
+    zr = zr_next;
+    zi = zi_next;
+
+    iter = iter + 1;
   }
 
   return iter;
@@ -79,9 +77,9 @@ fn main() -> i32
       cr = x_min + i * dx;
 
       iter : i64;
-      iter = mandelbrot(cr, ci, 500000);
+      iter = mandelbrot(cr, ci, 50);
 
-      putchar(charset[iter * 9 / 500000]);
+      putchar(charset[iter * 9 / 50]);
     }
 
     putchar('\n');
