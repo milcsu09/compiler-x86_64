@@ -552,13 +552,18 @@ checker_check_node_unary (struct checker *checker, struct tree *tree)
   enum unary_operator o = node->o;
 
   bool i = type_is_integer (type);
+  bool p = type_is_pointer (type);
 
   switch (o)
     {
     case UNARY_NEG:
-    case UNARY_LNOT:
     case UNARY_BNOT:
       if (i)
+        return;
+      break;
+
+    case UNARY_LNOT:
+      if (i || p)
         return;
       break;
 

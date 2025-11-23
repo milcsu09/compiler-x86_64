@@ -10,8 +10,8 @@
 enum unary_operator
 {
   UNARY_NEG,
-  UNARY_LNOT,
   UNARY_BNOT,
+  UNARY_LNOT,
 };
 
 

@@ -8,8 +8,8 @@
 
 static const char *const UNARY_OPERATOR_STRING[] = {
   "-",
-  "!",
   "~",
+  "!",
 };
 
 

@@ -368,10 +368,9 @@ main:
 	lea	r10, [rel WindowShouldClose]
 	call	r10
 	mov	r10b, al
-	movzx	r10d, r10b
-	test	r10d, r10d
-	sete	al
-	movzx	r10d, al
+	test	r10b, r10b
+	sete	r10b
+	movzx	r10, r10b
 	test	r10, r10
 	jnz	.L6
 .L8:

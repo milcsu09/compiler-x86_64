@@ -535,8 +535,8 @@ static void
 cg_write_lnot (struct cg *cg, struct cg_register a)
 {
   cg_write (cg, "\ttest\t%s, %s\n", register_string (a), register_string (a));
-  cg_write (cg, "\tsete\tal\n");
-  cg_write (cg, "\tmovzx\t%s, al\n", register_string (a));
+  cg_write (cg, "\tsete\t%s\n", register_b_string (a));
+  // cg_write (cg, "\tmovzx\t%s, al\n", register_string (a));
 }
 
 
@@ -1535,12 +1535,13 @@ cg_generate_node_unary (struct cg *cg, struct tree *tree)
       cg_write_neg (cg, a);
       break;
 
-    case UNARY_LNOT:
-      cg_write_lnot (cg, a);
-      break;
-
     case UNARY_BNOT:
       cg_write_bnot (cg, a);
+      break;
+
+    case UNARY_LNOT:
+      cg_write_lnot (cg, a);
+      a.w = WIDTH_1;
       break;
 
     default:

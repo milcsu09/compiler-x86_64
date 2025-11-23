@@ -625,7 +625,7 @@ resolver_resolve_node_call (struct resolver *resolver, struct tree *tree)
 
       n = resolver_resolve_rvalue (resolver, a);
 
-      // First 6 arguments are casted to their expected typ and are promoted
+      // First 6 arguments are casted to their expected type
       if (p_n < 6)
         n = resolver_tree_create_cast (n, b);
 
@@ -720,11 +720,44 @@ resolver_resolve_node_unary (struct resolver *resolver, struct tree *tree)
 
   node->value = resolver_resolve_rvalue (resolver, node->value);
 
-  struct type *type = type_promote_integer (tree_type (node->value));
+  struct type *type = tree_type (node->value);
 
-  node->value = resolver_tree_create_cast (node->value, type);
+  enum unary_operator o = node->o;
 
-  node->type = resolver_resolve_type (resolver, type);
+  bool i = type_is_integer (type);
+  bool p = type_is_pointer (type);
+
+  switch (o)
+    {
+    case UNARY_NEG:
+    case UNARY_BNOT:
+      if (i)
+        {
+          node->value = resolver_tree_create_cast (node->value, type);
+
+          node->type = type;
+
+          return tree;
+        }
+
+      break;
+
+    case UNARY_LNOT:
+      if (i || p)
+        {
+          node->value = resolver_tree_create_cast (node->value, type);
+
+          node->type = type_create (type->location, TYPE_U8);
+
+          return tree;
+        }
+
+      break;
+
+    default:
+      unreachable ();
+      break;
+    }
 
   return tree;
 }
@@ -755,12 +788,12 @@ resolver_resolve_node_binary (struct resolver *resolver, struct tree *tree)
     case BINARY_SUB:
       if (a_i && b_i)
         {
-          struct type *common = type_promote (type_a, type_b);
+          struct type *common = type_find_common (type_a, type_b);
 
           node->lhs = resolver_tree_create_cast (node->lhs, common);
           node->rhs = resolver_tree_create_cast (node->rhs, common);
 
-          node->type = resolver_resolve_type (resolver, common);
+          node->type = common;
 
           return tree;
         }
@@ -769,7 +802,7 @@ resolver_resolve_node_binary (struct resolver *resolver, struct tree *tree)
         {
           node->lhs = resolver_tree_create_cast (node->lhs, type_create (tree->location, TYPE_I64));
 
-          node->type = resolver_resolve_type (resolver, type_b);
+          node->type = type_b;
 
           struct type *type_base = resolver_resolve_type (resolver, type_element (node->type));
 
@@ -782,7 +815,7 @@ resolver_resolve_node_binary (struct resolver *resolver, struct tree *tree)
         {
           node->rhs = resolver_tree_create_cast (node->rhs, type_create (tree->location, TYPE_I64));
 
-          node->type = resolver_resolve_type (resolver, type_a);
+          node->type = type_a;
 
           struct type *type_base = resolver_resolve_type (resolver, type_element (node->type));
 
@@ -808,12 +841,12 @@ resolver_resolve_node_binary (struct resolver *resolver, struct tree *tree)
     case BINARY_BXOR:
       if (a_i && b_i)
         {
-          struct type *common = type_promote (type_a, type_b);
+          struct type *common = type_find_common (type_a, type_b);
 
           node->lhs = resolver_tree_create_cast (node->lhs, common);
           node->rhs = resolver_tree_create_cast (node->rhs, common);
 
-          node->type = resolver_resolve_type (resolver, common);
+          node->type = common;
 
           return tree;
         }
@@ -825,12 +858,12 @@ resolver_resolve_node_binary (struct resolver *resolver, struct tree *tree)
     case BINARY_MOD:
       if (a_i && b_i)
         {
-          struct type *common = type_promote (type_a, type_b);
+          struct type *common = type_find_common (type_a, type_b);
 
           node->lhs = resolver_tree_create_cast (node->lhs, common);
           node->rhs = resolver_tree_create_cast (node->rhs, common);
 
-          node->type = resolver_resolve_type (resolver, common);
+          node->type = common;
 
           return tree;
         }
@@ -845,7 +878,7 @@ resolver_resolve_node_binary (struct resolver *resolver, struct tree *tree)
     case BINARY_CMP_GE:
       if (a_i && b_i)
         {
-          struct type *common = type_promote (type_a, type_b);
+          struct type *common = type_find_common (type_a, type_b);
 
           node->lhs = resolver_tree_create_cast (node->lhs, common);
           node->rhs = resolver_tree_create_cast (node->rhs, common);
@@ -891,7 +924,7 @@ resolver_resolve_node_binary (struct resolver *resolver, struct tree *tree)
     case BINARY_LOR:
     case BINARY_LAND:
       {
-        struct type *common = type_promote (type_a, type_b);
+        struct type *common = type_find_common (type_a, type_b);
 
         node->lhs = resolver_tree_create_cast (node->lhs, common);
         node->rhs = resolver_tree_create_cast (node->rhs, common);

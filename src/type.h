@@ -166,9 +166,7 @@ struct type *type_element (struct type *);
 
 struct type *type_decay (struct type *);
 
-struct type *type_promote_integer (struct type *);
-
-struct type *type_promote (struct type *, struct type *);
+struct type *type_find_common (struct type *, struct type *);
 
 
 void type_print (struct type *, int);

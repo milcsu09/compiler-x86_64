@@ -30,7 +30,7 @@ mandelbrot:
 	mov	r11, qword [rbp-32]
 	mov	r12, qword [rbp-32]
 	imul	r11, r12
-	mov	r12, 65536
+	mov	r12, 16777216
 	mov	rax, r11
 	cqo
 	idiv	r12
@@ -40,7 +40,7 @@ mandelbrot:
 	mov	r11, qword [rbp-40]
 	mov	r12, qword [rbp-40]
 	imul	r11, r12
-	mov	r12, 65536
+	mov	r12, 16777216
 	mov	rax, r11
 	cqo
 	idiv	r12
@@ -50,7 +50,7 @@ mandelbrot:
 	mov	r11, qword [rbp-64]
 	add	r10, r11
 	mov	r11, 4
-	mov	r12, 65536
+	mov	r12, 16777216
 	imul	r11, r12
 	cmp	r10, r11
 	setg	r10b
@@ -65,7 +65,7 @@ mandelbrot:
 	imul	r11, r12
 	mov	r12, qword [rbp-40]
 	imul	r11, r12
-	mov	r12, 65536
+	mov	r12, 16777216
 	mov	rax, r11
 	cqo
 	idiv	r12
@@ -115,18 +115,18 @@ main:
 	mov	rbp, rsp
 	sub	rsp, 96
 	lea	r10, [rbp-8]
-	mov	r11, 131072
+	mov	r11, 33554432
 	neg	r11
 	mov	qword [r10], r11
 	lea	r10, [rbp-16]
-	mov	r11, 65536
+	mov	r11, 16777216
 	mov	qword [r10], r11
 	lea	r10, [rbp-24]
-	mov	r11, 98304
+	mov	r11, 25165824
 	neg	r11
 	mov	qword [r10], r11
 	lea	r10, [rbp-32]
-	mov	r11, 98304
+	mov	r11, 25165824
 	mov	qword [r10], r11
 	lea	r10, [rbp-40]
 	mov	r11, qword [rbp-16]
@@ -185,7 +185,7 @@ main:
 	mov	rdi, r11
 	mov	r11, qword [rbp-80]
 	mov	rsi, r11
-	mov	r11, 50
+	mov	r11, 15
 	mov	rdx, r11
 	sub	rsp, 8
 	lea	r11, [rel mandelbrot]
@@ -198,7 +198,7 @@ main:
 	mov	r11, qword [rbp-96]
 	mov	r12, 9
 	imul	r11, r12
-	mov	r12, 50
+	mov	r12, 15
 	mov	rax, r11
 	cqo
 	idiv	r12
