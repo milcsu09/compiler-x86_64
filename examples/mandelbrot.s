@@ -15,37 +15,37 @@ mandelbrot:
 	mov	qword [rbp-8], rdi
 	mov	qword [rbp-16], rsi
 	mov	qword [rbp-24], rdx
-	lea	r10, [rbp-32]
-	mov	r11, 0
-	mov	qword [r10], r11
-	lea	r10, [rbp-40]
-	mov	r11, 0
-	mov	qword [r10], r11
-	lea	r10, [rbp-48]
-	mov	r11, 0
-	mov	qword [r10], r11
+	mov	r10, 0
+	lea	r11, [rbp-32]
+	mov	qword [r11], r10
+	mov	r10, 0
+	lea	r11, [rbp-40]
+	mov	qword [r11], r10
+	mov	r10, 0
+	lea	r11, [rbp-48]
+	mov	qword [r11], r10
 	jmp	.L2
 .L1:
-	lea	r10, [rbp-56]
+	mov	r10, qword [rbp-32]
 	mov	r11, qword [rbp-32]
-	mov	r12, qword [rbp-32]
-	imul	r11, r12
-	mov	r12, 16777216
-	mov	rax, r11
+	imul	r10, r11
+	mov	r11, 16777216
+	mov	rax, r10
 	cqo
-	idiv	r12
-	mov	r11, rax
-	mov	qword [r10], r11
-	lea	r10, [rbp-64]
+	idiv	r11
+	mov	r10, rax
+	lea	r11, [rbp-56]
+	mov	qword [r11], r10
+	mov	r10, qword [rbp-40]
 	mov	r11, qword [rbp-40]
-	mov	r12, qword [rbp-40]
-	imul	r11, r12
-	mov	r12, 16777216
-	mov	rax, r11
+	imul	r10, r11
+	mov	r11, 16777216
+	mov	rax, r10
 	cqo
-	idiv	r12
-	mov	r11, rax
-	mov	qword [r10], r11
+	idiv	r11
+	mov	r10, rax
+	lea	r11, [rbp-64]
+	mov	qword [r11], r10
 	mov	r10, qword [rbp-56]
 	mov	r11, qword [rbp-64]
 	add	r10, r11
@@ -54,50 +54,48 @@ mandelbrot:
 	imul	r11, r12
 	cmp	r10, r11
 	setg	r10b
-	movzx	r10, r10b
-	test	r10, r10
+	test	r10b, r10b
 	jz	.L4
 	jmp	.L3
 .L4:
-	lea	r10, [rbp-72]
-	mov	r11, 2
-	mov	r12, qword [rbp-32]
-	imul	r11, r12
-	mov	r12, qword [rbp-40]
-	imul	r11, r12
-	mov	r12, 16777216
-	mov	rax, r11
+	mov	r10, 2
+	mov	r11, qword [rbp-32]
+	imul	r10, r11
+	mov	r11, qword [rbp-40]
+	imul	r10, r11
+	mov	r11, 16777216
+	mov	rax, r10
 	cqo
-	idiv	r12
-	mov	r11, rax
-	mov	r12, qword [rbp-16]
-	add	r11, r12
-	mov	qword [r10], r11
-	lea	r10, [rbp-80]
-	mov	r11, qword [rbp-56]
-	mov	r12, qword [rbp-64]
-	sub	r11, r12
-	mov	r12, qword [rbp-8]
-	add	r11, r12
-	mov	qword [r10], r11
-	lea	r10, [rbp-32]
-	mov	r11, qword [rbp-80]
-	mov	qword [r10], r11
-	lea	r10, [rbp-40]
-	mov	r11, qword [rbp-72]
-	mov	qword [r10], r11
-	lea	r10, [rbp-48]
-	mov	r11, qword [rbp-48]
-	mov	r12, 1
-	add	r11, r12
-	mov	qword [r10], r11
+	idiv	r11
+	mov	r10, rax
+	mov	r11, qword [rbp-16]
+	add	r10, r11
+	lea	r11, [rbp-72]
+	mov	qword [r11], r10
+	mov	r10, qword [rbp-56]
+	mov	r11, qword [rbp-64]
+	sub	r10, r11
+	mov	r11, qword [rbp-8]
+	add	r10, r11
+	lea	r11, [rbp-80]
+	mov	qword [r11], r10
+	mov	r10, qword [rbp-80]
+	lea	r11, [rbp-32]
+	mov	qword [r11], r10
+	mov	r10, qword [rbp-72]
+	lea	r11, [rbp-40]
+	mov	qword [r11], r10
+	mov	r10, qword [rbp-48]
+	mov	r11, 1
+	add	r10, r11
+	lea	r11, [rbp-48]
+	mov	qword [r11], r10
 .L2:
 	mov	r10, qword [rbp-48]
 	mov	r11, qword [rbp-24]
 	cmp	r10, r11
 	setl	r10b
-	movzx	r10, r10b
-	test	r10, r10
+	test	r10b, r10b
 	jnz	.L1
 .L3:
 	mov	r10, qword [rbp-48]
@@ -114,86 +112,78 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 96
-	lea	r10, [rbp-8]
-	mov	r11, 33554432
-	neg	r11
-	mov	qword [r10], r11
-	lea	r10, [rbp-16]
-	mov	r11, 16777216
-	mov	qword [r10], r11
-	lea	r10, [rbp-24]
-	mov	r11, 25165824
-	neg	r11
-	mov	qword [r10], r11
-	lea	r10, [rbp-32]
-	mov	r11, 25165824
-	mov	qword [r10], r11
-	lea	r10, [rbp-40]
-	mov	r11, qword [rbp-16]
-	mov	r12, qword [rbp-8]
-	sub	r11, r12
-	mov	r12, 80
-	mov	rax, r11
+	mov	r10, 33554432
+	neg	r10
+	lea	r11, [rbp-8]
+	mov	qword [r11], r10
+	mov	r10, 16777216
+	lea	r11, [rbp-16]
+	mov	qword [r11], r10
+	mov	r10, 25165824
+	neg	r10
+	lea	r11, [rbp-24]
+	mov	qword [r11], r10
+	mov	r10, 25165824
+	lea	r11, [rbp-32]
+	mov	qword [r11], r10
+	mov	r10, qword [rbp-16]
+	mov	r11, qword [rbp-8]
+	sub	r10, r11
+	mov	r11, 80
+	mov	rax, r10
 	cqo
-	idiv	r12
-	mov	r11, rax
-	mov	qword [r10], r11
-	lea	r10, [rbp-48]
-	mov	r11, qword [rbp-32]
-	mov	r12, qword [rbp-24]
-	sub	r11, r12
-	mov	r12, 40
-	mov	rax, r11
+	idiv	r11
+	mov	r10, rax
+	lea	r11, [rbp-40]
+	mov	qword [r11], r10
+	mov	r10, qword [rbp-32]
+	mov	r11, qword [rbp-24]
+	sub	r10, r11
+	mov	r11, 40
+	mov	rax, r10
 	cqo
-	idiv	r12
-	mov	r11, rax
-	mov	qword [r10], r11
-	lea	r10, [rbp-56]
-	mov	r11, LS0
-	mov	qword [r10], r11
-	lea	r10, [rbp-64]
-	mov	r11, 0
-	mov	qword [r10], r11
+	idiv	r11
+	mov	r10, rax
+	lea	r11, [rbp-48]
+	mov	qword [r11], r10
+	mov	r10, LS0
+	lea	r11, [rbp-56]
+	mov	qword [r11], r10
+	mov	r10, 0
+	lea	r11, [rbp-64]
+	mov	qword [r11], r10
 	jmp	.L7
 .L6:
-	lea	r10, [rbp-80]
-	mov	r11, qword [rbp-32]
-	mov	r12, qword [rbp-64]
-	push	r10
-	mov	r10, qword [rbp-48]
-	imul	r12, r10
-	pop	r10
-	sub	r11, r12
-	mov	qword [r10], r11
-	lea	r10, [rbp-72]
-	mov	r11, 0
-	mov	qword [r10], r11
+	mov	r10, qword [rbp-32]
+	mov	r11, qword [rbp-64]
+	mov	r12, qword [rbp-48]
+	imul	r11, r12
+	sub	r10, r11
+	lea	r11, [rbp-80]
+	mov	qword [r11], r10
+	mov	r10, 0
+	lea	r11, [rbp-72]
+	mov	qword [r11], r10
 	jmp	.L11
 .L10:
-	lea	r10, [rbp-88]
-	mov	r11, qword [rbp-8]
-	mov	r12, qword [rbp-72]
-	push	r10
-	mov	r10, qword [rbp-40]
-	imul	r12, r10
-	pop	r10
-	add	r11, r12
-	mov	qword [r10], r11
-	lea	r10, [rbp-96]
-	push	r10
-	mov	r11, qword [rbp-88]
-	mov	rdi, r11
-	mov	r11, qword [rbp-80]
-	mov	rsi, r11
-	mov	r11, 15
-	mov	rdx, r11
-	sub	rsp, 8
-	lea	r11, [rel mandelbrot]
-	call	r11
-	add	rsp, 8
-	pop	r10
-	mov	r11, rax
-	mov	qword [r10], r11
+	mov	r10, qword [rbp-8]
+	mov	r11, qword [rbp-72]
+	mov	r12, qword [rbp-40]
+	imul	r11, r12
+	add	r10, r11
+	lea	r11, [rbp-88]
+	mov	qword [r11], r10
+	mov	r10, qword [rbp-88]
+	mov	rdi, r10
+	mov	r10, qword [rbp-80]
+	mov	rsi, r10
+	mov	r10, 15
+	mov	rdx, r10
+	lea	r10, [rel mandelbrot]
+	call	r10
+	mov	r10, rax
+	lea	r11, [rbp-96]
+	mov	qword [r11], r10
 	mov	r10, qword [rbp-56]
 	mov	r11, qword [rbp-96]
 	mov	r12, 9
@@ -209,18 +199,17 @@ main:
 	lea	r10, [rel putchar]
 	call	r10
 .L13:
-	lea	r10, [rbp-72]
-	mov	r11, qword [rbp-72]
-	mov	r12, 1
-	add	r11, r12
-	mov	qword [r10], r11
+	mov	r10, qword [rbp-72]
+	mov	r11, 1
+	add	r10, r11
+	lea	r11, [rbp-72]
+	mov	qword [r11], r10
 .L11:
 	mov	r10, qword [rbp-72]
 	mov	r11, 80
 	cmp	r10, r11
 	setl	r10b
-	movzx	r10, r10b
-	test	r10, r10
+	test	r10b, r10b
 	jnz	.L10
 .L12:
 	mov	r10, 10
@@ -228,18 +217,17 @@ main:
 	lea	r10, [rel putchar]
 	call	r10
 .L9:
-	lea	r10, [rbp-64]
-	mov	r11, qword [rbp-64]
-	mov	r12, 1
-	add	r11, r12
-	mov	qword [r10], r11
+	mov	r10, qword [rbp-64]
+	mov	r11, 1
+	add	r10, r11
+	lea	r11, [rbp-64]
+	mov	qword [r11], r10
 .L7:
 	mov	r10, qword [rbp-64]
 	mov	r11, 40
 	cmp	r10, r11
 	setl	r10b
-	movzx	r10, r10b
-	test	r10, r10
+	test	r10b, r10b
 	jnz	.L6
 .L8:
 	mov	r10, 0

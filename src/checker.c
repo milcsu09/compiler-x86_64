@@ -196,6 +196,8 @@ checker_check_lvalue (struct checker *checker, struct tree *tree)
 
   checker_check_type (checker, tree_type (tree));
 
+  // VALIDATE TREE ...
+
   if (tree_is_rvalue (tree))
     {
       error (tree->location, "right-value expression used as left-value");
@@ -204,6 +206,8 @@ checker_check_lvalue (struct checker *checker, struct tree *tree)
     }
 
   checker_check_expression (checker, tree);
+
+  // VALIDATE TYPE ...
 }
 
 
@@ -213,9 +217,26 @@ checker_check_rvalue (struct checker *checker, struct tree *tree)
   if (!tree)
     return;
 
-  checker_check_type (checker, tree_type (tree));
+  struct type *type = tree_type (tree);
+
+  checker_check_type (checker, type);
+
+  // VALIDATE TREE ...
 
   checker_check_expression (checker, tree);
+
+  // VALIDATE TYPE ...
+
+  if (!type_is_scalar (type))
+    {
+      char name[512];
+
+      type_string (type, name, sizeof name);
+
+      error (tree->location, "non-scalar type '%s' used as right-value", name);
+
+      exit (1);
+    }
 }
 
 
@@ -446,16 +467,16 @@ checker_check_node_cast (struct checker *checker, struct tree *tree)
 
   struct type *type = tree_type (node->value);
 
-  if (!type_is_scalar (type))
-    {
-      char name[512];
+  // if (!type_is_scalar (type))
+  //   {
+  //     char name[512];
 
-      type_string (type, name, sizeof name);
+  //     type_string (type, name, sizeof name);
 
-      error (tree->location, "cast from non-scalar type '%s'", name);
+  //     error (tree->location, "cast from non-scalar type '%s'", name);
 
-      exit (1);
-    }
+  //     exit (1);
+  //   }
 
   if (!type_is_scalar (node->type))
     {

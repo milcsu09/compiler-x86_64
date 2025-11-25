@@ -14,14 +14,14 @@ bubble_sort:
 	sub	rsp, 48
 	mov	qword [rbp-8], rdi
 	mov	qword [rbp-16], rsi
-	lea	r10, [rbp-24]
-	mov	r11, 0
-	mov	qword [r10], r11
+	mov	r10, 0
+	lea	r11, [rbp-24]
+	mov	qword [r11], r10
 	jmp	.L2
 .L1:
-	lea	r10, [rbp-32]
-	mov	r11, 0
-	mov	qword [r10], r11
+	mov	r10, 0
+	lea	r11, [rbp-32]
+	mov	qword [r11], r10
 	jmp	.L6
 .L5:
 	mov	r10, qword [rbp-8]
@@ -40,21 +40,29 @@ bubble_sort:
 	mov	r11d, dword [r11]
 	cmp	r10d, r11d
 	setg	r10b
-	movzx	r10, r10b
-	test	r10, r10
+	test	r10b, r10b
 	jz	.L9
-	lea	r10, [rbp-40]
-	mov	r11, qword [rbp-8]
-	mov	r12, qword [rbp-32]
-	imul	r12, 4
-	add	r11, r12
-	mov	r11d, dword [r11]
-	movsx	r11, r11d
-	mov	qword [r10], r11
 	mov	r10, qword [rbp-8]
 	mov	r11, qword [rbp-32]
 	imul	r11, 4
 	add	r10, r11
+	mov	r10d, dword [r10]
+	movsx	r10, r10d
+	lea	r11, [rbp-40]
+	mov	qword [r11], r10
+	mov	r10, qword [rbp-8]
+	mov	r11, qword [rbp-32]
+	mov	r12, 1
+	add	r11, r12
+	imul	r11, 4
+	add	r10, r11
+	mov	r10d, dword [r10]
+	mov	r11, qword [rbp-8]
+	mov	r12, qword [rbp-32]
+	imul	r12, 4
+	add	r11, r12
+	mov	dword [r11], r10d
+	mov	r10, qword [rbp-40]
 	mov	r11, qword [rbp-8]
 	mov	r12, qword [rbp-32]
 	push	r10
@@ -63,23 +71,14 @@ bubble_sort:
 	pop	r10
 	imul	r12, 4
 	add	r11, r12
-	mov	r11d, dword [r11]
-	mov	dword [r10], r11d
-	mov	r10, qword [rbp-8]
-	mov	r11, qword [rbp-32]
-	mov	r12, 1
-	add	r11, r12
-	imul	r11, 4
-	add	r10, r11
-	mov	r11, qword [rbp-40]
-	mov	dword [r10], r11d
+	mov	dword [r11], r10d
 .L9:
 .L8:
-	lea	r10, [rbp-32]
-	mov	r11, qword [rbp-32]
-	mov	r12, 1
-	add	r11, r12
-	mov	qword [r10], r11
+	mov	r10, qword [rbp-32]
+	mov	r11, 1
+	add	r10, r11
+	lea	r11, [rbp-32]
+	mov	qword [r11], r10
 .L6:
 	mov	r10, qword [rbp-32]
 	mov	r11, qword [rbp-16]
@@ -89,23 +88,21 @@ bubble_sort:
 	sub	r11, r12
 	cmp	r10, r11
 	setl	r10b
-	movzx	r10, r10b
-	test	r10, r10
+	test	r10b, r10b
 	jnz	.L5
 .L7:
 .L4:
-	lea	r10, [rbp-24]
-	mov	r11, qword [rbp-24]
-	mov	r12, 1
-	add	r11, r12
-	mov	qword [r10], r11
+	mov	r10, qword [rbp-24]
+	mov	r11, 1
+	add	r10, r11
+	lea	r11, [rbp-24]
+	mov	qword [r11], r10
 .L2:
 	mov	r10, qword [rbp-24]
 	mov	r11, qword [rbp-16]
 	cmp	r10, r11
 	setl	r10b
-	movzx	r10, r10b
-	test	r10, r10
+	test	r10b, r10b
 	jnz	.L1
 .L3:
 .L0:
@@ -118,45 +115,45 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 32
-	lea	r10, [rbp-20]
-	mov	r11, 0
-	imul	r11, 4
-	add	r10, r11
-	mov	r11, 42
-	mov	dword [r10], r11d
-	lea	r10, [rbp-20]
-	mov	r11, 1
-	imul	r11, 4
-	add	r10, r11
-	mov	r11, 27
-	mov	dword [r10], r11d
-	lea	r10, [rbp-20]
-	mov	r11, 2
-	imul	r11, 4
-	add	r10, r11
-	mov	r11, 16
-	mov	dword [r10], r11d
-	lea	r10, [rbp-20]
-	mov	r11, 3
-	imul	r11, 4
-	add	r10, r11
-	mov	r11, 5
-	mov	dword [r10], r11d
-	lea	r10, [rbp-20]
-	mov	r11, 4
-	imul	r11, 4
-	add	r10, r11
-	mov	r11, 30
-	mov	dword [r10], r11d
+	mov	r10, 42
+	lea	r11, [rbp-20]
+	mov	r12, 0
+	imul	r12, 4
+	add	r11, r12
+	mov	dword [r11], r10d
+	mov	r10, 27
+	lea	r11, [rbp-20]
+	mov	r12, 1
+	imul	r12, 4
+	add	r11, r12
+	mov	dword [r11], r10d
+	mov	r10, 16
+	lea	r11, [rbp-20]
+	mov	r12, 2
+	imul	r12, 4
+	add	r11, r12
+	mov	dword [r11], r10d
+	mov	r10, 5
+	lea	r11, [rbp-20]
+	mov	r12, 3
+	imul	r12, 4
+	add	r11, r12
+	mov	dword [r11], r10d
+	mov	r10, 30
+	lea	r11, [rbp-20]
+	mov	r12, 4
+	imul	r12, 4
+	add	r11, r12
+	mov	dword [r11], r10d
 	lea	r10, [rbp-20]
 	mov	rdi, r10
 	mov	r10, 5
 	mov	rsi, r10
 	lea	r10, [rel bubble_sort]
 	call	r10
-	lea	r10, [rbp-32]
-	mov	r11, 0
-	mov	qword [r10], r11
+	mov	r10, 0
+	lea	r11, [rbp-32]
+	mov	qword [r11], r10
 	jmp	.L12
 .L11:
 	lea	r10, [rbp-20]
@@ -168,18 +165,17 @@ main:
 	mov	rdi, r10
 	call	printi
 .L14:
-	lea	r10, [rbp-32]
-	mov	r11, qword [rbp-32]
-	mov	r12, 1
-	add	r11, r12
-	mov	qword [r10], r11
+	mov	r10, qword [rbp-32]
+	mov	r11, 1
+	add	r10, r11
+	lea	r11, [rbp-32]
+	mov	qword [r11], r10
 .L12:
 	mov	r10, qword [rbp-32]
 	mov	r11, 5
 	cmp	r10, r11
 	setl	r10b
-	movzx	r10, r10b
-	test	r10, r10
+	test	r10b, r10b
 	jnz	.L11
 .L13:
 	mov	r10, 0

@@ -14,23 +14,23 @@ stack_push:
 	sub	rsp, 16
 	mov	qword [rbp-8], rdi
 	mov	qword [rbp-16], rsi
-	mov	r10, qword [rbp-8]
-	add	r10, 0
+	mov	r10, qword [rbp-16]
 	mov	r11, qword [rbp-8]
-	add	r11, 512
-	mov	r11, qword [r11]
-	imul	r11, 8
-	add	r10, r11
-	mov	r11, qword [rbp-16]
-	mov	qword [r10], r11
+	add	r11, 0
+	mov	r12, qword [rbp-8]
+	add	r12, 512
+	mov	r12, qword [r12]
+	imul	r12, 8
+	add	r11, r12
+	mov	qword [r11], r10
 	mov	r10, qword [rbp-8]
 	add	r10, 512
+	mov	r10, qword [r10]
+	mov	r11, 1
+	add	r10, r11
 	mov	r11, qword [rbp-8]
 	add	r11, 512
-	mov	r11, qword [r11]
-	mov	r12, 1
-	add	r11, r12
-	mov	qword [r10], r11
+	mov	qword [r11], r10
 .L0:
 	add	rsp, 16
 	pop	rbp
@@ -44,12 +44,12 @@ stack_pop:
 	mov	qword [rbp-8], rdi
 	mov	r10, qword [rbp-8]
 	add	r10, 512
+	mov	r10, qword [r10]
+	mov	r11, 1
+	sub	r10, r11
 	mov	r11, qword [rbp-8]
 	add	r11, 512
-	mov	r11, qword [r11]
-	mov	r12, 1
-	sub	r11, r12
-	mov	qword [r10], r11
+	mov	qword [r11], r10
 	mov	r10, qword [rbp-8]
 	add	r10, 0
 	mov	r11, qword [rbp-8]
@@ -70,10 +70,10 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 528
-	lea	r10, [rbp-520]
-	add	r10, 512
-	mov	r11, 0
-	mov	qword [r10], r11
+	mov	r10, 0
+	lea	r11, [rbp-520]
+	add	r11, 512
+	mov	qword [r11], r10
 	lea	r10, [rbp-520]
 	mov	rdi, r10
 	mov	r10, 34

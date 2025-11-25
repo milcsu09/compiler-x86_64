@@ -13,26 +13,26 @@ B_init:
 	mov	rbp, rsp
 	sub	rsp, 16
 	mov	qword [rbp-8], rdi
-	mov	r10, qword [rbp-8]
-	add	r10, 0
-	add	r10, 0
-	mov	r11, 10
-	mov	qword [r10], r11
-	mov	r10, qword [rbp-8]
-	add	r10, 0
-	add	r10, 8
-	mov	r11, 20
-	mov	qword [r10], r11
-	mov	r10, qword [rbp-8]
-	add	r10, 16
-	add	r10, 0
-	mov	r11, 30
-	mov	qword [r10], r11
-	mov	r10, qword [rbp-8]
-	add	r10, 16
-	add	r10, 8
-	mov	r11, 40
-	mov	qword [r10], r11
+	mov	r10, 10
+	mov	r11, qword [rbp-8]
+	add	r11, 0
+	add	r11, 0
+	mov	qword [r11], r10
+	mov	r10, 20
+	mov	r11, qword [rbp-8]
+	add	r11, 0
+	add	r11, 8
+	mov	qword [r11], r10
+	mov	r10, 30
+	mov	r11, qword [rbp-8]
+	add	r11, 16
+	add	r11, 0
+	mov	qword [r11], r10
+	mov	r10, 40
+	mov	r11, qword [rbp-8]
+	add	r11, 16
+	add	r11, 8
+	mov	qword [r11], r10
 .L0:
 	add	rsp, 16
 	pop	rbp

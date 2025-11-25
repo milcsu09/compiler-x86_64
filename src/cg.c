@@ -536,7 +536,6 @@ cg_write_lnot (struct cg *cg, struct cg_register a)
 {
   cg_write (cg, "\ttest\t%s, %s\n", register_string (a), register_string (a));
   cg_write (cg, "\tsete\t%s\n", register_b_string (a));
-  // cg_write (cg, "\tmovzx\t%s, al\n", register_string (a));
 }
 
 
@@ -581,6 +580,8 @@ cg_write_jnz (struct cg *cg, cg_label_t a)
   cg_write_jump (cg, a, "jnz");
 }
 
+
+// TODO: Fix logical 'or' and logical 'and'
 
 static void
 cg_write_lor (struct cg *cg, struct cg_register a, struct cg_register b)
@@ -1486,8 +1487,8 @@ cg_generate_node_assignment (struct cg *cg, struct tree *tree)
 {
   struct tree_node_assignment *node = &tree->d.assignment;
 
-  struct cg_register lhs = cg_generate_lvalue (cg, node->lhs);
   struct cg_register rhs = cg_generate_rvalue (cg, node->rhs);
+  struct cg_register lhs = cg_generate_lvalue (cg, node->lhs);
 
   cg_write_store (cg, lhs, rhs);
 

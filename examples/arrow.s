@@ -12,33 +12,33 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 32
-	lea	r10, [rbp-16]
-	add	r10, 0
-	lea	r11, [rbp-8]
-	mov	qword [r10], r11
-	lea	r10, [rbp-24]
-	add	r10, 0
+	lea	r10, [rbp-8]
 	lea	r11, [rbp-16]
-	mov	qword [r10], r11
-	lea	r10, [rbp-32]
+	add	r11, 0
+	mov	qword [r11], r10
+	lea	r10, [rbp-16]
 	lea	r11, [rbp-24]
-	mov	qword [r10], r11
-	mov	r10, qword [rbp-32]
-	add	r10, 0
-	mov	r10, qword [r10]
-	add	r10, 0
-	mov	r10, qword [r10]
-	add	r10, 0
-	mov	r11, 10
-	mov	dword [r10], r11d
-	mov	r10, qword [rbp-32]
-	add	r10, 0
-	mov	r10, qword [r10]
-	add	r10, 0
-	mov	r10, qword [r10]
-	add	r10, 4
-	mov	r11, 20
-	mov	dword [r10], r11d
+	add	r11, 0
+	mov	qword [r11], r10
+	lea	r10, [rbp-24]
+	lea	r11, [rbp-32]
+	mov	qword [r11], r10
+	mov	r10, 10
+	mov	r11, qword [rbp-32]
+	add	r11, 0
+	mov	r11, qword [r11]
+	add	r11, 0
+	mov	r11, qword [r11]
+	add	r11, 0
+	mov	dword [r11], r10d
+	mov	r10, 20
+	mov	r11, qword [rbp-32]
+	add	r11, 0
+	mov	r11, qword [r11]
+	add	r11, 0
+	mov	r11, qword [r11]
+	add	r11, 4
+	mov	dword [r11], r10d
 	lea	r10, [rbp-8]
 	add	r10, 0
 	mov	r10d, dword [r10]

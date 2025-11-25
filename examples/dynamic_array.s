@@ -16,39 +16,31 @@ da_create:
 	mov	rbp, rsp
 	sub	rsp, 16
 	mov	qword [rbp-8], rdi
-	lea	r10, [rbp-16]
-	push	r10
-	mov	r11, 24
-	mov	rdi, r11
-	sub	rsp, 8
-	lea	r11, [rel malloc]
-	call	r11
-	add	rsp, 8
-	pop	r10
-	mov	r11, rax
-	mov	qword [r10], r11
-	mov	r10, qword [rbp-16]
-	add	r10, 0
-	push	r10
-	mov	r11, 8
-	mov	r12, qword [rbp-8]
-	imul	r11, r12
-	mov	rdi, r11
-	sub	rsp, 8
-	lea	r11, [rel malloc]
-	call	r11
-	add	rsp, 8
-	pop	r10
-	mov	r11, rax
-	mov	qword [r10], r11
-	mov	r10, qword [rbp-16]
-	add	r10, 8
-	mov	r11, 0
-	mov	qword [r10], r11
-	mov	r10, qword [rbp-16]
-	add	r10, 16
+	mov	r10, 24
+	mov	rdi, r10
+	lea	r10, [rel malloc]
+	call	r10
+	mov	r10, rax
+	lea	r11, [rbp-16]
+	mov	qword [r11], r10
+	mov	r10, 8
 	mov	r11, qword [rbp-8]
-	mov	qword [r10], r11
+	imul	r10, r11
+	mov	rdi, r10
+	lea	r10, [rel malloc]
+	call	r10
+	mov	r10, rax
+	mov	r11, qword [rbp-16]
+	add	r11, 0
+	mov	qword [r11], r10
+	mov	r10, 0
+	mov	r11, qword [rbp-16]
+	add	r11, 8
+	mov	qword [r11], r10
+	mov	r10, qword [rbp-8]
+	mov	r11, qword [rbp-16]
+	add	r11, 16
+	mov	qword [r11], r10
 	mov	r10, qword [rbp-16]
 	mov	rax, r10
 	jmp	.L0
@@ -93,56 +85,51 @@ da_append:
 	mov	r11, qword [r11]
 	cmp	r10, r11
 	setge	r10b
-	movzx	r10, r10b
-	test	r10, r10
+	test	r10b, r10b
 	jz	.L3
 	mov	r10, qword [rbp-8]
 	add	r10, 16
+	mov	r10, qword [r10]
+	mov	r11, 2
+	imul	r10, r11
 	mov	r11, qword [rbp-8]
 	add	r11, 16
-	mov	r11, qword [r11]
-	mov	r12, 2
-	imul	r11, r12
-	mov	qword [r10], r11
-	mov	r10, qword [rbp-8]
-	add	r10, 0
-	push	r10
-	mov	r11, qword [rbp-8]
-	add	r11, 0
-	mov	r11, qword [r11]
-	mov	rdi, r11
-	mov	r11, 8
-	mov	r12, qword [rbp-8]
-	add	r12, 16
-	mov	r12, qword [r12]
-	imul	r11, r12
-	mov	rsi, r11
-	sub	rsp, 8
-	lea	r11, [rel realloc]
-	call	r11
-	add	rsp, 8
-	pop	r10
-	mov	r11, rax
-	mov	qword [r10], r11
-.L3:
+	mov	qword [r11], r10
 	mov	r10, qword [rbp-8]
 	add	r10, 0
 	mov	r10, qword [r10]
+	mov	rdi, r10
+	mov	r10, 8
 	mov	r11, qword [rbp-8]
-	add	r11, 8
+	add	r11, 16
 	mov	r11, qword [r11]
-	imul	r11, 8
-	add	r10, r11
-	mov	r11, qword [rbp-16]
-	mov	qword [r10], r11
+	imul	r10, r11
+	mov	rsi, r10
+	lea	r10, [rel realloc]
+	call	r10
+	mov	r10, rax
+	mov	r11, qword [rbp-8]
+	add	r11, 0
+	mov	qword [r11], r10
+.L3:
+	mov	r10, qword [rbp-16]
+	mov	r11, qword [rbp-8]
+	add	r11, 0
+	mov	r11, qword [r11]
+	mov	r12, qword [rbp-8]
+	add	r12, 8
+	mov	r12, qword [r12]
+	imul	r12, 8
+	add	r11, r12
+	mov	qword [r11], r10
 	mov	r10, qword [rbp-8]
 	add	r10, 8
+	mov	r10, qword [r10]
+	mov	r11, 1
+	add	r10, r11
 	mov	r11, qword [rbp-8]
 	add	r11, 8
-	mov	r11, qword [r11]
-	mov	r12, 1
-	add	r11, r12
-	mov	qword [r10], r11
+	mov	qword [r11], r10
 .L2:
 	add	rsp, 16
 	pop	rbp
@@ -153,20 +140,16 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 16
-	lea	r10, [rbp-8]
-	push	r10
-	mov	r11, 4
-	mov	rdi, r11
-	sub	rsp, 8
-	lea	r11, [rel da_create]
-	call	r11
-	add	rsp, 8
-	pop	r10
-	mov	r11, rax
-	mov	qword [r10], r11
-	lea	r10, [rbp-16]
-	mov	r11, 0
-	mov	qword [r10], r11
+	mov	r10, 4
+	mov	rdi, r10
+	lea	r10, [rel da_create]
+	call	r10
+	mov	r10, rax
+	lea	r11, [rbp-8]
+	mov	qword [r11], r10
+	mov	r10, 0
+	lea	r11, [rbp-16]
+	mov	qword [r11], r10
 	jmp	.L6
 .L5:
 	mov	r10, qword [rbp-8]
@@ -178,23 +161,22 @@ main:
 	lea	r10, [rel da_append]
 	call	r10
 .L8:
-	lea	r10, [rbp-16]
-	mov	r11, qword [rbp-16]
-	mov	r12, 1
-	add	r11, r12
-	mov	qword [r10], r11
+	mov	r10, qword [rbp-16]
+	mov	r11, 1
+	add	r10, r11
+	lea	r11, [rbp-16]
+	mov	qword [r11], r10
 .L6:
 	mov	r10, qword [rbp-16]
 	mov	r11, 100
 	cmp	r10, r11
 	setl	r10b
-	movzx	r10, r10b
-	test	r10, r10
+	test	r10b, r10b
 	jnz	.L5
 .L7:
-	lea	r10, [rbp-16]
-	mov	r11, 0
-	mov	qword [r10], r11
+	mov	r10, 0
+	lea	r11, [rbp-16]
+	mov	qword [r11], r10
 	jmp	.L10
 .L9:
 	mov	r10, qword [rbp-8]
@@ -207,18 +189,17 @@ main:
 	mov	rdi, r10
 	call	printi
 .L12:
-	lea	r10, [rbp-16]
-	mov	r11, qword [rbp-16]
-	mov	r12, 1
-	add	r11, r12
-	mov	qword [r10], r11
+	mov	r10, qword [rbp-16]
+	mov	r11, 1
+	add	r10, r11
+	lea	r11, [rbp-16]
+	mov	qword [r11], r10
 .L10:
 	mov	r10, qword [rbp-16]
 	mov	r11, 100
 	cmp	r10, r11
 	setl	r10b
-	movzx	r10, r10b
-	test	r10, r10
+	test	r10b, r10b
 	jnz	.L9
 .L11:
 	mov	r10, qword [rbp-8]

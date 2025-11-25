@@ -64,8 +64,7 @@ main:
 	mov	r11, 1
 	cmp	r10, r11
 	setne	r10b
-	movzx	r10, r10b
-	test	r10, r10
+	test	r10b, r10b
 	jnz	.L1
 .L3:
 	lea	r10, [rel CloseWindow]

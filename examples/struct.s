@@ -12,46 +12,46 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 32
-	lea	r10, [rbp-24]
-	add	r10, 0
-	mov	r11, 10
-	mov	byte [r10], r11b
-	lea	r10, [rbp-24]
-	add	r10, 2
-	mov	r11, 20
-	mov	word [r10], r11w
-	lea	r10, [rbp-24]
-	add	r10, 4
-	mov	r11, 30
-	mov	dword [r10], r11d
-	lea	r10, [rbp-24]
-	add	r10, 8
-	mov	r11, 40
-	mov	qword [r10], r11
-	lea	r10, [rbp-24]
-	add	r10, 16
-	mov	r11, 0
-	add	r10, r11
-	mov	r11, 1
-	mov	byte [r10], r11b
-	lea	r10, [rbp-24]
-	add	r10, 16
-	mov	r11, 1
-	add	r10, r11
-	mov	r11, 2
-	mov	byte [r10], r11b
-	lea	r10, [rbp-24]
-	add	r10, 16
-	mov	r11, 2
-	add	r10, r11
-	mov	r11, 3
-	mov	byte [r10], r11b
-	lea	r10, [rbp-24]
-	add	r10, 16
-	mov	r11, 3
-	add	r10, r11
-	mov	r11, 4
-	mov	byte [r10], r11b
+	mov	r10, 10
+	lea	r11, [rbp-24]
+	add	r11, 0
+	mov	byte [r11], r10b
+	mov	r10, 20
+	lea	r11, [rbp-24]
+	add	r11, 2
+	mov	word [r11], r10w
+	mov	r10, 30
+	lea	r11, [rbp-24]
+	add	r11, 4
+	mov	dword [r11], r10d
+	mov	r10, 40
+	lea	r11, [rbp-24]
+	add	r11, 8
+	mov	qword [r11], r10
+	mov	r10, 1
+	lea	r11, [rbp-24]
+	add	r11, 16
+	mov	r12, 0
+	add	r11, r12
+	mov	byte [r11], r10b
+	mov	r10, 2
+	lea	r11, [rbp-24]
+	add	r11, 16
+	mov	r12, 1
+	add	r11, r12
+	mov	byte [r11], r10b
+	mov	r10, 3
+	lea	r11, [rbp-24]
+	add	r11, 16
+	mov	r12, 2
+	add	r11, r12
+	mov	byte [r11], r10b
+	mov	r10, 4
+	lea	r11, [rbp-24]
+	add	r11, 16
+	mov	r12, 3
+	add	r11, r12
+	mov	byte [r11], r10b
 	lea	r10, [rbp-24]
 	add	r10, 0
 	mov	r10b, byte [r10]

@@ -488,8 +488,8 @@ resolver_resolve_node_if (struct resolver *resolver, struct tree *tree)
 
   node->condition = resolver_resolve_rvalue (resolver, node->condition);
 
-  node->condition = resolver_tree_create_cast (node->condition,
-                                               type_create (tree->location, TYPE_U64));
+  // node->condition = resolver_tree_create_cast (node->condition,
+  //                                              type_create (tree->location, TYPE_U64));
 
   resolver_resolve_statement (resolver, node->branch_a);
   resolver_resolve_statement (resolver, node->branch_b);
@@ -503,8 +503,8 @@ resolver_resolve_node_while (struct resolver *resolver, struct tree *tree)
 
   node->condition = resolver_resolve_rvalue (resolver, node->condition);
 
-  node->condition = resolver_tree_create_cast (node->condition,
-                                               type_create (tree->location, TYPE_U64));
+  // node->condition = resolver_tree_create_cast (node->condition,
+  //                                              type_create (tree->location, TYPE_U64));
 
   resolver_resolve_statement (resolver, node->body);
 }
@@ -519,8 +519,8 @@ resolver_resolve_node_for (struct resolver *resolver, struct tree *tree)
 
   node->condition = resolver_resolve_rvalue (resolver, node->condition);
 
-  node->condition = resolver_tree_create_cast (node->condition,
-                                               type_create (tree->location, TYPE_U64));
+  // node->condition = resolver_tree_create_cast (node->condition,
+  //                                              type_create (tree->location, TYPE_U64));
 
   node->increment = resolver_resolve_expression (resolver, node->increment);
 

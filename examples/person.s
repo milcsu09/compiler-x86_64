@@ -12,36 +12,36 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 16
-	lea	r10, [rbp-16]
-	mov	r11, 0
-	imul	r11, 8
-	add	r10, r11
-	add	r10, 0
-	mov	r11, 20
-	mov	byte [r10], r11b
-	lea	r10, [rbp-16]
-	mov	r11, 0
-	imul	r11, 8
-	add	r10, r11
-	add	r10, 4
-	add	r10, 0
-	mov	r11, 1111
-	mov	dword [r10], r11d
-	lea	r10, [rbp-16]
-	mov	r11, 1
-	imul	r11, 8
-	add	r10, r11
-	add	r10, 0
-	mov	r11, 30
-	mov	byte [r10], r11b
-	lea	r10, [rbp-16]
-	mov	r11, 1
-	imul	r11, 8
-	add	r10, r11
-	add	r10, 4
-	add	r10, 0
-	mov	r11, 2222
-	mov	dword [r10], r11d
+	mov	r10, 20
+	lea	r11, [rbp-16]
+	mov	r12, 0
+	imul	r12, 8
+	add	r11, r12
+	add	r11, 0
+	mov	byte [r11], r10b
+	mov	r10, 1111
+	lea	r11, [rbp-16]
+	mov	r12, 0
+	imul	r12, 8
+	add	r11, r12
+	add	r11, 4
+	add	r11, 0
+	mov	dword [r11], r10d
+	mov	r10, 30
+	lea	r11, [rbp-16]
+	mov	r12, 1
+	imul	r12, 8
+	add	r11, r12
+	add	r11, 0
+	mov	byte [r11], r10b
+	mov	r10, 2222
+	lea	r11, [rbp-16]
+	mov	r12, 1
+	imul	r12, 8
+	add	r11, r12
+	add	r11, 4
+	add	r11, 0
+	mov	dword [r11], r10d
 	lea	r10, [rbp-16]
 	mov	r11, 0
 	imul	r11, 8
