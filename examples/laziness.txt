@@ -1,0 +1,10 @@
+
+fn main() -> i32 {
+  p : *i32;
+  p = 0;
+
+  print p and *p == 10;
+
+  return 0;
+}
+
