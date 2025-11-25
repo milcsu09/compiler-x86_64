@@ -12,6 +12,7 @@ mandelbrot:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 80
+
 	mov	qword [rbp-8], rdi
 	mov	qword [rbp-16], rsi
 	mov	qword [rbp-24], rdx
@@ -101,6 +102,7 @@ mandelbrot:
 	mov	r10, qword [rbp-48]
 	mov	rax, r10
 	jmp	.L0
+
 .L0:
 	add	rsp, 80
 	pop	rbp
@@ -112,6 +114,7 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 96
+
 	mov	r10, 33554432
 	neg	r10
 	lea	r11, [rbp-8]
@@ -233,6 +236,7 @@ main:
 	mov	r10, 0
 	mov	eax, r10d
 	jmp	.L5
+
 .L5:
 	add	rsp, 96
 	pop	rbp

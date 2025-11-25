@@ -4,7 +4,7 @@ section .text
 printi:
 	mov	rsi, rdi
 	xor	eax, eax
-	mov	edi, printi_s
+	mov	rdi, printi_s
 	jmp	printf
 
 	global	main
@@ -12,12 +12,13 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 16
-	lea	r10, [rbp-8]
-	mov	r11, 0
-	mov	qword [r10], r11
-	lea	r10, [rbp-16]
-	mov	r11, 0
-	mov	qword [r10], r11
+
+	mov	r10, 0
+	lea	r11, [rbp-8]
+	mov	qword [r11], r10
+	mov	r10, 0
+	lea	r11, [rbp-16]
+	mov	qword [r11], r10
 	jmp	.L2
 .L1:
 	mov	r10, qword [rbp-16]
@@ -29,30 +30,32 @@ main:
 	mov	r11, 0
 	cmp	r10, r11
 	sete	r10b
-	mov	r11, qword [rbp-16]
-	mov	r12, 5
-	mov	rax, r11
-	cqo
-	idiv	r12
-	mov	r11, rdx
-	mov	r12, 0
-	cmp	r11, r12
-	sete	r11b
-	or 	r10b, r11b
-	setne	r10b
 	test	r10b, r10b
-	jz	.L3
-	lea	r10, [rbp-8]
-	mov	r11, qword [rbp-8]
-	mov	r12, qword [rbp-16]
-	add	r11, r12
-	mov	qword [r10], r11
-.L3:
-	lea	r10, [rbp-16]
+	jnz	.L6
+	mov	r10, qword [rbp-16]
+	mov	r11, 5
+	mov	rax, r10
+	cqo
+	idiv	r11
+	mov	r10, rdx
+	mov	r11, 0
+	cmp	r10, r11
+	sete	r10b
+.L6:
+	test	r10b, r10b
+	jz	.L5
+	mov	r10, qword [rbp-8]
 	mov	r11, qword [rbp-16]
-	mov	r12, 1
-	add	r11, r12
-	mov	qword [r10], r11
+	add	r10, r11
+	lea	r11, [rbp-8]
+	mov	qword [r11], r10
+.L5:
+.L4:
+	mov	r10, qword [rbp-16]
+	mov	r11, 1
+	add	r10, r11
+	lea	r11, [rbp-16]
+	mov	qword [r11], r10
 .L2:
 	mov	r10, qword [rbp-16]
 	mov	r11, 1000
@@ -60,18 +63,20 @@ main:
 	setl	r10b
 	test	r10b, r10b
 	jnz	.L1
+.L3:
 	mov	r10, qword [rbp-8]
 	mov	rdi, r10
 	call	printi
 	mov	r10, 0
 	mov	eax, r10d
 	jmp	.L0
+
 .L0:
 	add	rsp, 16
 	pop	rbp
 	ret
 
-section .data
+section .rodata
 	printi_s: db "%ld", 10, 0
 
 section .note.GNU-stack

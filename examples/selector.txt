@@ -1,0 +1,23 @@
+
+fn main() -> i32 {
+  a : i64;
+  b : i64;
+  c : i64;
+
+  a = 1;
+  b = 2;
+  c = 3;
+
+  print a or  b or  c;
+  print a and b and c;
+
+  a = 0;
+  b = 1;
+  c = 2;
+
+  print a or  b or  c;
+  print a and b and c;
+
+  return 0;
+}
+

@@ -40,9 +40,6 @@ struct operator
 
 
 static struct operator OPERATOR_TABLE[] = {
-  { TOKEN_OR,         BINARY_LOR,     10, ASSOCIATIVITY_L },
-  { TOKEN_AND,        BINARY_LAND,    20, ASSOCIATIVITY_L },
-
   { TOKEN_PIPE,       BINARY_BOR,     30, ASSOCIATIVITY_L },
 
   { TOKEN_CARET,      BINARY_BXOR,    40, ASSOCIATIVITY_L },
@@ -187,6 +184,10 @@ static struct tree *parser_parse_statement_print (struct parser *);
 
 
 static struct tree *parser_parse_expression_assignment (struct parser *);
+
+static struct tree *parser_parse_expression_or (struct parser *);
+
+static struct tree *parser_parse_expression_and (struct parser *);
 
 static struct tree *parser_parse_expression_binary (struct parser *);
 
@@ -653,7 +654,7 @@ parser_parse_expression_assignment (struct parser *parser)
 {
   struct tree *lhs;
 
-  lhs = parser_parse_expression_binary (parser);
+  lhs = parser_parse_expression_or (parser);
 
   if (!parser_match (parser, TOKEN_EQ))
     return lhs;
@@ -672,6 +673,64 @@ parser_parse_expression_assignment (struct parser *parser)
   result->d.assignment.rhs = rhs;
 
   return result;
+}
+
+
+static struct tree *
+parser_parse_expression_or (struct parser *parser)
+{
+  struct tree *lhs;
+
+  lhs = parser_parse_expression_and (parser);
+
+  while (parser_match (parser, TOKEN_OR))
+    {
+      parser_advance (parser);
+
+      struct tree *rhs;
+
+      rhs = parser_parse_expression_and (parser);
+
+      struct tree *binary;
+
+      binary = tree_create (lhs->location, TREE_OR);
+
+      binary->d.or.lhs = lhs;
+      binary->d.or.rhs = rhs;
+
+      lhs = binary;
+    }
+
+  return lhs;
+}
+
+
+static struct tree *
+parser_parse_expression_and (struct parser *parser)
+{
+  struct tree *lhs;
+
+  lhs = parser_parse_expression_binary (parser);
+
+  while (parser_match (parser, TOKEN_AND))
+    {
+      parser_advance (parser);
+
+      struct tree *rhs;
+
+      rhs = parser_parse_expression_binary (parser);
+
+      struct tree *binary;
+
+      binary = tree_create (lhs->location, TREE_AND);
+
+      binary->d.and.lhs = lhs;
+      binary->d.and.rhs = rhs;
+
+      lhs = binary;
+    }
+
+  return lhs;
 }
 
 

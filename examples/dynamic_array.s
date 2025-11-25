@@ -15,6 +15,7 @@ da_create:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 16
+
 	mov	qword [rbp-8], rdi
 	mov	r10, 24
 	mov	rdi, r10
@@ -44,6 +45,7 @@ da_create:
 	mov	r10, qword [rbp-16]
 	mov	rax, r10
 	jmp	.L0
+
 .L0:
 	add	rsp, 16
 	pop	rbp
@@ -54,6 +56,7 @@ da_destroy:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 16
+
 	mov	qword [rbp-8], rdi
 	mov	r10, qword [rbp-8]
 	add	r10, 0
@@ -65,6 +68,7 @@ da_destroy:
 	mov	rdi, r10
 	lea	r10, [rel free]
 	call	r10
+
 .L1:
 	add	rsp, 16
 	pop	rbp
@@ -75,6 +79,7 @@ da_append:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 16
+
 	mov	qword [rbp-8], rdi
 	mov	qword [rbp-16], rsi
 	mov	r10, qword [rbp-8]
@@ -130,6 +135,7 @@ da_append:
 	mov	r11, qword [rbp-8]
 	add	r11, 8
 	mov	qword [r11], r10
+
 .L2:
 	add	rsp, 16
 	pop	rbp
@@ -140,6 +146,7 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 16
+
 	mov	r10, 4
 	mov	rdi, r10
 	lea	r10, [rel da_create]
@@ -209,6 +216,7 @@ main:
 	mov	r10, 0
 	mov	eax, r10d
 	jmp	.L4
+
 .L4:
 	add	rsp, 16
 	pop	rbp

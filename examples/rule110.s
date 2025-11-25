@@ -13,6 +13,7 @@ rule110:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 16
+
 	mov	byte [rbp-1], dil
 	mov	byte [rbp-2], sil
 	mov	byte [rbp-3], dl
@@ -120,6 +121,7 @@ rule110:
 	mov	al, r10b
 	jmp	.L0
 .L8:
+
 .L0:
 	add	rsp, 16
 	pop	rbp
@@ -130,6 +132,7 @@ print_cells:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 16
+
 	mov	qword [rbp-8], rdi
 	mov	r10, 0
 	lea	r11, [rbp-16]
@@ -175,6 +178,7 @@ print_cells:
 	mov	dil, r10b
 	lea	r10, [rel putchar]
 	call	r10
+
 .L9:
 	add	rsp, 16
 	pop	rbp
@@ -185,6 +189,7 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 192
+
 	mov	r10, 0
 	lea	r11, [rbp-168]
 	mov	qword [r11], r10
@@ -345,6 +350,7 @@ main:
 	mov	r10, 0
 	mov	eax, r10d
 	jmp	.L16
+
 .L16:
 	add	rsp, 192
 	pop	rbp

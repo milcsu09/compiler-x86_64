@@ -60,6 +60,10 @@ static void checker_check_node_assignment (struct checker *, struct tree *);
 
 static void checker_check_node_access (struct checker *, struct tree *);
 
+static void checker_check_node_or (struct checker *, struct tree *);
+
+static void checker_check_node_and (struct checker *, struct tree *);
+
 static void checker_check_node_unary (struct checker *, struct tree *);
 
 static void checker_check_node_binary (struct checker *, struct tree *);
@@ -164,6 +168,12 @@ checker_check_expression (struct checker *checker, struct tree *tree)
       break;
     case TREE_ACCESS:
       checker_check_node_access (checker, tree);
+      break;
+    case TREE_OR:
+      checker_check_node_or (checker, tree);
+      break;
+    case TREE_AND:
+      checker_check_node_and (checker, tree);
       break;
     case TREE_UNARY:
       checker_check_node_unary (checker, tree);
@@ -562,6 +572,26 @@ checker_check_node_access (struct checker *checker, struct tree *tree)
 
 
 static void
+checker_check_node_or (struct checker *checker, struct tree *tree)
+{
+  struct tree_node_or *node = &tree->d.or;
+
+  checker_check_rvalue (checker, node->lhs);
+  checker_check_rvalue (checker, node->rhs);
+}
+
+
+static void
+checker_check_node_and (struct checker *checker, struct tree *tree)
+{
+  struct tree_node_and *node = &tree->d.and;
+
+  checker_check_rvalue (checker, node->lhs);
+  checker_check_rvalue (checker, node->rhs);
+}
+
+
+static void
 checker_check_node_unary (struct checker *checker, struct tree *tree)
 {
   struct tree_node_unary *node = &tree->d.unary;
@@ -679,9 +709,9 @@ checker_check_node_binary (struct checker *checker, struct tree *tree)
         return;
       break;
 
-    case BINARY_LOR:
-    case BINARY_LAND:
-      return;
+    // case BINARY_LOR:
+    // case BINARY_LAND:
+    //   return;
 
     default:
       unreachable ();

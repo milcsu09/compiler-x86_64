@@ -135,6 +135,10 @@ static struct tree *resolver_resolve_node_assignment (struct resolver *, struct 
 
 static struct tree *resolver_resolve_node_access (struct resolver *, struct tree *);
 
+static struct tree *resolver_resolve_node_or (struct resolver *, struct tree *);
+
+static struct tree *resolver_resolve_node_and (struct resolver *, struct tree *);
+
 static struct tree *resolver_resolve_node_unary (struct resolver *, struct tree *);
 
 static struct tree *resolver_resolve_node_binary (struct resolver *, struct tree *);
@@ -259,6 +263,10 @@ resolver_resolve_expression (struct resolver *resolver, struct tree *tree)
       return resolver_resolve_node_assignment (resolver, tree);
     case TREE_ACCESS:
       return resolver_resolve_node_access (resolver, tree);
+    case TREE_OR:
+      return resolver_resolve_node_or (resolver, tree);
+    case TREE_AND:
+      return resolver_resolve_node_and (resolver, tree);
     case TREE_UNARY:
       return resolver_resolve_node_unary (resolver, tree);
     case TREE_BINARY:
@@ -714,6 +722,48 @@ resolver_resolve_node_access (struct resolver *resolver, struct tree *tree)
 
 
 static struct tree *
+resolver_resolve_node_or (struct resolver *resolver, struct tree *tree)
+{
+  struct tree_node_or *node = &tree->d.or;
+
+  node->lhs = resolver_resolve_rvalue (resolver, node->lhs);
+  node->rhs = resolver_resolve_rvalue (resolver, node->rhs);
+
+  struct type *common = type_find_common (tree_type (node->lhs), tree_type (node->rhs));
+
+  // struct type *common = tree_type (node->lhs);
+
+  node->lhs = resolver_tree_create_cast (node->lhs, common);
+  node->rhs = resolver_tree_create_cast (node->rhs, common);
+
+  node->type = common;
+
+  return tree;
+}
+
+
+static struct tree *
+resolver_resolve_node_and (struct resolver *resolver, struct tree *tree)
+{
+  struct tree_node_and *node = &tree->d.and;
+
+  node->lhs = resolver_resolve_rvalue (resolver, node->lhs);
+  node->rhs = resolver_resolve_rvalue (resolver, node->rhs);
+
+  struct type *common = type_find_common (tree_type (node->lhs), tree_type (node->rhs));
+
+  // struct type *common = tree_type (node->lhs);
+
+  node->lhs = resolver_tree_create_cast (node->lhs, common);
+  node->rhs = resolver_tree_create_cast (node->rhs, common);
+
+  node->type = common;
+
+  return tree;
+}
+
+
+static struct tree *
 resolver_resolve_node_unary (struct resolver *resolver, struct tree *tree)
 {
   struct tree_node_unary *node = &tree->d.unary;
@@ -921,19 +971,19 @@ resolver_resolve_node_binary (struct resolver *resolver, struct tree *tree)
 
       break;
 
-    case BINARY_LOR:
-    case BINARY_LAND:
-      {
-        struct type *common = type_find_common (type_a, type_b);
+    // case BINARY_LOR:
+    // case BINARY_LAND:
+    //   {
+    //     struct type *common = type_find_common (type_a, type_b);
 
-        node->lhs = resolver_tree_create_cast (node->lhs, common);
-        node->rhs = resolver_tree_create_cast (node->rhs, common);
+    //     node->lhs = resolver_tree_create_cast (node->lhs, common);
+    //     node->rhs = resolver_tree_create_cast (node->rhs, common);
 
-        node->type = type_create (tree->location, TYPE_U8);
+    //     node->type = type_create (tree->location, TYPE_U8);
 
-        return tree;
-      }
-      break;
+    //     return tree;
+    //   }
+    //   break;
 
     default:
       unreachable ();

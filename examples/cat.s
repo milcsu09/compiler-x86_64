@@ -16,6 +16,7 @@ cat_file:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 32
+
 	mov	qword [rbp-8], rdi
 	mov	r10, qword [rbp-8]
 	mov	rdi, r10
@@ -59,6 +60,7 @@ cat_file:
 	mov	rdi, r10
 	lea	r10, [rel fclose]
 	call	r10
+
 .L0:
 	add	rsp, 32
 	pop	rbp
@@ -69,6 +71,7 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 32
+
 	mov	dword [rbp-4], edi
 	mov	qword [rbp-16], rsi
 	mov	r10d, dword [rbp-4]
@@ -113,6 +116,7 @@ main:
 	mov	r10, 0
 	mov	eax, r10d
 	jmp	.L5
+
 .L5:
 	add	rsp, 32
 	pop	rbp

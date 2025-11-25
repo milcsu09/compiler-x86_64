@@ -15,6 +15,7 @@ lexer_advance:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 16
+
 	mov	qword [rbp-8], rdi
 	mov	r10, qword [rbp-8]
 	add	r10, 0
@@ -24,6 +25,7 @@ lexer_advance:
 	mov	r11, qword [rbp-8]
 	add	r11, 0
 	mov	qword [r11], r10
+
 .L0:
 	add	rsp, 16
 	pop	rbp
@@ -34,6 +36,7 @@ lexer_next:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 32
+
 	mov	qword [rbp-8], rdi
 	mov	qword [rbp-16], rsi
 	jmp	.L3
@@ -218,6 +221,7 @@ lexer_next:
 	mov	r11, qword [rbp-16]
 	add	r11, 0
 	mov	dword [r11], r10d
+
 .L1:
 	add	rsp, 32
 	pop	rbp
@@ -228,6 +232,7 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 608
+
 	mov	r10, LS0
 	lea	r11, [rbp-8]
 	add	r11, 0
@@ -498,6 +503,7 @@ main:
 	mov	r10, 0
 	mov	eax, r10d
 	jmp	.L14
+
 .L14:
 	add	rsp, 608
 	pop	rbp

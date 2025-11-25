@@ -25,6 +25,7 @@ particle_init:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 16
+
 	mov	qword [rbp-8], rdi
 	mov	r10, 400
 	mov	r11, 256
@@ -78,6 +79,7 @@ particle_init:
 	mov	r11, qword [rbp-8]
 	add	r11, 16
 	mov	dword [r11], r10d
+
 .L0:
 	add	rsp, 16
 	pop	rbp
@@ -88,6 +90,7 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 32
+
 	mov	r10, 800
 	mov	edi, r10d
 	mov	r10, 600
@@ -358,6 +361,7 @@ main:
 	mov	r10, 0
 	mov	eax, r10d
 	jmp	.L1
+
 .L1:
 	add	rsp, 32
 	pop	rbp

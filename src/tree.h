@@ -38,9 +38,6 @@ enum binary_operator
   BINARY_CMP_G,
   BINARY_CMP_LE,
   BINARY_CMP_GE,
-
-  BINARY_LOR,
-  BINARY_LAND,
 };
 
 
@@ -74,6 +71,8 @@ enum tree_kind
   TREE_CALL,
   TREE_ASSIGNMENT,
   TREE_ACCESS,
+  TREE_OR,
+  TREE_AND,
   TREE_UNARY,
   TREE_BINARY,
   TREE_REFERENCE,
@@ -217,6 +216,24 @@ struct tree_node_access
 };
 
 
+struct tree_node_or
+{
+  struct tree *lhs;
+  struct tree *rhs;
+
+  struct type *type;
+};
+
+
+struct tree_node_and
+{
+  struct tree *lhs;
+  struct tree *rhs;
+
+  struct type *type;
+};
+
+
 struct tree_node_unary
 {
   enum unary_operator o;
@@ -305,6 +322,8 @@ union tree_data
   struct tree_node_call         call;
   struct tree_node_assignment   assignment;
   struct tree_node_access       access;
+  struct tree_node_or           or;
+  struct tree_node_and          and;
   struct tree_node_unary        unary;
   struct tree_node_binary       binary;
   struct tree_node_reference    reference;

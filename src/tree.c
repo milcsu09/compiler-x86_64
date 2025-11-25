@@ -39,9 +39,6 @@ static const char *const BINARY_OPERATOR_STRING[] = {
   ">",
   "<=",
   ">=",
-
-  "or",
-  "and",
 };
 
 
@@ -75,6 +72,8 @@ static const char *const TREE_KIND_STRING[] = {
   "call",
   "assignment",
   "access",
+  "or",
+  "and",
   "unary",
   "binary",
   "reference",
@@ -156,6 +155,10 @@ tree_type (struct tree *tree)
       return tree->d.assignment.type;
     case TREE_ACCESS:
       return tree->d.access.type;
+    case TREE_OR:
+      return tree->d.or.type;
+    case TREE_AND:
+      return tree->d.and.type;
     case TREE_UNARY:
       return tree->d.unary.type;
     case TREE_BINARY:
@@ -382,6 +385,26 @@ tree_print (struct tree *tree, int depth)
         tree_print_indent (depth + 1);
 
         fprintf (stderr, "\033[91m%s\033[0m\n", node.field);
+      }
+      break;
+    case TREE_OR:
+      {
+        struct tree_node_or node = tree->d.or;
+
+        type_print (node.type, depth + 1);
+
+        tree_print (node.lhs, depth + 1);
+        tree_print (node.rhs, depth + 1);
+      }
+      break;
+    case TREE_AND:
+      {
+        struct tree_node_and node = tree->d.and;
+
+        type_print (node.type, depth + 1);
+
+        tree_print (node.lhs, depth + 1);
+        tree_print (node.rhs, depth + 1);
       }
       break;
     case TREE_UNARY:
