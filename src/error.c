@@ -25,7 +25,9 @@ diagnostic_va (struct location location, const char *type, const char *format, v
       // fprintf (stderr, "\033[94m%ld\033[0m:", location.line);
       // fprintf (stderr, "\033[94m%ld\033[0m:", location.column);
       // fprintf (stderr, " ");
-      fprintf (stderr, "%s:%ld:%ld: ", location.file, location.line, location.column);
+      // fprintf (stderr, "%s:%ld:%ld: ", location.file, location.line, location.column);
+
+      fprintf (stderr, "%s(%ld, %ld) ", location.file, location.line, location.column);
     }
 
   fprintf (stderr, "%s: ", type);

@@ -81,16 +81,16 @@ static void checker_check_type (struct checker *checker, struct type *type)
   if (type == TYPE_ERROR)
     return;
 
-  if (type_is_incomplete (type))
-    {
-      char name[512];
+  // if (type_is_incomplete (type))
+  //   {
+  //     char name[512];
 
-      type_string (type, name, sizeof name);
+  //     type_string (type, name, sizeof name);
 
-      error (type->location, "incomplete type '%s'", name);
+  //     error (type->location, "incomplete type '%s'", name);
 
-      exit (1);
-    }
+  //     exit (1);
+  //   }
 
   switch (type->kind)
     {
@@ -473,13 +473,11 @@ checker_check_node_cast (struct checker *checker, struct tree *tree)
 
   checker_check_rvalue (checker, node->value);
 
-  struct type *type = tree_type (node->value);
-
   if (!type_is_scalar (node->type))
     {
       char name[512];
 
-      type_string (type, name, sizeof name);
+      type_string (node->type, name, sizeof name);
 
       error (tree->location, "cast to non-scalar type '%s'", name);
 

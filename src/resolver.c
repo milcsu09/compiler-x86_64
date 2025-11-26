@@ -304,22 +304,23 @@ resolver_resolve_rvalue (struct resolver *resolver, struct tree *tree)
 
   struct type *type = tree_type (value);
 
-  if (type_is_label (type))
-    {
-      struct tree *result;
+  if (tree_is_lvalue (tree))
+    if (type_is_label (type))
+      {
+        struct tree *result;
 
-      result = tree_create (tree->location, TREE_REFERENCE);
+        result = tree_create (tree->location, TREE_REFERENCE);
 
-      result->d.reference.value = value;
+        result->d.reference.value = value;
 
-      result->d.reference.type = type_decay (type);
+        result->d.reference.type = type_decay (type);
 
-      result->next = value->next;
+        result->next = value->next;
 
-      value->next = NULL;
+        value->next = NULL;
 
-      return result;
-    }
+        return result;
+      }
 
   return value;
 }
