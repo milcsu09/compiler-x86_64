@@ -581,24 +581,6 @@ cg_write_jnz (struct cg *cg, cg_label_t a)
 }
 
 
-// TODO: Fix logical 'or' and logical 'and'
-
-// static void
-// cg_write_lor (struct cg *cg, struct cg_register a, struct cg_register b)
-// {
-//   cg_write (cg, "\tor \t%s, %s\n", register_string (a), register_string (b));
-//   cg_write (cg, "\tsetne\t%s\n", register_b_string (a));
-// }
-// 
-// 
-// static void
-// cg_write_land (struct cg *cg, struct cg_register a, struct cg_register b)
-// {
-//   cg_write (cg, "\tand\t%s, %s\n", register_string (a), register_string (b));
-//   cg_write (cg, "\tsetne\t%s\n", register_b_string (a));
-// }
-
-
 static void
 cg_write_test (struct cg *cg, struct cg_register a)
 {
@@ -1064,7 +1046,7 @@ cg_generate_node_fdefinition (struct cg *cg, struct tree *tree)
   cg_write (cg, "%s:\n", cg->function.node->name);
   cg_write (cg, "\tpush\trbp\n");
   cg_write (cg, "\tmov\trbp, rsp\n");
-  cg_write (cg, "\tsub\trsp, %zu\n\n", stack_usage);
+  cg_write (cg, "\tsub\trsp, %zu\n", stack_usage);
 
   const enum cg_register_id p_register[] = {
     REGISTER_RDI,
@@ -1118,7 +1100,6 @@ cg_generate_node_fdefinition (struct cg *cg, struct tree *tree)
   for (struct tree *t = node->body->d.compound.statement1; t; t = t->next)
     cg_generate_statement (cg, t);
 
-  cg_write (cg, "\n");
   cg_write_label (cg, cg->function.label_return);
   cg_write (cg, "\tadd\trsp, %zu\n", stack_usage);
   cg_write (cg, "\tpop\trbp\n");
@@ -1709,15 +1690,6 @@ cg_generate_node_binary (struct cg *cg, struct tree *tree)
         cg_write_ucompare_ge (cg, a, b);
       a.w = WIDTH_1;
       break;
-
-    // case BINARY_LOR:
-    //   cg_write_lor (cg, a, b);
-    //   a.w = WIDTH_1;
-    //   break;
-    // case BINARY_LAND:
-    //   cg_write_land (cg, a, b);
-    //   a.w = WIDTH_1;
-    //   break;
 
     default:
       unreachable ();

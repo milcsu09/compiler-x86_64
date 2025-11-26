@@ -267,8 +267,6 @@ checker_check_statement (struct checker *checker, struct tree *tree)
     case TREE_STRUCT:
       checker_check_node_struct (checker, tree);
       break;
-    case TREE_EMPTY:
-      break;
     case TREE_IF:
       checker_check_node_if (checker, tree);
       break;
@@ -476,17 +474,6 @@ checker_check_node_cast (struct checker *checker, struct tree *tree)
   checker_check_rvalue (checker, node->value);
 
   struct type *type = tree_type (node->value);
-
-  // if (!type_is_scalar (type))
-  //   {
-  //     char name[512];
-
-  //     type_string (type, name, sizeof name);
-
-  //     error (tree->location, "cast from non-scalar type '%s'", name);
-
-  //     exit (1);
-  //   }
 
   if (!type_is_scalar (node->type))
     {
@@ -708,10 +695,6 @@ checker_check_node_binary (struct checker *checker, struct tree *tree)
       if (a_p && b_p)
         return;
       break;
-
-    // case BINARY_LOR:
-    // case BINARY_LAND:
-    //   return;
 
     default:
       unreachable ();

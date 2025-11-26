@@ -13,7 +13,6 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 0
-
 	mov	r10, LS0
 	mov	rdi, r10
 	lea	r10, [rel puts]
@@ -21,7 +20,6 @@ main:
 	mov	r10, 0
 	mov	eax, r10d
 	jmp	.L0
-
 .L0:
 	add	rsp, 0
 	pop	rbp

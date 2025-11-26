@@ -53,7 +53,6 @@ enum tree_kind
   TREE_STRUCT,
 
   // Statement
-  TREE_EMPTY,
   TREE_IF,
   TREE_WHILE,
   TREE_FOR,

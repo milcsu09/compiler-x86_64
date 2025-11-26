@@ -342,8 +342,6 @@ resolver_resolve_statement (struct resolver *resolver, struct tree *tree)
     case TREE_STRUCT:
       resolver_resolve_node_struct (resolver, tree);
       break;
-    case TREE_EMPTY:
-      break;
     case TREE_IF:
       resolver_resolve_node_if (resolver, tree);
       break;
@@ -496,9 +494,6 @@ resolver_resolve_node_if (struct resolver *resolver, struct tree *tree)
 
   node->condition = resolver_resolve_rvalue (resolver, node->condition);
 
-  // node->condition = resolver_tree_create_cast (node->condition,
-  //                                              type_create (tree->location, TYPE_U64));
-
   resolver_resolve_statement (resolver, node->branch_a);
   resolver_resolve_statement (resolver, node->branch_b);
 }
@@ -510,9 +505,6 @@ resolver_resolve_node_while (struct resolver *resolver, struct tree *tree)
   struct tree_node_while *node = &tree->d.while_s;
 
   node->condition = resolver_resolve_rvalue (resolver, node->condition);
-
-  // node->condition = resolver_tree_create_cast (node->condition,
-  //                                              type_create (tree->location, TYPE_U64));
 
   resolver_resolve_statement (resolver, node->body);
 }
@@ -526,9 +518,6 @@ resolver_resolve_node_for (struct resolver *resolver, struct tree *tree)
   node->init = resolver_resolve_expression (resolver, node->init);
 
   node->condition = resolver_resolve_rvalue (resolver, node->condition);
-
-  // node->condition = resolver_tree_create_cast (node->condition,
-  //                                              type_create (tree->location, TYPE_U64));
 
   node->increment = resolver_resolve_expression (resolver, node->increment);
 
@@ -731,8 +720,6 @@ resolver_resolve_node_or (struct resolver *resolver, struct tree *tree)
 
   struct type *common = type_find_common (tree_type (node->lhs), tree_type (node->rhs));
 
-  // struct type *common = tree_type (node->lhs);
-
   node->lhs = resolver_tree_create_cast (node->lhs, common);
   node->rhs = resolver_tree_create_cast (node->rhs, common);
 
@@ -751,8 +738,6 @@ resolver_resolve_node_and (struct resolver *resolver, struct tree *tree)
   node->rhs = resolver_resolve_rvalue (resolver, node->rhs);
 
   struct type *common = type_find_common (tree_type (node->lhs), tree_type (node->rhs));
-
-  // struct type *common = tree_type (node->lhs);
 
   node->lhs = resolver_tree_create_cast (node->lhs, common);
   node->rhs = resolver_tree_create_cast (node->rhs, common);
@@ -970,20 +955,6 @@ resolver_resolve_node_binary (struct resolver *resolver, struct tree *tree)
         }
 
       break;
-
-    // case BINARY_LOR:
-    // case BINARY_LAND:
-    //   {
-    //     struct type *common = type_find_common (type_a, type_b);
-
-    //     node->lhs = resolver_tree_create_cast (node->lhs, common);
-    //     node->rhs = resolver_tree_create_cast (node->rhs, common);
-
-    //     node->type = type_create (tree->location, TYPE_U8);
-
-    //     return tree;
-    //   }
-    //   break;
 
     default:
       unreachable ();

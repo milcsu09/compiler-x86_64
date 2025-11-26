@@ -123,10 +123,28 @@ parser_match (struct parser *parser, enum token_kind kind)
 }
 
 
-static void
-parser_error_expect (struct parser *parser, const char *a, const char *b)
+static bool
+parser_match_advance (struct parser *parser, enum token_kind kind)
 {
-  error (parser->location, "unexpected %s, expected %s", b, a);
+  if (!token_match (parser->current, kind))
+    return false;
+
+  parser_advance (parser);
+  return true;
+}
+
+
+static void
+parser_error_expect (struct parser *parser, const char *expected, const char *unexpected)
+{
+  error (parser->location, "unexpected %s, expected %s", unexpected, expected);
+}
+
+
+static void
+parser_error_expect_s (struct parser *parser, const char *expected)
+{
+  parser_error_expect (parser, expected, token_kind_string (parser->current->kind));
 }
 
 
@@ -136,10 +154,7 @@ parser_expect (struct parser *parser, enum token_kind kind)
   if (parser_match (parser, kind))
     return;
 
-  const char *a = token_kind_string (kind);
-  const char *b = token_kind_string (parser->current->kind);
-
-  parser_error_expect (parser, a, b);
+  parser_error_expect_s (parser, token_kind_string (kind));
 
   exit (1);
 }
@@ -222,12 +237,8 @@ static struct type *parser_parse_type (struct parser *);
 static struct tree *
 parser_parse_top (struct parser *parser)
 {
-  if (parser_match (parser, TOKEN_EXTERN))
-    {
-      parser_advance (parser);
-
-      return parser_parse_top_fdeclaration (parser);
-    }
+  if (parser_match_advance (parser, TOKEN_EXTERN))
+    return parser_parse_top_fdeclaration (parser);
 
   if (parser_match (parser, TOKEN_FN))
     return parser_parse_top_fdefinition (parser);
@@ -235,9 +246,7 @@ parser_parse_top (struct parser *parser)
   if (parser_match (parser, TOKEN_STRUCT))
     return parser_parse_top_struct (parser);
 
-  const char *b = token_kind_string (parser->current->kind);
-
-  parser_error_expect (parser, "top-level declaration", b);
+  parser_error_expect_s (parser, "top-level declaration");
 
   exit (1);
 }
@@ -250,7 +259,12 @@ parser_parse_top_fdeclaration (struct parser *parser)
 
   result = tree_create (parser->location, TREE_FDECLARATION);
 
-  parser_expect_advance (parser, TOKEN_FN);
+  if (!parser_match_advance (parser, TOKEN_FN))
+    {
+      parser_error_expect_s (parser, "function-declaration");
+
+      exit (1);
+    }
 
   struct type *type;
 
@@ -272,20 +286,14 @@ parser_parse_top_fdeclaration (struct parser *parser)
 
       type_append (&type->d.function.from1, parameter_type);
 
-      if (parser_match (parser, TOKEN_COMMA))
-        parser_advance (parser);
-      else
+      if (!parser_match_advance (parser, TOKEN_COMMA))
         parser_expect (parser, TOKEN_RPAREN);
     }
 
   parser_expect_advance (parser, TOKEN_RPAREN);
 
-  if (parser_match (parser, TOKEN_ARROW))
-    {
-      parser_advance (parser);
-
-      type->d.function.to = type_decay (parser_parse_type (parser));
-    }
+  if (parser_match_advance (parser, TOKEN_ARROW))
+    type->d.function.to = type_decay (parser_parse_type (parser));
   else
     type->d.function.to = type_create (result->location, TYPE_VOID);
 
@@ -294,7 +302,6 @@ parser_parse_top_fdeclaration (struct parser *parser)
   result->d.fdeclaration.type = type;
 
   return result;
-
 }
 
 
@@ -305,7 +312,12 @@ parser_parse_top_fdefinition (struct parser *parser)
 
   result = tree_create (parser->location, TREE_FDEFINITION);
 
-  parser_expect_advance (parser, TOKEN_FN);
+  if (!parser_match_advance (parser, TOKEN_FN))
+    {
+      parser_error_expect_s (parser, "function-definition");
+
+      exit (1);
+    }
 
   struct type *type;
 
@@ -325,30 +337,18 @@ parser_parse_top_fdefinition (struct parser *parser)
 
       parameter = parser_parse_statement_vdeclaration (parser);
 
-      // struct type *parameter_type;
-
-      // parameter_type = type_decay (parameter->d.vdeclaration.type);
-
       parameter->d.vdeclaration.type = type_decay (parameter->d.vdeclaration.type);
 
       tree_append (&result->d.fdefinition.parameter1, parameter);
 
-      // type_append (&type->d.function.from1, parameter_type);
-
-      if (parser_match (parser, TOKEN_COMMA))
-        parser_advance (parser);
-      else
+      if (!parser_match_advance (parser, TOKEN_COMMA))
         parser_expect (parser, TOKEN_RPAREN);
     }
 
   parser_expect_advance (parser, TOKEN_RPAREN);
 
-  if (parser_match (parser, TOKEN_ARROW))
-    {
-      parser_advance (parser);
-
-      type->d.function.to = type_decay (parser_parse_type (parser));
-    }
+  if (parser_match_advance (parser, TOKEN_ARROW))
+    type->d.function.to = type_decay (parser_parse_type (parser));
   else
     type->d.function.to = type_create (result->location, TYPE_VOID);
 
@@ -369,7 +369,12 @@ parser_parse_top_struct (struct parser *parser)
 
   result = tree_create (parser->location, TREE_STRUCT);
 
-  parser_expect_advance (parser, TOKEN_STRUCT);
+  if (!parser_match_advance (parser, TOKEN_STRUCT))
+    {
+      parser_error_expect_s (parser, "struct-definition");
+
+      exit (1);
+    }
 
   struct type *type;
 
@@ -391,10 +396,7 @@ parser_parse_top_struct (struct parser *parser)
 
       tree_append (&result->d.struct_s.field1, field);
 
-      if (parser_match (parser, TOKEN_SEMICOLON))
-        parser_advance (parser);
-      else
-        parser_expect (parser, TOKEN_RBRACE);
+      parser_expect_advance (parser, TOKEN_SEMICOLON);
     }
   while (!parser_match (parser, TOKEN_RBRACE));
 
@@ -411,9 +413,6 @@ parser_parse_top_struct (struct parser *parser)
 static struct tree *
 parser_parse_statement (struct parser *parser)
 {
-  if (parser_match (parser, TOKEN_SEMICOLON))
-    return tree_create (parser->location, TREE_EMPTY);
-
   if (parser_match (parser, TOKEN_IF))
     return parser_parse_statement_if (parser);
 
@@ -570,7 +569,14 @@ parser_parse_statement_compound (struct parser *parser)
 static struct tree *
 parser_parse_statement_vdeclaration (struct parser *parser)
 {
-  parser_expect (parser, TOKEN_IDENTIFIER);
+  if (!parser_match (parser, TOKEN_IDENTIFIER))
+    {
+      parser_error_expect_s (parser, "variable- or field-declaration");
+
+      exit (1);
+    }
+
+  // parser_expect (parser, TOKEN_IDENTIFIER);
 
   char *name = parser->current->d.s;
 
@@ -966,6 +972,9 @@ parser_parse_primary (struct parser *parser)
       return parser_parse_primary_reference (parser);
     case TOKEN_STAR:
       return parser_parse_primary_dereference (parser);
+    case TOKEN_PLUS:
+      parser_advance (parser);
+      return parser_parse_expression_postfix (parser);
     case TOKEN_MINUS:
       return parser_parse_primary_unary (parser, UNARY_NEG);
     case TOKEN_EXCLAMATION:
@@ -1242,20 +1251,14 @@ parser_parse_type (struct parser *parser)
 
             type_append (&result->d.function.from1, parameter_type);
 
-            if (parser_match (parser, TOKEN_COMMA))
-              parser_advance (parser);
-            else
+            if (!parser_match_advance (parser, TOKEN_COMMA))
               parser_expect (parser, TOKEN_RPAREN);
           }
 
         parser_expect_advance (parser, TOKEN_RPAREN);
 
-        if (parser_match (parser, TOKEN_ARROW))
-          {
-            parser_advance (parser);
-
-            result->d.function.to = type_decay (parser_parse_type (parser));
-          }
+        if (parser_match_advance (parser, TOKEN_ARROW))
+          result->d.function.to = type_decay (parser_parse_type (parser));
         else
           result->d.function.to = type_create (location, TYPE_VOID);
 

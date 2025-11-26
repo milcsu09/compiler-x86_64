@@ -55,7 +55,6 @@ static const char *const TREE_KIND_STRING[] = {
 
   "struct",
 
-  "empty",
   "if",
   "while",
   "for",
@@ -265,8 +264,6 @@ tree_print (struct tree *tree, int depth)
         for (struct tree *t = node.field1; t; t = t->next)
           tree_print (t, depth + 1);
       }
-      break;
-    case TREE_EMPTY:
       break;
     case TREE_IF:
       {

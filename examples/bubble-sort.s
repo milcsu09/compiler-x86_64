@@ -12,7 +12,6 @@ bubble_sort:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 48
-
 	mov	qword [rbp-8], rdi
 	mov	qword [rbp-16], rsi
 	mov	r10, 0
@@ -106,7 +105,6 @@ bubble_sort:
 	test	r10b, r10b
 	jnz	.L1
 .L3:
-
 .L0:
 	add	rsp, 48
 	pop	rbp
@@ -117,7 +115,6 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 32
-
 	mov	r10, 42
 	lea	r11, [rbp-20]
 	mov	r12, 0
@@ -184,7 +181,6 @@ main:
 	mov	r10, 0
 	mov	eax, r10d
 	jmp	.L10
-
 .L10:
 	add	rsp, 32
 	pop	rbp

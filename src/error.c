@@ -40,7 +40,7 @@ error (struct location location, const char *format, ...)
   va_list va;
   va_start (va, format);
 
-  diagnostic_va (location, "\033[1;91merror\033[0m", format, va);
+  diagnostic_va (location, "\033[1;91mError\033[0m", format, va);
 
   va_end (va);
 }
@@ -52,7 +52,7 @@ warning (struct location location, const char *format, ...)
   va_list va;
   va_start (va, format);
 
-  diagnostic_va (location, "\033[1;35mwarning\033[0m", format, va);
+  diagnostic_va (location, "\033[1;35mWarning\033[0m", format, va);
 
   va_end (va);
 }
@@ -64,7 +64,7 @@ note (struct location location, const char *format, ...)
   va_list va;
   va_start (va, format);
 
-  diagnostic_va (location, "\033[1;94mnote\033[0m", format, va);
+  diagnostic_va (location, "\033[1;94mNote\033[0m", format, va);
 
   va_end (va);
 }
@@ -75,7 +75,7 @@ info (struct location location, const char *format, ...)
   va_list va;
   va_start (va, format);
 
-  diagnostic_va (location, "\033[1;90minfo\033[0m", format, va);
+  diagnostic_va (location, "\033[1;90mInfo\033[0m", format, va);
 
   va_end (va);
 }

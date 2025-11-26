@@ -12,7 +12,6 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 16
-
 	mov	r10, 20
 	lea	r11, [rbp-16]
 	mov	r12, 0
@@ -82,7 +81,6 @@ main:
 	mov	r10, 0
 	mov	eax, r10d
 	jmp	.L0
-
 .L0:
 	add	rsp, 16
 	pop	rbp

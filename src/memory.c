@@ -88,7 +88,7 @@ void
 
 
 const char *
-size_to_human (size_t bytes, char* buffer, size_t buffer_size)
+size_to_human (size_t bytes, char *buffer, size_t buffer_size)
 {
   static const char *const UNITS[] = {"B", "K", "M", "G", "T", "P"};
 
@@ -155,7 +155,5 @@ aa_free (void)
 
   head = NULL;
   tail = NULL;
-
-  // fprintf (stderr, "NOTE: arena memory free'd\n");
 }
 

@@ -12,7 +12,6 @@ B_init:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 16
-
 	mov	qword [rbp-8], rdi
 	mov	r10, 10
 	mov	r11, qword [rbp-8]
@@ -34,7 +33,6 @@ B_init:
 	add	r11, 16
 	add	r11, 8
 	mov	qword [r11], r10
-
 .L0:
 	add	rsp, 16
 	pop	rbp
@@ -45,7 +43,6 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 32
-
 	lea	r10, [rbp-32]
 	mov	rdi, r10
 	lea	r10, [rel B_init]
@@ -77,7 +74,6 @@ main:
 	mov	r10, 0
 	mov	eax, r10d
 	jmp	.L1
-
 .L1:
 	add	rsp, 32
 	pop	rbp
