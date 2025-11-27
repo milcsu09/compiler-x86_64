@@ -22,6 +22,7 @@ main:
 	mov	r10, 0
 	mov	eax, r10d
 	jmp	.L0
+	xor	rax, rax
 .L0:
 	add	rsp, 0
 	pop	rbp

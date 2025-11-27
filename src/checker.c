@@ -76,21 +76,12 @@ static void checker_check_node_dereference (struct checker *, struct tree *);
 static void checker_check_node_program (struct checker *, struct tree *);
 
 
+// TODO: checker_check_type is kinda useless right now.
+
 static void checker_check_type (struct checker *checker, struct type *type)
 {
   if (type == TYPE_ERROR)
     return;
-
-  // if (type_is_incomplete (type))
-  //   {
-  //     char name[512];
-
-  //     type_string (type, name, sizeof name);
-
-  //     error (type->location, "incomplete type '%s'", name);
-
-  //     exit (1);
-  //   }
 
   switch (type->kind)
     {
@@ -398,13 +389,15 @@ checker_check_node_vdeclaration (struct checker *checker, struct tree *tree)
 {
   struct tree_node_vdeclaration *node = &tree->d.vdeclaration;
 
-  checker_check_type (checker, node->type);
+  struct type *type = node->type;
 
-  if (type_size (node->type) == 0)
+  checker_check_type (checker, type);
+
+  if (type_size (type) == 0)
     {
       char name[512];
 
-      type_string (node->type, name, sizeof name);
+      type_string (type, name, sizeof name);
 
       error (tree->location, "type '%s' has no storage size", name);
 
@@ -471,13 +464,15 @@ checker_check_node_cast (struct checker *checker, struct tree *tree)
 {
   struct tree_node_cast *node = &tree->d.cast;
 
+  struct type *type = node->type;
+
   checker_check_rvalue (checker, node->value);
 
-  if (!type_is_scalar (node->type))
+  if (!type_is_scalar (type))
     {
       char name[512];
 
-      type_string (node->type, name, sizeof name);
+      type_string (type, name, sizeof name);
 
       error (tree->location, "cast to non-scalar type '%s'", name);
 
@@ -490,6 +485,8 @@ static void
 checker_check_node_call (struct checker *checker, struct tree *tree)
 {
   struct tree_node_call *node = &tree->d.call;
+
+  checker_check_rvalue (checker, node->callee);
 
   struct type *type_callee = tree_type (node->callee);
 

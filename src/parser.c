@@ -977,7 +977,7 @@ parser_parse_primary (struct parser *parser)
       return parser_parse_expression_postfix (parser);
     case TOKEN_MINUS:
       return parser_parse_primary_unary (parser, UNARY_NEG);
-    case TOKEN_EXCLAMATION:
+    case TOKEN_BANG:
       return parser_parse_primary_unary (parser, UNARY_LNOT);
     case TOKEN_TILDE:
       return parser_parse_primary_unary (parser, UNARY_BNOT);

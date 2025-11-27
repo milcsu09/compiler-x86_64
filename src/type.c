@@ -689,11 +689,11 @@ type_print (struct type *type, int depth)
 
   if (!type)
     {
-      fprintf (stderr, "\033[90mundefined\033[0m\n");
+      fprintf (stderr, "\033[38;5;242mundefined\033[0m\n");
       return;
     }
 
-  fprintf (stderr, "\033[90m%s\033[0m\n", type_kind_string (type->kind));
+  fprintf (stderr, "\033[38;5;242m%s\033[0m\n", type_kind_string (type->kind));
 
   switch (type->kind)
     {

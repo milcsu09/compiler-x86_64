@@ -31,6 +31,7 @@ stack_push:
 	mov	r11, qword [rbp-8]
 	add	r11, 512
 	mov	qword [r11], r10
+	xor	rax, rax
 .L0:
 	add	rsp, 16
 	pop	rbp
@@ -60,6 +61,7 @@ stack_pop:
 	mov	r10, qword [r10]
 	mov	rax, r10
 	jmp	.L1
+	xor	rax, rax
 .L1:
 	add	rsp, 16
 	pop	rbp
@@ -106,6 +108,7 @@ main:
 	mov	r10, 0
 	mov	eax, r10d
 	jmp	.L2
+	xor	rax, rax
 .L2:
 	add	rsp, 528
 	pop	rbp

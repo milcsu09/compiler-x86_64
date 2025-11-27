@@ -128,30 +128,30 @@ struct keyword
 
 
 static struct keyword KEYWORD_TABLE[] = {
-  { "or",       TOKEN_OR },
-  { "and",      TOKEN_AND },
+  { "or", TOKEN_OR, },
+  { "and", TOKEN_AND, },
 
-  { "extern",   TOKEN_EXTERN },
-  { "fn",       TOKEN_FN },
-  { "struct",   TOKEN_STRUCT },
-  { "return",   TOKEN_RETURN },
-  { "if",       TOKEN_IF },
-  { "else",     TOKEN_ELSE },
-  { "while",    TOKEN_WHILE },
-  { "for",      TOKEN_FOR },
-  { "break",    TOKEN_BREAK },
-  { "continue", TOKEN_CONTINUE },
-  { "print",    TOKEN_PRINT },
+  { "fn", TOKEN_FN, },
+  { "extern", TOKEN_EXTERN, },
+  { "struct", TOKEN_STRUCT, },
+  { "if", TOKEN_IF, },
+  { "else", TOKEN_ELSE, },
+  { "while", TOKEN_WHILE, },
+  { "for", TOKEN_FOR, },
+  { "return", TOKEN_RETURN, },
+  { "break", TOKEN_BREAK, },
+  { "continue", TOKEN_CONTINUE, },
+  { "print", TOKEN_PRINT, },
 
-  { "void",     TOKEN_VOID },
-  { "i8",       TOKEN_I8 },
-  { "i16",      TOKEN_I16 },
-  { "i32",      TOKEN_I32 },
-  { "i64",      TOKEN_I64 },
-  { "u8",       TOKEN_U8 },
-  { "u16",      TOKEN_U16 },
-  { "u32",      TOKEN_U32 },
-  { "u64",      TOKEN_U64 },
+  { "void", TOKEN_VOID, },
+  { "i8", TOKEN_I8, },
+  { "i16", TOKEN_I16, },
+  { "i32", TOKEN_I32, },
+  { "i64", TOKEN_I64, },
+  { "u8", TOKEN_U8, },
+  { "u16", TOKEN_U16, },
+  { "u32", TOKEN_U32, },
+  { "u64", TOKEN_U64, },
 };
 
 
@@ -322,51 +322,6 @@ lexer_next (struct lexer *lexer)
         case ';':
           return lexer_advance_token (lexer, TOKEN_SEMICOLON);
 
-        case '=':
-          if (lexer_match_start (lexer, "=="))
-            return lexer_advance_n_token (lexer, 2, TOKEN_DE);
-          return lexer_advance_token (lexer, TOKEN_EQ);
-
-        case '!':
-          if (lexer_match_start (lexer, "!="))
-            return lexer_advance_n_token (lexer, 2, TOKEN_NE);
-          return lexer_advance_token (lexer, TOKEN_EXCLAMATION);
-
-        case '<':
-          if (lexer_match_start (lexer, "<="))
-            return lexer_advance_n_token (lexer, 2, TOKEN_LE);
-          if (lexer_match_start (lexer, "<<"))
-            return lexer_advance_n_token (lexer, 2, TOKEN_SHL);
-          return lexer_advance_token (lexer, TOKEN_L);
-        case '>':
-          if (lexer_match_start (lexer, ">="))
-            return lexer_advance_n_token (lexer, 2, TOKEN_GE);
-          if (lexer_match_start (lexer, ">>"))
-            return lexer_advance_n_token (lexer, 2, TOKEN_SHR);
-          return lexer_advance_token (lexer, TOKEN_G);
-
-        case '~':
-          return lexer_advance_token (lexer, TOKEN_TILDE);
-        case '^':
-          return lexer_advance_token (lexer, TOKEN_CARET);
-        case '|':
-          return lexer_advance_token (lexer, TOKEN_PIPE);
-
-        case '&':
-          return lexer_advance_token (lexer, TOKEN_AMPERSAND);
-        case '+':
-          return lexer_advance_token (lexer, TOKEN_PLUS);
-        case '-':
-          if (lexer_match_start (lexer, "->"))
-            return lexer_advance_n_token (lexer, 2, TOKEN_ARROW);
-          return lexer_advance_token (lexer, TOKEN_MINUS);
-        case '*':
-          return lexer_advance_token (lexer, TOKEN_STAR);
-        case '/':
-          return lexer_advance_token (lexer, TOKEN_SLASH);
-        case '%':
-          return lexer_advance_token (lexer, TOKEN_PERCENT);
-
         case '(':
           return lexer_advance_token (lexer, TOKEN_LPAREN);
         case ')':
@@ -379,6 +334,53 @@ lexer_next (struct lexer *lexer)
           return lexer_advance_token (lexer, TOKEN_LBRACE);
         case '}':
           return lexer_advance_token (lexer, TOKEN_RBRACE);
+
+        case '!':
+          if (lexer_match_start (lexer, "!="))
+            return lexer_advance_n_token (lexer, 2, TOKEN_NE);
+          return lexer_advance_token (lexer, TOKEN_BANG);
+        case '~':
+          return lexer_advance_token (lexer, TOKEN_TILDE);
+
+        case '+':
+          return lexer_advance_token (lexer, TOKEN_PLUS);
+        case '-':
+          if (lexer_match_start (lexer, "->"))
+            return lexer_advance_n_token (lexer, 2, TOKEN_ARROW);
+          return lexer_advance_token (lexer, TOKEN_MINUS);
+
+        case '*':
+          return lexer_advance_token (lexer, TOKEN_STAR);
+        case '/':
+          return lexer_advance_token (lexer, TOKEN_SLASH);
+
+        case '%':
+          return lexer_advance_token (lexer, TOKEN_PERCENT);
+
+        case '^':
+          return lexer_advance_token (lexer, TOKEN_CARET);
+        case '|':
+          return lexer_advance_token (lexer, TOKEN_PIPE);
+        case '&':
+          return lexer_advance_token (lexer, TOKEN_AMPERSAND);
+
+        case '=':
+          if (lexer_match_start (lexer, "=="))
+            return lexer_advance_n_token (lexer, 2, TOKEN_DE);
+          return lexer_advance_token (lexer, TOKEN_EQ);
+
+        case '<':
+          if (lexer_match_start (lexer, "<<"))
+            return lexer_advance_n_token (lexer, 2, TOKEN_SHL);
+          if (lexer_match_start (lexer, "<="))
+            return lexer_advance_n_token (lexer, 2, TOKEN_LE);
+          return lexer_advance_token (lexer, TOKEN_L);
+        case '>':
+          if (lexer_match_start (lexer, ">>"))
+            return lexer_advance_n_token (lexer, 2, TOKEN_SHR);
+          if (lexer_match_start (lexer, ">="))
+            return lexer_advance_n_token (lexer, 2, TOKEN_GE);
+          return lexer_advance_token (lexer, TOKEN_G);
 
         default:
           break;

@@ -101,6 +101,7 @@ mandelbrot:
 	mov	r10, qword [rbp-48]
 	mov	rax, r10
 	jmp	.L0
+	xor	rax, rax
 .L0:
 	add	rsp, 80
 	pop	rbp
@@ -233,6 +234,7 @@ main:
 	mov	r10, 0
 	mov	eax, r10d
 	jmp	.L5
+	xor	rax, rax
 .L5:
 	add	rsp, 96
 	pop	rbp

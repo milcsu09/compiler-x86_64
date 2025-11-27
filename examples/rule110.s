@@ -120,6 +120,7 @@ rule110:
 	mov	al, r10b
 	jmp	.L0
 .L8:
+	xor	rax, rax
 .L0:
 	add	rsp, 16
 	pop	rbp
@@ -175,6 +176,7 @@ print_cells:
 	mov	dil, r10b
 	lea	r10, [rel putchar]
 	call	r10
+	xor	rax, rax
 .L9:
 	add	rsp, 16
 	pop	rbp
@@ -345,6 +347,7 @@ main:
 	mov	r10, 0
 	mov	eax, r10d
 	jmp	.L16
+	xor	rax, rax
 .L16:
 	add	rsp, 192
 	pop	rbp

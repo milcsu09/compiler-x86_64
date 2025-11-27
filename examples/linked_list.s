@@ -61,6 +61,7 @@ main:
 	mov	r10, 0
 	mov	eax, r10d
 	jmp	.L0
+	xor	rax, rax
 .L0:
 	add	rsp, 64
 	pop	rbp

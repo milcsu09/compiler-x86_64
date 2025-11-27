@@ -78,6 +78,7 @@ particle_init:
 	mov	r11, qword [rbp-8]
 	add	r11, 16
 	mov	dword [r11], r10d
+	xor	rax, rax
 .L0:
 	add	rsp, 16
 	pop	rbp
@@ -358,6 +359,7 @@ main:
 	mov	r10, 0
 	mov	eax, r10d
 	jmp	.L1
+	xor	rax, rax
 .L1:
 	add	rsp, 32
 	pop	rbp

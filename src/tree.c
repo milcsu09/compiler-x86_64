@@ -216,7 +216,7 @@ tree_print (struct tree *tree, int depth)
 
   if (!tree)
     {
-      fprintf (stderr, "\033[90mundefined\033[0m\n");
+      fprintf (stderr, "\033[38;5;242mundefined\033[0m\n");
       return;
     }
 
@@ -475,7 +475,7 @@ tree_print (struct tree *tree, int depth)
             if (isprint ((unsigned char)*c))
               fprintf (stderr, "%c", *c);
             else
-              fprintf (stderr, "\033[90m.\033[92m");
+              fprintf (stderr, "\033[38;5;242m.\033[92m");
           }
 
         fprintf (stderr, "\"\033[0m\n");

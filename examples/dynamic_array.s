@@ -44,6 +44,7 @@ da_create:
 	mov	r10, qword [rbp-16]
 	mov	rax, r10
 	jmp	.L0
+	xor	rax, rax
 .L0:
 	add	rsp, 16
 	pop	rbp
@@ -65,6 +66,7 @@ da_destroy:
 	mov	rdi, r10
 	lea	r10, [rel free]
 	call	r10
+	xor	rax, rax
 .L1:
 	add	rsp, 16
 	pop	rbp
@@ -130,6 +132,7 @@ da_append:
 	mov	r11, qword [rbp-8]
 	add	r11, 8
 	mov	qword [r11], r10
+	xor	rax, rax
 .L2:
 	add	rsp, 16
 	pop	rbp
@@ -209,6 +212,7 @@ main:
 	mov	r10, 0
 	mov	eax, r10d
 	jmp	.L4
+	xor	rax, rax
 .L4:
 	add	rsp, 16
 	pop	rbp
