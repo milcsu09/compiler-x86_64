@@ -1,0 +1,38 @@
+
+fn f1(x : i64) -> i64
+{
+  return x;
+}
+
+fn f2(x : i64) -> i64
+{
+  return x + 1;
+}
+
+fn f3(x : i64) -> i64
+{
+  return x * 2;
+}
+
+fn f4(x : i64) -> i64
+{
+  return x * x;
+}
+
+fn main()
+{
+  fs : [4]fn(i64) -> i64;
+
+  fs[0] = f1;
+  fs[1] = f2;
+  fs[2] = f3;
+  fs[3] = f4;
+
+  i : i64;
+
+  for i = 0; i < 4; i = i + 1
+  {
+    print fs[i](10);
+  }
+}
+

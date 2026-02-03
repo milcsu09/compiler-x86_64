@@ -64,7 +64,7 @@ enum tree_kind
   TREE_PRINT,
 
   // Expression
-  TREE_SCALE, // Implicit
+  TREE_IMPLICIT_SCALE,
 
   TREE_CAST,
   TREE_CALL,
@@ -96,7 +96,7 @@ struct tree_node_fdeclaration
 {
   char *name;
 
-  struct type *type;
+  struct type *function_type;
 };
 
 
@@ -107,7 +107,7 @@ struct tree_node_fdefinition
   struct tree *parameter1;
   struct tree *body;
 
-  struct type *type;
+  struct type *function_type;
 };
 
 
@@ -116,7 +116,8 @@ struct tree_node_struct
   char *name;
 
   struct tree *field1;
-  struct type *type;
+
+  struct type *struct_type;
 };
 
 
@@ -154,7 +155,7 @@ struct tree_node_vdeclaration
 {
   char *name;
 
-  struct type *type;
+  struct type *variable_type;
 };
 
 
@@ -174,8 +175,8 @@ struct tree_node_scale
 {
   struct tree *value;
 
-  struct type *type;
-  struct type *type_base;
+  struct type *expression_type;
+  struct type *base_type;
 };
 
 
@@ -183,7 +184,7 @@ struct tree_node_cast
 {
   struct tree *value;
 
-  struct type *type;
+  struct type *expression_type;
 };
 
 
@@ -192,7 +193,7 @@ struct tree_node_call
   struct tree *callee;
   struct tree *argument1;
 
-  struct type *type;
+  struct type *expression_type;
 };
 
 
@@ -201,17 +202,17 @@ struct tree_node_assignment
   struct tree *lhs;
   struct tree *rhs;
 
-  struct type *type;
+  struct type *expression_type;
 };
 
 
 struct tree_node_access
 {
-  struct tree *s;
+  struct tree *value;
 
   char *field;
 
-  struct type *type;
+  struct type *expression_type;
 };
 
 
@@ -220,7 +221,7 @@ struct tree_node_or
   struct tree *lhs;
   struct tree *rhs;
 
-  struct type *type;
+  struct type *expression_type;
 };
 
 
@@ -229,28 +230,28 @@ struct tree_node_and
   struct tree *lhs;
   struct tree *rhs;
 
-  struct type *type;
+  struct type *expression_type;
 };
 
 
 struct tree_node_unary
 {
-  enum unary_operator o;
+  enum unary_operator operator;
 
   struct tree *value;
 
-  struct type *type;
+  struct type *expression_type;
 };
 
 
 struct tree_node_binary
 {
-  enum binary_operator o;
+  enum binary_operator operator;
 
   struct tree *lhs;
   struct tree *rhs;
 
-  struct type *type;
+  struct type *expression_type;
 };
 
 
@@ -258,7 +259,7 @@ struct tree_node_reference
 {
   struct tree *value;
 
-  struct type *type;
+  struct type *expression_type;
 };
 
 
@@ -266,7 +267,7 @@ struct tree_node_dereference
 {
   struct tree *value;
 
-  struct type *type;
+  struct type *expression_type;
 };
 
 
@@ -274,7 +275,7 @@ struct tree_node_integer
 {
   long value;
 
-  struct type *type;
+  struct type *expression_type;
 };
 
 
@@ -282,7 +283,7 @@ struct tree_node_string
 {
   char *value;
 
-  struct type *type;
+  struct type *expression_type;
 };
 
 
@@ -290,7 +291,7 @@ struct tree_node_identifier
 {
   char *value;
 
-  struct type *type;
+  struct type *expression_type;
 };
 
 
@@ -305,14 +306,14 @@ union tree_data
   struct tree_node_fdeclaration fdeclaration;
   struct tree_node_fdefinition  fdefinition;
 
-  struct tree_node_struct       struct_s;
+  struct tree_node_struct       struct_;
 
-  struct tree_node_if           if_s;
-  struct tree_node_while        while_s;
-  struct tree_node_for          for_s;
+  struct tree_node_if           if_;
+  struct tree_node_while        while_;
+  struct tree_node_for          for_;
   struct tree_node_compound     compound;
   struct tree_node_vdeclaration vdeclaration;
-  struct tree_node_return       return_s;
+  struct tree_node_return       return_;
   struct tree_node_print        print;
 
   struct tree_node_scale        scale;
@@ -353,7 +354,9 @@ struct tree *tree_create (struct location, enum tree_kind);
 void tree_append (struct tree **, struct tree *);
 
 
-struct type *tree_type (struct tree *);
+struct type **tree_get_expression_type_p (struct tree *);
+
+struct type *tree_get_expression_type (struct tree *);
 
 
 bool tree_is_lvalue (struct tree *);

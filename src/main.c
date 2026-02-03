@@ -8,12 +8,11 @@
 #include <sys/time.h>
 #include <unistd.h>
 
+#include "analyzer.h"
 #include "cg.h"
 #include "tree.h"
 #include "memory.h"
 #include "parser.h"
-#include "resolver.h"
-#include "checker.h"
 
 
 // static double
@@ -91,8 +90,7 @@ struct flags
   char *path;
 
   bool p;
-  bool sr;
-  bool sc;
+  bool s;
 
   bool S;
 
@@ -132,27 +130,17 @@ compile_file (struct flags flags)
       return;
     }
 
-  // Pass 1
-  struct resolver *resolver = resolver_create ();
+  struct analyzer *analyzer = analyzer_create ();
 
-  resolver_resolve (resolver, tree);
+  analyzer_analyze (analyzer, tree);
 
-  if (flags.sr)
+  if (flags.s)
     {
       tree_print (tree, 0);
       return;
     }
 
-  // Pass 2
-  struct checker *checker = checker_create ();
-
-  checker_check (checker, tree);
-
-  if (flags.sc)
-    {
-      tree_print (tree, 0);
-      return;
-    }
+  // tree_print (tree, 0);
 
   FILE *fs = stdout;
 
@@ -221,8 +209,7 @@ usage (const char *path)
   fprintf (stderr, "Options:\n");
   fprintf (stderr, "  -h, --help         Show this help message and exit.\n");
   fprintf (stderr, "  -p                 Stop after parsing and dump the AST.\n");
-  fprintf (stderr, "  -sr                Stop after semantic resolution and dump the AST.\n");
-  fprintf (stderr, "  -sc                Stop after semantic checking and dump the AST.\n");
+  fprintf (stderr, "  -s                 Stop after semantic analyzer and dump the AST.\n");
   fprintf (stderr, "  -S                 Stop after generating assembly.\n");
   fprintf (stderr, "  --stdout           Implies -S; dump generated assembly to standard\n");
   fprintf (stderr, "                     output.\n");
@@ -238,8 +225,7 @@ main (int argc, char **argv)
   struct flags flags;
 
   flags.p = false;
-  flags.sr = false;
-  flags.sc = false;
+  flags.s = false;
   flags.S = false;
   flags.o_stdout = false;
   flags.path = NULL;
@@ -257,11 +243,8 @@ main (int argc, char **argv)
       if (strcmp (argv[i], "-p") == 0)
         flags.p = true;
 
-      else if (strcmp (argv[i], "-sr") == 0)
-        flags.sr = true;
-
-      else if (strcmp (argv[i], "-sc") == 0)
-        flags.sc = true;
+      else if (strcmp (argv[i], "-s") == 0)
+        flags.s = true;
 
       else if (strcmp (argv[i], "-S") == 0)
         flags.S = true;

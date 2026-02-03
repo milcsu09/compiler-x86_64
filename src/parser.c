@@ -299,7 +299,7 @@ parser_parse_top_fdeclaration (struct parser *parser)
 
   result->d.fdeclaration.name = name;
 
-  result->d.fdeclaration.type = type;
+  result->d.fdeclaration.function_type = type;
 
   return result;
 }
@@ -337,7 +337,12 @@ parser_parse_top_fdefinition (struct parser *parser)
 
       parameter = parser_parse_statement_vdeclaration (parser);
 
-      parameter->d.vdeclaration.type = type_decay (parameter->d.vdeclaration.type);
+      struct type *parameter_type = type_decay (parameter->d.vdeclaration.variable_type);
+
+      parameter->d.vdeclaration.variable_type = parameter_type;
+
+      // TODO: investigate
+      type_append (&type->d.function.from1, parameter_type);
 
       tree_append (&result->d.fdefinition.parameter1, parameter);
 
@@ -356,7 +361,7 @@ parser_parse_top_fdefinition (struct parser *parser)
 
   result->d.fdefinition.body = parser_parse_statement_compound (parser);
 
-  result->d.fdefinition.type = type;
+  result->d.fdefinition.function_type = type;
 
   return result;
 }
@@ -394,7 +399,7 @@ parser_parse_top_struct (struct parser *parser)
 
       field = parser_parse_statement_vdeclaration (parser);
 
-      tree_append (&result->d.struct_s.field1, field);
+      tree_append (&result->d.struct_.field1, field);
 
       parser_expect_advance (parser, TOKEN_SEMICOLON);
     }
@@ -402,9 +407,9 @@ parser_parse_top_struct (struct parser *parser)
 
   parser_expect_advance (parser, TOKEN_RBRACE);
 
-  result->d.struct_s.name = name;
+  result->d.struct_.name = name;
 
-  result->d.struct_s.type = type;
+  result->d.struct_.struct_type = type;
 
   return result;
 }
@@ -460,9 +465,9 @@ parser_parse_statement_if (struct parser *parser)
 
   parser_expect_advance (parser, TOKEN_IF);
 
-  result->d.if_s.condition = parser_parse_expression_assignment (parser);
+  result->d.if_.condition = parser_parse_expression_assignment (parser);
 
-  result->d.if_s.branch_a = parser_parse_statement_compound (parser);
+  result->d.if_.branch_a = parser_parse_statement_compound (parser);
 
   if (!parser_match (parser, TOKEN_ELSE))
     return result;
@@ -470,9 +475,9 @@ parser_parse_statement_if (struct parser *parser)
   parser_advance (parser);
 
   if (parser_match (parser, TOKEN_IF))
-    result->d.if_s.branch_b = parser_parse_statement_if (parser);
+    result->d.if_.branch_b = parser_parse_statement_if (parser);
   else
-    result->d.if_s.branch_b = parser_parse_statement_compound (parser);
+    result->d.if_.branch_b = parser_parse_statement_compound (parser);
 
   return result;
 }
@@ -487,9 +492,9 @@ parser_parse_statement_while (struct parser *parser)
 
   parser_expect_advance (parser, TOKEN_WHILE);
 
-  result->d.while_s.condition = parser_parse_expression_assignment (parser);
+  result->d.while_.condition = parser_parse_expression_assignment (parser);
 
-  result->d.while_s.body = parser_parse_statement_compound (parser);
+  result->d.while_.body = parser_parse_statement_compound (parser);
 
   return result;
 }
@@ -506,24 +511,24 @@ parser_parse_statement_for (struct parser *parser)
 
   // Optional init
   if (parser_match (parser, TOKEN_SEMICOLON))
-    result->d.for_s.init = NULL;
+    result->d.for_.init = NULL;
   else
-    result->d.for_s.init = parser_parse_expression_assignment (parser);
+    result->d.for_.init = parser_parse_expression_assignment (parser);
 
   parser_expect_advance (parser, TOKEN_SEMICOLON);
 
   // Required condition
-  result->d.for_s.condition = parser_parse_expression_assignment (parser);
+  result->d.for_.condition = parser_parse_expression_assignment (parser);
 
   parser_expect_advance (parser, TOKEN_SEMICOLON);
 
   // Optional increment
   if (parser_match (parser, TOKEN_LBRACE))
-    result->d.for_s.increment = NULL;
+    result->d.for_.increment = NULL;
   else
-    result->d.for_s.increment = parser_parse_expression_assignment (parser);
+    result->d.for_.increment = parser_parse_expression_assignment (parser);
 
-  result->d.for_s.body = parser_parse_statement_compound (parser);
+  result->d.for_.body = parser_parse_statement_compound (parser);
 
   return result;
 }
@@ -590,7 +595,7 @@ parser_parse_statement_vdeclaration (struct parser *parser)
 
   result->d.vdeclaration.name = name;
 
-  result->d.vdeclaration.type = parser_parse_type (parser);
+  result->d.vdeclaration.variable_type = parser_parse_type (parser);
 
   return result;
 }
@@ -608,7 +613,7 @@ parser_parse_statement_return (struct parser *parser)
   if (parser_match (parser, TOKEN_SEMICOLON))
     return result;
 
-  result->d.return_s.value = parser_parse_expression_assignment (parser);
+  result->d.return_.value = parser_parse_expression_assignment (parser);
 
   return result;
 }
@@ -768,7 +773,7 @@ parser_parse_expression_binary_base (struct parser *parser, int p)
 
       binary = tree_create (lhs->location, TREE_BINARY);
 
-      binary->d.binary.o = operator.o;
+      binary->d.binary.operator = operator.o;
       binary->d.binary.lhs = lhs;
       binary->d.binary.rhs = rhs;
 
@@ -809,7 +814,7 @@ parser_parse_expression_cast (struct parser *parser)
       cast = tree_create (result->location, TREE_CAST);
 
       cast->d.cast.value = result;
-      cast->d.cast.type = type;
+      cast->d.cast.expression_type = type;
 
       result = cast;
     }
@@ -841,7 +846,7 @@ parser_parse_expression_postfix (struct parser *parser)
 
           access = tree_create (result->location, TREE_ACCESS);
 
-          access->d.access.s = result;
+          access->d.access.value = result;
           access->d.access.field = field;
 
           result = access;
@@ -869,7 +874,7 @@ parser_parse_expression_postfix (struct parser *parser)
 
           access = tree_create (result->location, TREE_ACCESS);
 
-          access->d.access.s = deref;
+          access->d.access.value = deref;
           access->d.access.field = field;
 
           result = access;
@@ -893,7 +898,7 @@ parser_parse_expression_postfix (struct parser *parser)
 
           add->d.binary.lhs = result;
           add->d.binary.rhs = index;
-          add->d.binary.o = BINARY_ADD;
+          add->d.binary.operator = BINARY_ADD;
 
           struct tree *deref;
 
@@ -956,7 +961,7 @@ parser_parse_primary_unary (struct parser *parser, enum unary_operator o)
 
   result = tree_create (location, TREE_UNARY);
 
-  result->d.unary.o = o;
+  result->d.unary.operator = o;
   result->d.unary.value = value;
 
   return result;
@@ -1262,6 +1267,9 @@ parser_parse_type (struct parser *parser)
         else
           result->d.function.to = type_create (location, TYPE_VOID);
 
+        // return result;
+
+        // TODO: notice
         return type_create_pointer (location, result);
       }
       break;

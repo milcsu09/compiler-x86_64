@@ -81,7 +81,7 @@ union type_data
 {
   struct type_node_pointer pointer;
   struct type_node_array array;
-  struct type_node_struct struct_t;
+  struct type_node_struct struct_;
   struct type_node_struct_name struct_name;
   struct type_node_function function;
 };

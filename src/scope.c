@@ -15,9 +15,9 @@ symbol_create (enum symbol_kind kind, const char *key, struct type *value)
 
   symbol->kind = kind;
 
-  symbol->key = key;
+  symbol->name = key;
 
-  symbol->value = value;
+  symbol->type = value;
 
   return symbol;
 }
@@ -42,7 +42,7 @@ enum scope_set_result
 scope_set (struct scope *scope, struct symbol *symbol)
 {
   for (struct symbol *s = scope->head; s; s = s->next)
-    if (strcmp (s->key, symbol->key) == 0)
+    if (strcmp (s->name, symbol->name) == 0)
       {
         return SCOPE_SET_REDEFINED;
       }
@@ -61,9 +61,10 @@ scope_get (struct scope *scope, const char *key, struct symbol **symbol)
   do
     {
       for (struct symbol *s = scope->head; s; s = s->next)
-        if (strcmp (s->key, key) == 0)
+        if (strcmp (s->name, key) == 0)
           {
-            *symbol = s;
+            if (symbol)
+              *symbol = s;
 
             return SCOPE_GET_OK;
           }
@@ -85,7 +86,7 @@ scope_set_validate (struct scope *scope, struct symbol *symbol, struct location 
       break;
 
     case SCOPE_SET_REDEFINED:
-      error (location, "redefined '%s'", symbol->key);
+      error (location, "redefined '%s'", symbol->name);
       exit (1);
     }
 }

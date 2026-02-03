@@ -1,3 +1,4 @@
+#include "alignment.h"
 #include "memory.h"
 #include "error.h"
 
@@ -45,16 +46,6 @@ static struct aa_chunk *head = NULL;
 static struct aa_chunk *tail = NULL;
 
 
-static void *
-align_forward_p (void *p, size_t a)
-{
-  uintptr_t x = (uintptr_t)p;
-  uintptr_t m = (a - 1);
-  uintptr_t y = (x + m) & ~m;
-  return (void *)y;
-}
-
-
 void
 *aa_malloc (size_t n_bytes)
 {
@@ -94,7 +85,7 @@ size_to_human (size_t bytes, char *buffer, size_t buffer_size)
 
   size_t unit = 0;
 
-  double size = (double)bytes;
+  double size = bytes;
 
   while (size >= 1024 && unit < sizeof (UNITS) / sizeof (char *))
     {
@@ -137,7 +128,7 @@ aa_free (void)
         size_to_human (used, buffer1, sizeof buffer1);
         size_to_human (size, buffer2, sizeof buffer2);
 
-        info (location_none, "%s / %s (%ld)", buffer1, buffer2, n);
+        info (location_none, "%s / %s (%ld %s)", buffer1, buffer2, n, n == 1 ? "chunk" : "chunks");
       }
   }
 #endif

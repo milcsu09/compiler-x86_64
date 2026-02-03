@@ -118,7 +118,7 @@ type_size (struct type *type)
 
     case TYPE_STRUCT:
       {
-        struct type_node_struct *node = &type->d.struct_t;
+        struct type_node_struct *node = &type->d.struct_;
 
         size_t offset = 0;
         size_t alignment = 0;
@@ -204,7 +204,7 @@ type_alignment (struct type *type)
       return type_alignment (type->d.array.base);
     case TYPE_STRUCT:
       {
-        struct type_node_struct node = type->d.struct_t;
+        struct type_node_struct node = type->d.struct_;
 
         size_t alignment = 0;
 
@@ -256,7 +256,7 @@ type_string (struct type *type, char *buffer, size_t size)
       break;
 
     case TYPE_STRUCT:
-      snprintf (buffer, size, "struct %s", type->d.struct_t.name);
+      snprintf (buffer, size, "struct %s", type->d.struct_.name);
       break;
 
     case TYPE_STRUCT_NAME:
@@ -716,7 +716,7 @@ type_print (struct type *type, int depth)
       break;
     case TYPE_STRUCT:
       {
-        struct type_node_struct node = type->d.struct_t;
+        struct type_node_struct node = type->d.struct_;
 
         type_print_indent (depth + 1);
         fprintf (stderr, "\033[91m%s\033[0m\n", node.name);

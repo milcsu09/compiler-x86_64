@@ -129,53 +129,61 @@ tree_append (struct tree **head, struct tree *node)
 }
 
 
-struct type *
-tree_type (struct tree *tree)
+struct type **
+tree_get_expression_type_p (struct tree *tree)
 {
   switch (tree->kind)
     {
     case TREE_FDECLARATION:
-      return tree->d.fdeclaration.type;
+      return &tree->d.fdeclaration.function_type;
     case TREE_FDEFINITION:
-      return tree->d.fdefinition.type;
+      return &tree->d.fdefinition.function_type;
     case TREE_STRUCT:
-      return tree->d.struct_s.type;
+      return &tree->d.struct_.struct_type;
 
     case TREE_VDECLARATION:
-      return tree->d.vdeclaration.type;
+      return &tree->d.vdeclaration.variable_type;
 
-    case TREE_SCALE:
-      return tree->d.scale.type;
+    case TREE_IMPLICIT_SCALE:
+      return &tree->d.scale.expression_type;
     case TREE_CAST:
-      return tree->d.cast.type;
+      return &tree->d.cast.expression_type;
     case TREE_CALL:
-      return tree->d.call.type;
+      return &tree->d.call.expression_type;
     case TREE_ASSIGNMENT:
-      return tree->d.assignment.type;
+      return &tree->d.assignment.expression_type;
     case TREE_ACCESS:
-      return tree->d.access.type;
+      return &tree->d.access.expression_type;
     case TREE_OR:
-      return tree->d.or.type;
+      return &tree->d.or.expression_type;
     case TREE_AND:
-      return tree->d.and.type;
+      return &tree->d.and.expression_type;
     case TREE_UNARY:
-      return tree->d.unary.type;
+      return &tree->d.unary.expression_type;
     case TREE_BINARY:
-      return tree->d.binary.type;
+      return &tree->d.binary.expression_type;
     case TREE_REFERENCE:
-      return tree->d.reference.type;
+      return &tree->d.reference.expression_type;
     case TREE_DEREFERENCE:
-      return tree->d.dereference.type;
+      return &tree->d.dereference.expression_type;
     case TREE_INTEGER:
-      return tree->d.integer.type;
+      return &tree->d.integer.expression_type;
     case TREE_STRING:
-      return tree->d.string.type;
+      return &tree->d.string.expression_type;
     case TREE_IDENTIFIER:
-      return tree->d.identifier.type;
+      return &tree->d.identifier.expression_type;
 
     default:
       return unreachable1 (NULL);
     }
+}
+
+
+
+struct type *
+tree_get_expression_type (struct tree *tree)
+{
+  return *tree_get_expression_type_p (tree);
 }
 
 
@@ -228,7 +236,7 @@ tree_print (struct tree *tree, int depth)
       {
         struct tree_node_fdeclaration node = tree->d.fdeclaration;
 
-        type_print (node.type, depth + 1);
+        type_print (node.function_type, depth + 1);
 
         tree_print_indent (depth + 1);
 
@@ -239,7 +247,7 @@ tree_print (struct tree *tree, int depth)
       {
         struct tree_node_fdefinition node = tree->d.fdefinition;
 
-        type_print (node.type, depth + 1);
+        type_print (node.function_type, depth + 1);
 
         tree_print_indent (depth + 1);
 
@@ -253,9 +261,9 @@ tree_print (struct tree *tree, int depth)
       break;
     case TREE_STRUCT:
       {
-        struct tree_node_struct node = tree->d.struct_s;
+        struct tree_node_struct node = tree->d.struct_;
 
-        type_print (node.type, depth + 1);
+        type_print (node.struct_type, depth + 1);
 
         tree_print_indent (depth + 1);
 
@@ -267,7 +275,7 @@ tree_print (struct tree *tree, int depth)
       break;
     case TREE_IF:
       {
-        struct tree_node_if node = tree->d.if_s;
+        struct tree_node_if node = tree->d.if_;
 
         tree_print (node.condition, depth + 1);
         tree_print (node.branch_a, depth + 1);
@@ -276,7 +284,7 @@ tree_print (struct tree *tree, int depth)
       break;
     case TREE_WHILE:
       {
-        struct tree_node_while node = tree->d.while_s;
+        struct tree_node_while node = tree->d.while_;
 
         tree_print (node.condition, depth + 1);
         tree_print (node.body, depth + 1);
@@ -284,7 +292,7 @@ tree_print (struct tree *tree, int depth)
       break;
     case TREE_FOR:
       {
-        struct tree_node_for node = tree->d.for_s;
+        struct tree_node_for node = tree->d.for_;
 
         tree_print (node.init, depth + 1);
         tree_print (node.condition, depth + 1);
@@ -304,7 +312,7 @@ tree_print (struct tree *tree, int depth)
       {
         struct tree_node_vdeclaration node = tree->d.vdeclaration;
 
-        type_print (node.type, depth + 1);
+        type_print (node.variable_type, depth + 1);
 
         tree_print_indent (depth + 1);
 
@@ -313,7 +321,7 @@ tree_print (struct tree *tree, int depth)
       break;
     case TREE_RETURN:
       {
-        struct tree_node_return node = tree->d.return_s;
+        struct tree_node_return node = tree->d.return_;
 
         tree_print (node.value, depth + 1);
       }
@@ -333,27 +341,27 @@ tree_print (struct tree *tree, int depth)
       {
         struct tree_node_cast node = tree->d.cast;
 
-        type_print (node.type, depth + 1);
+        type_print (node.expression_type, depth + 1);
 
         tree_print (node.value, depth + 1);
       }
       break;
-    case TREE_SCALE:
+    case TREE_IMPLICIT_SCALE:
       {
         struct tree_node_scale node = tree->d.scale;
 
-        type_print (node.type, depth + 1);
+        type_print (node.expression_type, depth + 1);
 
         tree_print (node.value, depth + 1);
 
-        type_print (node.type_base, depth + 1);
+        type_print (node.base_type, depth + 1);
       }
       break;
     case TREE_CALL:
       {
         struct tree_node_call node = tree->d.call;
 
-        type_print (node.type, depth + 1);
+        type_print (node.expression_type, depth + 1);
 
         tree_print (node.callee, depth + 1);
 
@@ -365,7 +373,7 @@ tree_print (struct tree *tree, int depth)
       {
         struct tree_node_assignment node = tree->d.assignment;
 
-        type_print (node.type, depth + 1);
+        type_print (node.expression_type, depth + 1);
 
         tree_print (node.lhs, depth + 1);
         tree_print (node.rhs, depth + 1);
@@ -375,9 +383,9 @@ tree_print (struct tree *tree, int depth)
       {
         struct tree_node_access node = tree->d.access;
 
-        type_print (node.type, depth + 1);
+        type_print (node.expression_type, depth + 1);
 
-        tree_print (node.s, depth + 1);
+        tree_print (node.value, depth + 1);
 
         tree_print_indent (depth + 1);
 
@@ -388,7 +396,7 @@ tree_print (struct tree *tree, int depth)
       {
         struct tree_node_or node = tree->d.or;
 
-        type_print (node.type, depth + 1);
+        type_print (node.expression_type, depth + 1);
 
         tree_print (node.lhs, depth + 1);
         tree_print (node.rhs, depth + 1);
@@ -398,7 +406,7 @@ tree_print (struct tree *tree, int depth)
       {
         struct tree_node_and node = tree->d.and;
 
-        type_print (node.type, depth + 1);
+        type_print (node.expression_type, depth + 1);
 
         tree_print (node.lhs, depth + 1);
         tree_print (node.rhs, depth + 1);
@@ -408,11 +416,11 @@ tree_print (struct tree *tree, int depth)
       {
         struct tree_node_unary node = tree->d.unary;
 
-        type_print (node.type, depth + 1);
+        type_print (node.expression_type, depth + 1);
 
         tree_print_indent (depth + 1);
 
-        fprintf (stderr, "%s\n", unary_operator_string (node.o));
+        fprintf (stderr, "%s\n", unary_operator_string (node.operator));
 
         tree_print (node.value, depth + 1);
       }
@@ -421,11 +429,11 @@ tree_print (struct tree *tree, int depth)
       {
         struct tree_node_binary node = tree->d.binary;
 
-        type_print (node.type, depth + 1);
+        type_print (node.expression_type, depth + 1);
 
         tree_print_indent (depth + 1);
 
-        fprintf (stderr, "%s\n", binary_operator_string (node.o));
+        fprintf (stderr, "%s\n", binary_operator_string (node.operator));
 
         tree_print (node.lhs, depth + 1);
         tree_print (node.rhs, depth + 1);
@@ -435,7 +443,7 @@ tree_print (struct tree *tree, int depth)
       {
         struct tree_node_reference node = tree->d.reference;
 
-        type_print (node.type, depth + 1);
+        type_print (node.expression_type, depth + 1);
 
         tree_print (node.value, depth + 1);
       }
@@ -444,7 +452,7 @@ tree_print (struct tree *tree, int depth)
       {
         struct tree_node_dereference node = tree->d.dereference;
 
-        type_print (node.type, depth + 1);
+        type_print (node.expression_type, depth + 1);
 
         tree_print (node.value, depth + 1);
       }
@@ -453,7 +461,7 @@ tree_print (struct tree *tree, int depth)
       {
         struct tree_node_integer node = tree->d.integer;
 
-        type_print (node.type, depth + 1);
+        type_print (node.expression_type, depth + 1);
 
         tree_print_indent (depth + 1);
 
@@ -464,7 +472,7 @@ tree_print (struct tree *tree, int depth)
       {
         struct tree_node_string node = tree->d.string;
 
-        type_print (node.type, depth + 1);
+        type_print (node.expression_type, depth + 1);
 
         tree_print_indent (depth + 1);
 
@@ -485,7 +493,7 @@ tree_print (struct tree *tree, int depth)
       {
         struct tree_node_identifier node = tree->d.identifier;
 
-        type_print (node.type, depth + 1);
+        type_print (node.expression_type, depth + 1);
 
         tree_print_indent (depth + 1);
 

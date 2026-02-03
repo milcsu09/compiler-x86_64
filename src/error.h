@@ -11,6 +11,7 @@
 #define unreachable1(x)                                                                            \
   (unreachable_at (__FILE__, __LINE__), (x))
 
+
 void unreachable_at (char *, int);
 
 
@@ -26,8 +27,11 @@ extern const struct location location_none;
 
 
 void error (struct location, const char *, ...);
+
 void warning (struct location, const char *, ...);
+
 void note (struct location, const char *, ...);
+
 void info (struct location, const char *, ...);
 
 

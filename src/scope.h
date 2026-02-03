@@ -47,9 +47,9 @@ struct symbol
 
   enum symbol_kind kind;
 
-  const char *key;
+  const char *name;
 
-  struct type *value;
+  struct type *type;
 };
 
 
