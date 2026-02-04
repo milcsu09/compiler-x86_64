@@ -1,0 +1,34 @@
+
+fn sum_square(n : i64) -> i64
+{
+  s : i64;
+  s = 0;
+
+  while n > 0
+  {
+    s = s + n * n;
+    n = n - 1;
+  }
+
+  return s;
+}
+
+fn square_sum(n : i64) -> i64
+{
+  s : i64;
+  s = 0;
+
+  while n > 0
+  {
+    s = s + n;
+    n = n - 1;
+  }
+
+  return s * s;
+}
+
+fn main()
+{
+  print square_sum(100) - sum_square(100);
+}
+

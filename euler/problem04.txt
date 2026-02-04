@@ -1,0 +1,47 @@
+
+fn reverse(n : i64) -> i64
+{
+  m : i64;
+  m = 0;
+
+  while n
+  {
+    m = m * 10;
+    m = m + n % 10;
+    n = n / 10;
+  }
+
+  return m;
+}
+
+fn is_palindrome(n : i64) -> u8
+{
+  return n == reverse(n);
+}
+
+fn main()
+{
+  i : i64;
+  j : i64;
+
+  b : i64;
+  b = 0;
+
+  p : i64;
+
+  for i = 100; i <= 999; i = i + 1
+  {
+    for j = 100; j <= 999; j = j + 1
+    {
+      p = i * j;
+
+      if is_palindrome(p) and p > b
+      {
+        b = p;
+      }
+    }
+  }
+
+  print b;
+}
+
