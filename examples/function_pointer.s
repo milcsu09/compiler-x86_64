@@ -132,8 +132,8 @@ main:
 	test	r10b, r10b
 	jnz	.L5
 .L7:
-	xor	rax, rax
 .L4:
+	xor	rax, rax
 	add	rsp, 48
 	pop	rbp
 	ret

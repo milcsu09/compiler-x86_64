@@ -1094,8 +1094,17 @@ cg_generate_node_fdefinition (struct cg *cg, struct tree *tree)
   for (struct tree *t = node->body->d.compound.statement1; t; t = t->next)
     cg_generate_statement (cg, t);
 
-  cg_write (cg, "\txor\trax, rax\n", stack_usage);
-  cg_write_label (cg, cg->function.label_return);
+  if (node->function_type->d.function.to->kind == TYPE_VOID)
+    {
+      cg_write_label (cg, cg->function.label_return);
+      cg_write (cg, "\txor\trax, rax\n", stack_usage);
+    }
+  else
+    {
+      cg_write (cg, "\txor\trax, rax\n", stack_usage);
+      cg_write_label (cg, cg->function.label_return);
+    }
+
   cg_write (cg, "\tadd\trsp, %zu\n", stack_usage);
   cg_write (cg, "\tpop\trbp\n");
   cg_write (cg, "\tret\n");

@@ -33,8 +33,8 @@ B_init:
 	add	r11, 16
 	add	r11, 8
 	mov	qword [r11], r10
-	xor	rax, rax
 .L0:
+	xor	rax, rax
 	add	rsp, 16
 	pop	rbp
 	ret

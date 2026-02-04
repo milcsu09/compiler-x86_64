@@ -105,8 +105,8 @@ bubble_sort:
 	test	r10b, r10b
 	jnz	.L1
 .L3:
-	xor	rax, rax
 .L0:
+	xor	rax, rax
 	add	rsp, 48
 	pop	rbp
 	ret

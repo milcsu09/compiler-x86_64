@@ -176,8 +176,8 @@ print_cells:
 	mov	dil, r10b
 	lea	r10, [rel putchar]
 	call	r10
-	xor	rax, rax
 .L9:
+	xor	rax, rax
 	add	rsp, 16
 	pop	rbp
 	ret

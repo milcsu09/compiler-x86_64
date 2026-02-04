@@ -24,8 +24,8 @@ lexer_advance:
 	mov	r11, qword [rbp-8]
 	add	r11, 0
 	mov	qword [r11], r10
-	xor	rax, rax
 .L0:
+	xor	rax, rax
 	add	rsp, 16
 	pop	rbp
 	ret
@@ -219,8 +219,8 @@ lexer_next:
 	mov	r11, qword [rbp-16]
 	add	r11, 0
 	mov	dword [r11], r10d
-	xor	rax, rax
 .L1:
+	xor	rax, rax
 	add	rsp, 32
 	pop	rbp
 	ret

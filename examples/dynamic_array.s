@@ -66,8 +66,8 @@ da_destroy:
 	mov	rdi, r10
 	lea	r10, [rel free]
 	call	r10
-	xor	rax, rax
 .L1:
+	xor	rax, rax
 	add	rsp, 16
 	pop	rbp
 	ret
@@ -132,8 +132,8 @@ da_append:
 	mov	r11, qword [rbp-8]
 	add	r11, 8
 	mov	qword [r11], r10
-	xor	rax, rax
 .L2:
+	xor	rax, rax
 	add	rsp, 16
 	pop	rbp
 	ret

@@ -59,8 +59,8 @@ cat_file:
 	mov	rdi, r10
 	lea	r10, [rel fclose]
 	call	r10
-	xor	rax, rax
 .L0:
+	xor	rax, rax
 	add	rsp, 32
 	pop	rbp
 	ret
