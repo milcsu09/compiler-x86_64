@@ -540,6 +540,23 @@ type_is_scalar (struct type *type)
 
 
 bool
+type_is_named (struct type *type)
+{
+  if (type == TYPE_ERROR)
+    return false;
+
+  switch (type->kind)
+    {
+    case TYPE_STRUCT_NAME:
+      return true;
+    default:
+      return false;
+    }
+
+}
+
+
+bool
 type_is_composite (struct type *type)
 {
   if (type == TYPE_ERROR)

@@ -341,7 +341,6 @@ parser_parse_top_fdefinition (struct parser *parser)
 
       parameter->d.vdeclaration.variable_type = parameter_type;
 
-      // TODO: investigate
       type_append (&type->d.function.from1, parameter_type);
 
       tree_append (&result->d.fdefinition.parameter1, parameter);
@@ -1267,9 +1266,6 @@ parser_parse_type (struct parser *parser)
         else
           result->d.function.to = type_create (location, TYPE_VOID);
 
-        // return result;
-
-        // TODO: notice
         return type_create_pointer (location, result);
       }
       break;

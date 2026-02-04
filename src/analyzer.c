@@ -9,9 +9,6 @@
 #include <stdlib.h>
 
 
-#include <stdio.h>
-
-
 struct analyzer
 {
   struct tree_node_fdefinition *function;
@@ -169,6 +166,16 @@ analyzer_analyze_type (struct analyzer *analyzer, struct type *type)
 
   switch (type->kind)
     {
+    case TYPE_POINTER:
+      {
+        struct type_node_pointer *pointer = &type->d.pointer;
+
+        if (!type_is_named (pointer->base))
+          pointer->base = analyzer_analyze_type (analyzer, pointer->base);
+
+        return type;
+      }
+
     case TYPE_ARRAY:
       {
         struct type_node_array *array = &type->d.array;

@@ -1,0 +1,82 @@
+// Naive algorithm; this is a showcase rather than performant code.
+
+
+fn isqrt(n : i64) -> i64
+{
+  lhs : i64;
+  lhs = 0;
+
+  rhs : i64;
+  rhs = n;
+
+  ans : i64;
+  ans = 0;
+
+  while lhs <= rhs
+  {
+    mid : i64;
+    mid = lhs + (rhs - lhs) / 2;
+
+    if (mid * mid <= n)
+    {
+      ans = mid;
+      lhs = mid + 1;
+    }
+    else
+    {
+      rhs = mid - 1;
+    }
+  }
+
+  return ans;
+}
+
+
+fn isprime(n : i64) -> u8
+{
+  i : i64;
+
+  for i = 2; i < isqrt (n) + 1; i = i + 1
+  {
+    if n % i == 0
+    {
+      return 0;
+    }
+  }
+
+  return 1;
+}
+
+
+fn biggest_prime_factor(n : i64) -> i64
+{
+  i : i64;
+  i = 2;
+
+  b : i64;
+  b = 0;
+
+  while n != 1
+  {
+    if isprime(i) and n % i == 0
+    {
+      if i > b
+      {
+        b = i;
+      }
+
+      n = n / i;
+    }
+
+    i = i + 1;
+  }
+
+  return b;
+}
+
+
+fn main()
+{
+  print biggest_prime_factor(600851475143);
+}
+

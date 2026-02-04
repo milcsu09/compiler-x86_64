@@ -154,6 +154,7 @@ bool type_is_label (struct type *);
 
 bool type_is_scalar (struct type *);
 
+bool type_is_named (struct type *);
 
 bool type_is_composite (struct type *);
 
