@@ -341,7 +341,7 @@ analyzer_analyze_rvalue_and_type (struct analyzer *analyzer, struct tree *tree)
 
   struct type *value_type = tree_get_expression_type (value);
 
-  if (tree_is_lvalue (tree))
+  if (tree_is_lvalue (value))
     {
       if (type_is_label (value_type))
         {
@@ -796,9 +796,6 @@ static struct tree *
 analyzer_analyze_node_assignment (struct analyzer *analyzer, struct tree *tree)
 {
   struct tree_node_assignment *assignment = &tree->d.assignment;
-
-  if (tree_is_rvalue (assignment->lhs))
-    return tree;
 
   assignment->lhs = analyzer_analyze_lvalue_and_type (analyzer, assignment->lhs);
   assignment->rhs = analyzer_analyze_rvalue_and_type (analyzer, assignment->rhs);

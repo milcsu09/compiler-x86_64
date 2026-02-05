@@ -153,8 +153,8 @@ main:
 	mov	r10, qword [rbp-24]
 	mov	rdi, r10
 	call	printi
-	xor	rax, rax
 .L5:
+	xor	rax, rax
 	add	rsp, 32
 	pop	rbp
 	ret

@@ -222,8 +222,8 @@ main:
 	mov	r10, rax
 	mov	rdi, r10
 	call	printi
-	xor	rax, rax
 .L19:
+	xor	rax, rax
 	add	rsp, 0
 	pop	rbp
 	ret

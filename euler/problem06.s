@@ -109,8 +109,8 @@ main:
 	sub	r10, r11
 	mov	rdi, r10
 	call	printi
-	xor	rax, rax
 .L8:
+	xor	rax, rax
 	add	rsp, 0
 	pop	rbp
 	ret
