@@ -1,0 +1,26 @@
+
+extern environ : **u8;
+
+extern stdin  : *void;
+extern stdout : *void;
+extern stderr : *void;
+
+extern fn puts(*u8);
+extern fn fputs(*u8, *void);
+
+fn main()
+{
+  i : i64;
+
+  for i = 0; environ[i]; i = i + 1
+  {
+    puts(environ[i]);
+  }
+
+  print stdin;
+  print stdout;
+  print stderr;
+
+  fputs("Hello!\n", stderr);
+}
+

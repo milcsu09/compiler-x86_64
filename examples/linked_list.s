@@ -70,5 +70,7 @@ main:
 section .rodata
 	printi_s: db "%ld", 10, 0
 
+section .bss
+
 section .note.GNU-stack
 

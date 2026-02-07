@@ -244,5 +244,7 @@ section .rodata
 	printi_s: db "%ld", 10, 0
 	LS0: db 32, 46, 58, 45, 61, 43, 42, 35, 37, 64, 0
 
+section .bss
+
 section .note.GNU-stack
 

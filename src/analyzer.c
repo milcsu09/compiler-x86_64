@@ -95,6 +95,8 @@ analyzer_tree_create_scale (struct tree *value, struct type *base_type)
 }
 
 
+static void analyzer_analyze_node_extern (struct analyzer *, struct tree *);
+
 static void analyzer_analyze_node_fdeclaration (struct analyzer *, struct tree *);
 
 static void analyzer_analyze_node_fdefinition (struct analyzer *, struct tree *);
@@ -388,6 +390,9 @@ analyzer_analyze_statement (struct analyzer *analyzer, struct tree *tree)
 
   switch (tree->kind)
     {
+    case TREE_EXTERN:
+      analyzer_analyze_node_extern (analyzer, tree);
+      break;
     case TREE_FDECLARATION:
       analyzer_analyze_node_fdeclaration (analyzer, tree);
       break;
@@ -432,6 +437,19 @@ analyzer_analyze_statement (struct analyzer *analyzer, struct tree *tree)
       analyzer_analyze_expression_and_type (analyzer, tree);
       break;
     }
+}
+
+
+static void
+analyzer_analyze_node_extern (struct analyzer *analyzer, struct tree *tree)
+{
+  struct tree_node_extern *extern_ = &tree->d.extern_;
+
+  struct symbol *symbol = symbol_create (SYMBOL_GLOBAL, extern_->name, extern_->type);
+
+  symbol->external = true;
+
+  scope_set_validate (analyzer->scope, symbol, tree->location);
 }
 
 
@@ -600,7 +618,7 @@ analyzer_analyze_node_vdeclaration_into (struct analyzer *analyzer, struct tree 
   vdeclaration->variable_type = analyzer_analyze_type (analyzer, vdeclaration->variable_type);
 
   struct symbol *symbol
-      = symbol_create (SYMBOL_LOCAL, vdeclaration->name, vdeclaration->variable_type);
+      = symbol_create (vdeclaration->symbol_kind, vdeclaration->name, vdeclaration->variable_type);
 
   scope_set_validate (scope, symbol, tree->location);
 

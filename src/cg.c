@@ -625,6 +625,20 @@ cg_write_end (struct cg *cg)
 
   cg_write (cg, "\n");
 
+  cg_write (cg, "section .bss\n");
+
+  for (struct symbol *s = cg->scope->head; s; s = s->next)
+  {
+    // TODO: Better logic for this
+
+    if (s->type->kind == TYPE_FUNCTION || s->external)
+      continue;
+
+    cg_write (cg, "\t%s: resb %ld\n", s->name, type_size (s->type));
+  }
+
+  cg_write (cg, "\n");
+
   cg_write (cg, "section .note.GNU-stack\n");
 
   cg_write (cg, "\n");
@@ -779,6 +793,8 @@ cg_count_stack_usage (struct cg *cg, struct tree *tree)
 
 }
 
+
+static void cg_generate_node_extern (struct cg *, struct tree *);
 
 static void cg_generate_node_fdeclaration (struct cg *, struct tree *);
 
@@ -957,6 +973,9 @@ cg_generate_statement (struct cg *cg, struct tree *tree)
 
   switch (tree->kind)
     {
+    case TREE_EXTERN:
+      cg_generate_node_extern (cg, tree);
+      break;
     case TREE_FDECLARATION:
       cg_generate_node_fdeclaration (cg, tree);
       break;
@@ -1001,6 +1020,21 @@ cg_generate_statement (struct cg *cg, struct tree *tree)
     }
 
   cg_register_free_all (cg);
+}
+
+
+static void
+cg_generate_node_extern (struct cg *cg, struct tree *tree)
+{
+  struct tree_node_extern *node = &tree->d.extern_;
+
+  struct symbol *symbol = symbol_create (SYMBOL_GLOBAL, node->name, node->type);
+
+  symbol->external = true;
+
+  scope_set_assert (cg->scope, symbol);
+
+  cg_write (cg, "\textern\t%s\n", node->name);
 }
 
 
@@ -1249,7 +1283,7 @@ cg_generate_node_vdeclaration (struct cg *cg, struct tree *tree)
 
   struct symbol *symbol;
 
-  symbol = symbol_create (SYMBOL_LOCAL, node->name, node->variable_type);
+  symbol = symbol_create (node->symbol_kind, node->name, node->variable_type);
 
   symbol->d.local.offset = offset;
 

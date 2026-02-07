@@ -3,6 +3,7 @@
 
 
 #include "error.h"
+#include "scope.h"
 
 #include <stdbool.h>
 
@@ -47,6 +48,7 @@ const char *binary_operator_string (enum binary_operator);
 enum tree_kind
 {
   // Top-level
+  TREE_EXTERN,
   TREE_FDECLARATION,
   TREE_FDEFINITION,
 
@@ -90,6 +92,14 @@ const char *tree_kind_string (enum tree_kind);
 
 struct tree;
 struct type;
+
+
+struct tree_node_extern
+{
+  char *name;
+
+  struct type *type;
+};
 
 
 struct tree_node_fdeclaration
@@ -154,6 +164,8 @@ struct tree_node_compound
 struct tree_node_vdeclaration
 {
   char *name;
+
+  enum symbol_kind symbol_kind;
 
   struct type *variable_type;
 };
@@ -303,6 +315,7 @@ struct tree_node_program
 
 union tree_data
 {
+  struct tree_node_extern       extern_;
   struct tree_node_fdeclaration fdeclaration;
   struct tree_node_fdefinition  fdefinition;
 

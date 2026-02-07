@@ -50,6 +50,8 @@ struct symbol
   const char *name;
 
   struct type *type;
+
+  bool external;
 };
 
 

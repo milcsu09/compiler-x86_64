@@ -50,6 +50,7 @@ binary_operator_string (enum binary_operator operator)
 
 
 static const char *const TREE_KIND_STRING[] = {
+  "extern",
   "fdeclaration",
   "fdefinition",
 
@@ -134,6 +135,8 @@ tree_get_expression_type_p (struct tree *tree)
 {
   switch (tree->kind)
     {
+    case TREE_EXTERN:
+      return &tree->d.extern_.type;
     case TREE_FDECLARATION:
       return &tree->d.fdeclaration.function_type;
     case TREE_FDEFINITION:
@@ -232,6 +235,17 @@ tree_print (struct tree *tree, int depth)
 
   switch (tree->kind)
     {
+    case TREE_EXTERN:
+      {
+        struct tree_node_extern node = tree->d.extern_;
+
+        type_print (node.type, depth + 1);
+
+        tree_print_indent (depth + 1);
+
+        fprintf (stderr, "\033[91m%s\033[0m\n", node.name);
+      }
+      break;
     case TREE_FDECLARATION:
       {
         struct tree_node_fdeclaration node = tree->d.fdeclaration;

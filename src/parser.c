@@ -187,7 +187,13 @@ static struct tree *parser_parse_statement_for (struct parser *);
 
 static struct tree *parser_parse_statement_compound (struct parser *);
 
-static struct tree *parser_parse_statement_vdeclaration (struct parser *);
+static struct tree *parser_parse_vdeclaration (struct parser *);
+
+static struct tree *parser_parse_vdeclaration_global (struct parser *);
+
+static struct tree *parser_parse_vdeclaration_local (struct parser *);
+
+static struct tree *parser_parse_vdeclaration_field (struct parser *);
 
 static struct tree *parser_parse_statement_return (struct parser *);
 
@@ -238,13 +244,38 @@ static struct tree *
 parser_parse_top (struct parser *parser)
 {
   if (parser_match_advance (parser, TOKEN_EXTERN))
-    return parser_parse_top_fdeclaration (parser);
+    {
+      struct location location = parser->location;
+
+      struct tree *tree = tree_create (location, TREE_EXTERN);
+
+      if (parser_match (parser, TOKEN_FN))
+        {
+          struct tree *decl = parser_parse_top_fdeclaration (parser);
+
+          tree->d.extern_.name = decl->d.fdeclaration.name;
+          tree->d.extern_.type = decl->d.fdeclaration.function_type;
+        }
+      else
+        {
+          struct tree *decl = parser_parse_vdeclaration_global (parser);
+
+          tree->d.extern_.name = decl->d.vdeclaration.name;
+          tree->d.extern_.type = decl->d.vdeclaration.variable_type;
+        }
+
+      return tree;
+      // return parser_parse_vdeclaration_global (parser);
+    }
 
   if (parser_match (parser, TOKEN_FN))
     return parser_parse_top_fdefinition (parser);
 
   if (parser_match (parser, TOKEN_STRUCT))
     return parser_parse_top_struct (parser);
+
+  if (parser_match (parser, TOKEN_IDENTIFIER))
+    return parser_parse_vdeclaration_global (parser);
 
   parser_error_expect_s (parser, "top-level declaration");
 
@@ -335,7 +366,7 @@ parser_parse_top_fdefinition (struct parser *parser)
     {
       struct tree *parameter;
 
-      parameter = parser_parse_statement_vdeclaration (parser);
+      parameter = parser_parse_vdeclaration_local (parser);
 
       struct type *parameter_type = type_decay (parameter->d.vdeclaration.variable_type);
 
@@ -396,7 +427,7 @@ parser_parse_top_struct (struct parser *parser)
     {
       struct tree *field;
 
-      field = parser_parse_statement_vdeclaration (parser);
+      field = parser_parse_vdeclaration_field (parser);
 
       tree_append (&result->d.struct_.field1, field);
 
@@ -436,7 +467,7 @@ parser_parse_statement (struct parser *parser)
       if (peek->kind != TOKEN_COLON)
         return parser_parse_expression_assignment (parser);
 
-      return parser_parse_statement_vdeclaration (parser);
+      return parser_parse_vdeclaration_local (parser);
     }
 
   if (parser_match (parser, TOKEN_RETURN))
@@ -571,16 +602,9 @@ parser_parse_statement_compound (struct parser *parser)
 
 // TODO: Initializer values for variable declarations.
 static struct tree *
-parser_parse_statement_vdeclaration (struct parser *parser)
+parser_parse_vdeclaration (struct parser *parser)
 {
-  if (!parser_match (parser, TOKEN_IDENTIFIER))
-    {
-      parser_error_expect_s (parser, "variable- or field-declaration");
-
-      exit (1);
-    }
-
-  // parser_expect (parser, TOKEN_IDENTIFIER);
+  parser_expect (parser, TOKEN_IDENTIFIER);
 
   char *name = parser->current->d.s;
 
@@ -597,6 +621,60 @@ parser_parse_statement_vdeclaration (struct parser *parser)
   result->d.vdeclaration.variable_type = parser_parse_type (parser);
 
   return result;
+}
+
+
+static struct tree *
+parser_parse_vdeclaration_global (struct parser *parser)
+{
+  if (!parser_match (parser, TOKEN_IDENTIFIER))
+    {
+      parser_error_expect_s (parser, "variable-declaration");
+
+      exit (1);
+    }
+
+  struct tree *tree = parser_parse_vdeclaration (parser);
+
+  tree->d.vdeclaration.symbol_kind = SYMBOL_GLOBAL;
+
+  return tree;
+}
+
+
+static struct tree *
+parser_parse_vdeclaration_local (struct parser *parser)
+{
+  if (!parser_match (parser, TOKEN_IDENTIFIER))
+    {
+      parser_error_expect_s (parser, "variable-declaration");
+
+      exit (1);
+    }
+
+  struct tree *tree = parser_parse_vdeclaration (parser);
+
+  tree->d.vdeclaration.symbol_kind = SYMBOL_LOCAL;
+
+  return tree;
+}
+
+
+static struct tree *
+parser_parse_vdeclaration_field (struct parser *parser)
+{
+  if (!parser_match (parser, TOKEN_IDENTIFIER))
+    {
+      parser_error_expect_s (parser, "field-declaration");
+
+      exit (1);
+    }
+
+  struct tree *tree = parser_parse_vdeclaration (parser);
+
+  tree->d.vdeclaration.symbol_kind = SYMBOL_FIELD;
+
+  return tree;
 }
 
 
