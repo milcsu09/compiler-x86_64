@@ -113,6 +113,8 @@ compile_files (struct flags *flags)
       snprintf (path_s, sizeof path_s, "%.252s.s", path_base);
       snprintf (path_o, sizeof path_o, "%.252s.o", path_base);
 
+      char command[0x10000];
+
       char *source = file_read (path);
 
       struct parser *parser = parser_create (path, source);
@@ -160,15 +162,13 @@ compile_files (struct flags *flags)
           continue;
         }
 
-      char cmd[2048];
+      snprintf (command, sizeof command, "nasm -f elf64 %s -o %s", path_s, path_o);
 
-      snprintf (cmd, sizeof cmd, "nasm -f elf64 %s -o %s", path_s, path_o);
+      info (location_none, "[CMD] %s", command);
 
-      info (location_none, "[CMD] %s", cmd);
-
-      if (system (cmd) != 0)
+      if (system (command) != 0)
         {
-          error (location_none, "NASM failed");
+          error (location_none, "nasm failed");
           exit (1);
         }
 
@@ -186,7 +186,7 @@ compile_files (struct flags *flags)
 
   if (system (gcc_command) != 0)
     {
-      error (location_none, "GCC failed");
+      error (location_none, "gcc failed");
       exit (1);
     }
 }
@@ -213,7 +213,7 @@ main (int argc, char **argv)
 {
   atexit (aa_free);
 
-  struct flags flags;
+  struct flags flags = {0};
 
   flags.p = false;
   flags.s = false;
