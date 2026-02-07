@@ -11,22 +11,9 @@
 #include "analyzer.h"
 #include "cg.h"
 #include "tree.h"
+#include "string.h"
 #include "memory.h"
 #include "parser.h"
-
-
-// static double
-// dt_ms (struct timeval t0, struct timeval t1)
-// {
-//   return (t1.tv_sec - t0.tv_sec) * 1000.0 + (t1.tv_usec - t0.tv_usec) / 1000.0;
-// }
-
-
-static double
-dt_s (struct timeval t0, struct timeval t1)
-{
-  return (t1.tv_sec - t0.tv_sec) + (t1.tv_usec - t0.tv_usec) / 1000000.0;
-}
 
 
 static FILE *
@@ -87,12 +74,13 @@ strip_extension (char *buffer, size_t size, const char *path)
 
 struct flags
 {
-  char *path;
+  char **paths;
+  size_t paths_sz;
 
   bool p;
   bool s;
-
   bool S;
+  bool c;
 
   bool o_stdout;
 
@@ -101,104 +89,106 @@ struct flags
 
 
 void
-compile_file (struct flags flags)
+compile_files (struct flags *flags)
 {
-  struct timeval t0, t1;
+  char gcc_command[0x10000] = { 0 };
 
-  char path_base[256];
-  char path_s[256];
-  char path_o[256];
-  char path_u[256];
+  size_t gcc_command_sz = snprintf (gcc_command, sizeof gcc_command, "gcc -no-pie");
 
-  strip_extension (path_base, sizeof path_base, flags.path);
+  bool abandon = flags->c;
 
-  snprintf (path_s, sizeof path_s, "%.252s.s", path_base);
-  snprintf (path_o, sizeof path_o, "%.252s.o", path_base);
-  snprintf (path_u, sizeof path_u, "%s", path_base);
+  const char *out = NULL;
 
-  gettimeofday (&t0, NULL);
-
-  char *source = file_read (flags.path);
-
-  struct parser *parser = parser_create (flags.path, source);
-
-  struct tree *tree = parser_parse (parser);
-
-  if (flags.p)
+  for (size_t i = 0; i < flags->paths_sz; ++i)
     {
-      tree_print (tree, 0);
-      return;
-    }
+      const char *path = flags->paths[i];
 
-  struct analyzer *analyzer = analyzer_create ();
+      char path_base[256], path_s[256], path_o[256];
 
-  analyzer_analyze (analyzer, tree);
+      strip_extension (path_base, sizeof path_base, path);
 
-  if (flags.s)
-    {
-      tree_print (tree, 0);
-      return;
-    }
+      if (out == NULL)
+        out = string_copy (path_base);
 
-  // tree_print (tree, 0);
+      snprintf (path_s, sizeof path_s, "%.252s.s", path_base);
+      snprintf (path_o, sizeof path_o, "%.252s.o", path_base);
 
-  FILE *fs = stdout;
+      char *source = file_read (path);
 
-  if (!flags.o_stdout)
-    {
-      fs = fopen (path_s, "w");
+      struct parser *parser = parser_create (path, source);
 
-      if (fs == NULL)
+      struct tree *tree = parser_parse (parser);
+
+      if (flags->p)
         {
-          error (location_none, "%s: %s", path_s, strerror (errno));
+          tree_print (tree, 0);
+
+          abandon = true;
+
+          continue;
+        }
+
+      struct analyzer *analyzer = analyzer_create ();
+
+      analyzer_analyze (analyzer, tree);
+
+      if (flags->s)
+        {
+          tree_print (tree, 0);
+
+          abandon = true;
+
+          continue;
+        }
+
+      FILE *fs = stdout;
+
+      if (!flags->o_stdout)
+        fs = file_open (path_s, "w");
+
+      struct cg *cg = cg_create (fs);
+
+      cg_generate (cg, tree);
+
+      if (!flags->o_stdout)
+        file_close (fs);
+
+      if (flags->S)
+        {
+          abandon = true;
+
+          continue;
+        }
+
+      char cmd[2048];
+
+      snprintf (cmd, sizeof cmd, "nasm -f elf64 %s -o %s", path_s, path_o);
+
+      info (location_none, "[CMD] %s", cmd);
+
+      if (system (cmd) != 0)
+        {
+          error (location_none, "NASM failed");
           exit (1);
         }
+
+      gcc_command_sz += snprintf (gcc_command + gcc_command_sz, sizeof gcc_command - gcc_command_sz,
+                                  " %s", path_o);
     }
 
-  // Generate
-  struct cg *cg = cg_create (fs);
-
-  cg_generate (cg, tree);
-
-  if (!flags.o_stdout)
-    fclose(fs);
-
-  gettimeofday (&t1, NULL);
-
-  info (location_none, "     %9.4fs (%s)", dt_s (t0, t1), flags.o_stdout ? "stdout" : path_s);
-
-  if (flags.S)
+  if (abandon)
     return;
 
-  gettimeofday (&t0, NULL);
+  gcc_command_sz += snprintf (gcc_command + gcc_command_sz, sizeof gcc_command - gcc_command_sz,
+                              " -o %s %s", out, flags->ldflags);
 
-  char cmd[2048];
+  info (location_none, "[CMD] %s", gcc_command);
 
-  snprintf (cmd, sizeof cmd, "nasm -f elf64 %s -o %s", path_s, path_o);
-
-  if (system (cmd) != 0)
-    {
-      error (location_none, "NASM failed");
-      exit (1);
-    }
-
-  gettimeofday (&t1, NULL);
-
-  info (location_none, "NASM %9.4fs (%s)", dt_s (t0, t1), path_o);
-
-  gettimeofday (&t0, NULL);
-
-  snprintf (cmd, sizeof cmd, "gcc -no-pie %s -o %s %s", path_o, path_u, flags.ldflags);
-
-  if (system (cmd) != 0)
+  if (system (gcc_command) != 0)
     {
       error (location_none, "GCC failed");
       exit (1);
     }
-
-  gettimeofday (&t1, NULL);
-
-  info (location_none, " GCC %9.4fs (%s)", dt_s (t0, t1), path_u);
 }
 
 
@@ -213,6 +203,7 @@ usage (const char *path)
   fprintf (stderr, "  -S                 Stop after generating assembly.\n");
   fprintf (stderr, "  --stdout           Implies -S; dump generated assembly to standard\n");
   fprintf (stderr, "                     output.\n");
+  fprintf (stderr, "  -c                 Stop after generating object files\n");
   fprintf (stderr, "  --ldflags=<flags>  Additional linker flags.\n");
 }
 
@@ -228,9 +219,10 @@ main (int argc, char **argv)
   flags.s = false;
   flags.S = false;
   flags.o_stdout = false;
-  flags.path = NULL;
 
   flags.ldflags = "";
+
+  flags.paths = aa_malloc (argc * sizeof (char *));
 
   for (int i = 1; i < argc; ++i)
     {
@@ -255,20 +247,25 @@ main (int argc, char **argv)
           flags.o_stdout = true;
         }
 
+      else if (strcmp (argv[i], "-c") == 0)
+        {
+          flags.c = true;
+        }
+
       else if (strncmp (argv[i], "--ldflags=", 10) == 0)
         flags.ldflags = argv[i] + 10;
 
       else
-        flags.path = argv[i];
+        flags.paths[flags.paths_sz++] = argv[i];
     }
 
-  if (flags.path == NULL)
+  if (flags.paths_sz == 0)
     {
       error (location_none, "no input");
       exit (1);
     }
 
-  compile_file (flags);
+  compile_files (&flags);
 
   return 0;
 }

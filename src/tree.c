@@ -227,7 +227,7 @@ tree_print (struct tree *tree, int depth)
 
   if (!tree)
     {
-      fprintf (stderr, "\033[38;5;242mundefined\033[0m\n");
+      fprintf (stderr, "\033[38;5;242muninitialized\033[0m\n");
       return;
     }
 
