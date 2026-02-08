@@ -35,7 +35,8 @@ enum type_kind
 };
 
 
-const char *type_kind_string (enum type_kind);
+const char *
+type_kind_string (enum type_kind kind);
 
 
 struct type_node_pointer
@@ -109,68 +110,95 @@ enum type_width
 };
 
 
-enum type_width type_width (struct type *);
+enum type_width
+type_width (struct type *type);
 
-size_t type_size (struct type *);
+size_t
+type_size (struct type *type);
 
-size_t type_element_size (struct type *);
+size_t
+type_element_size (struct type *type);
 
-size_t type_alignment (struct type *);
+size_t
+type_alignment (struct type *type);
 
 
 #define TYPE_ERROR NULL
 
 
-void type_string (struct type *, char *, size_t);
+void
+type_string (struct type *type, char *buffer, size_t size);
 
-struct type *type_create (struct location, enum type_kind);
+struct type *
+type_create (struct location location, enum type_kind kind);
 
-struct type *type_create_pointer (struct location, struct type *);
+struct type *
+type_create_pointer (struct location location, struct type *base);
 
-struct type *type_create_array (struct location, size_t, struct type *);
+struct type *
+type_create_array (struct location location, size_t size, struct type *base);
 
-struct type *type_shallow_copy (struct type *);
-
-
-void type_append (struct type **, struct type *);
-
-
-bool type_cast_required (struct type *, struct type *);
-
-
-bool type_is_incomplete (struct type *);
-
-bool type_is_void (struct type *);
-
-bool type_is_integer (struct type *);
-
-bool type_is_integer_signed (struct type *);
-
-bool type_is_pointer (struct type *);
-
-bool type_is_pointer_to_k (struct type *, enum type_kind);
-
-bool type_is_label (struct type *);
-
-bool type_is_scalar (struct type *);
-
-bool type_is_named (struct type *);
-
-bool type_is_composite (struct type *);
-
-bool type_is_assignable (struct type *);
-
-bool type_is_callable (struct type *);
+struct type *
+type_shallow_copy (struct type *type);
 
 
-struct type *type_element (struct type *);
-
-struct type *type_decay (struct type *);
-
-struct type *type_find_common (struct type *, struct type *);
+void
+type_append (struct type **head, struct type *node);
 
 
-void type_print (struct type *, int);
+bool
+type_cast_required (struct type *a, struct type *b);
+
+
+bool
+type_is_incomplete (struct type *type);
+
+bool
+type_is_void (struct type *type);
+
+bool
+type_is_integer (struct type *type);
+
+bool
+type_is_integer_signed (struct type *type);
+
+bool
+type_is_pointer (struct type *type);
+
+bool
+type_is_pointer_to_k (struct type *type, enum type_kind kind);
+
+bool
+type_is_label (struct type *type);
+
+bool
+type_is_scalar (struct type *type);
+
+bool
+type_is_named (struct type *type);
+
+bool
+type_is_composite (struct type *type);
+
+bool
+type_is_assignable (struct type *type);
+
+bool
+type_is_callable (struct type *type);
+
+
+struct type *
+type_element (struct type *type);
+
+struct type *
+type_decay (struct type *type);
+
+struct type *
+type_find_common (struct type *a, struct type *b);
+
+
+void
+type_print (struct type *type, int depth);
 
 
 #endif // TYPE_H

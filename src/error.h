@@ -12,7 +12,8 @@
   (unreachable_at (__FILE__, __LINE__), (x))
 
 
-void unreachable_at (char *, int);
+void
+unreachable_at (char *file, int line);
 
 
 struct location
@@ -26,13 +27,17 @@ struct location
 extern const struct location location_none;
 
 
-void error (struct location, const char *, ...);
+void
+error (struct location location, const char *format, ...);
 
-void warning (struct location, const char *, ...);
+void
+warning (struct location location, const char *format, ...);
 
-void note (struct location, const char *, ...);
+void
+note (struct location location, const char *format, ...);
 
-void info (struct location, const char *, ...);
+void
+info (struct location location, const char *format, ...);
 
 
 #endif // ERROR_H

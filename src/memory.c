@@ -46,8 +46,8 @@ static struct aa_chunk *head = NULL;
 static struct aa_chunk *tail = NULL;
 
 
-void
-*aa_malloc (size_t n_bytes)
+void *
+aa_malloc (size_t n_bytes)
 {
   struct aa_chunk *chunk = tail;
 

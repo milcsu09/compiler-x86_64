@@ -16,7 +16,8 @@ enum unary_operator
 };
 
 
-const char *unary_operator_string (enum unary_operator);
+const char *
+unary_operator_string (enum unary_operator operator);
 
 
 enum binary_operator
@@ -42,7 +43,8 @@ enum binary_operator
 };
 
 
-const char *binary_operator_string (enum binary_operator);
+const char *
+binary_operator_string (enum binary_operator operator);
 
 
 enum tree_kind
@@ -87,7 +89,8 @@ enum tree_kind
 };
 
 
-const char *tree_kind_string (enum tree_kind);
+const char *
+tree_kind_string (enum tree_kind kind);
 
 
 struct tree;
@@ -361,23 +364,30 @@ struct tree
 };
 
 
-struct tree *tree_create (struct location, enum tree_kind);
+struct tree *
+tree_create (struct location location, enum tree_kind kind);
 
 
-void tree_append (struct tree **, struct tree *);
+void
+tree_append (struct tree **head, struct tree *node);
 
 
-struct type **tree_get_expression_type_p (struct tree *);
+struct type **
+tree_get_expression_type_p (struct tree *tree);
 
-struct type *tree_get_expression_type (struct tree *);
-
-
-bool tree_is_lvalue (struct tree *);
-
-bool tree_is_rvalue (struct tree *);
+struct type *
+tree_get_expression_type (struct tree *tree);
 
 
-void tree_print (struct tree *, int);
+bool
+tree_is_lvalue (struct tree *tree);
+
+bool
+tree_is_rvalue (struct tree *tree);
+
+
+void
+tree_print (struct tree *tree, int depth);
 
 
 #endif // TREE_H

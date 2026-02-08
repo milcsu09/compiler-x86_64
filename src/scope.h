@@ -55,7 +55,8 @@ struct symbol
 };
 
 
-struct symbol *symbol_create (enum symbol_kind, const char *, struct type *);
+struct symbol *
+symbol_create (enum symbol_kind kind, const char *key, struct type *value);
 
 
 struct scope
@@ -66,7 +67,8 @@ struct scope
 };
 
 
-struct scope *scope_create (struct scope *);
+struct scope *
+scope_create (struct scope *parent);
 
 
 enum scope_set_result
@@ -83,17 +85,24 @@ enum scope_get_result
 };
 
 
-enum scope_set_result scope_set (struct scope *, struct symbol *);
+enum scope_set_result
+scope_set (struct scope *scope, struct symbol *symbol);
 
-enum scope_get_result scope_get (struct scope *, const char *, struct symbol **);
+enum scope_get_result
+scope_get (struct scope *scope, const char *key, struct symbol **symbol);
 
-void scope_set_validate (struct scope *, struct symbol *, struct location);
+void
+scope_set_validate (struct scope *scope, struct symbol *symbol, struct location location);
 
-void scope_get_validate (struct scope *, const char *, struct symbol **, struct location);
+void
+scope_get_validate (struct scope *scope, const char *key, struct symbol **symbol,
+                    struct location location);
 
-void scope_set_assert (struct scope *, struct symbol *);
+void
+scope_set_assert (struct scope *scope, struct symbol *symbol);
 
-void scope_get_assert (struct scope *, const char *, struct symbol **);
+void
+scope_get_assert (struct scope *scope, const char *key, struct symbol **symbol);
 
 
 #endif // SCOPE_H

@@ -12,9 +12,11 @@ enum
 };
 
 
-void *aa_malloc (size_t);
+void *
+aa_malloc (size_t n_bytes);
 
-void aa_free (void);
+void
+aa_free (void);
 
 
 #endif // MEMORY_H

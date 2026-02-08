@@ -91,7 +91,8 @@ enum token_kind
 };
 
 
-const char *token_kind_string (enum token_kind);
+const char *
+token_kind_string (enum token_kind kind);
 
 
 struct token
@@ -104,13 +105,17 @@ struct token
 };
 
 
-struct token *token_create (struct location, enum token_kind);
+struct token *
+token_create (struct location location, enum token_kind kind);
 
-struct token *token_create_i (struct location, enum token_kind, long);
+struct token *
+token_create_i (struct location location, enum token_kind kind, long i);
 
-struct token *token_create_s (struct location, enum token_kind, char *);
+struct token *
+token_create_s (struct location location, enum token_kind kind, char *s);
 
-bool token_match (struct token *, enum token_kind);
+bool
+token_match (struct token *token, enum token_kind kind);
 
 
 #endif // TOKEN_H

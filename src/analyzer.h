@@ -7,9 +7,11 @@ struct tree;
 struct analyzer;
 
 
-struct analyzer *analyzer_create (void);
+struct analyzer *
+analyzer_create (void);
 
-void analyzer_analyze (struct analyzer *, struct tree *);
+void
+analyzer_analyze (struct analyzer *analyzer, struct tree *tree);
 
 
 #endif // ANALYZER_H

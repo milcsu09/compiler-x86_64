@@ -10,9 +10,11 @@ struct tree;
 struct cg;
 
 
-struct cg *cg_create (FILE *);
+struct cg *
+cg_create (FILE *f);
 
-void cg_generate (struct cg *, struct tree *);
+void
+cg_generate (struct cg *cg, struct tree *tree);
 
 
 #endif // CG_H
