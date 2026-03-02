@@ -78,9 +78,7 @@ scope_get (struct scope *scope, const char *key, struct symbol **symbol)
 void
 scope_set_validate (struct scope *scope, struct symbol *symbol, struct location location)
 {
-  enum scope_set_result result = scope_set (scope, symbol);
-
-  switch (result)
+  switch (scope_set (scope, symbol))
     {
     case SCOPE_SET_OK:
       break;
@@ -96,9 +94,7 @@ void
 scope_get_validate (struct scope *scope, const char *key, struct symbol **symbol,
                     struct location location)
 {
-  enum scope_get_result result = scope_get (scope, key, symbol);
-
-  switch (result)
+  switch (scope_get (scope, key, symbol))
     {
     case SCOPE_GET_OK:
       break;

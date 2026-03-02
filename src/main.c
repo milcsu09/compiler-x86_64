@@ -193,18 +193,17 @@ compile_files (struct flags *flags)
 
 
 static void
-usage (const char *path)
+usage (FILE *stream, const char *path)
 {
-  fprintf (stderr, "Usage: %s [options] <file>\n", path);
-  fprintf (stderr, "Options:\n");
-  fprintf (stderr, "  -h, --help         Show this help message and exit.\n");
-  fprintf (stderr, "  -p                 Stop after parsing and dump the AST.\n");
-  fprintf (stderr, "  -s                 Stop after semantic analyzer and dump the AST.\n");
-  fprintf (stderr, "  -S                 Stop after generating assembly.\n");
-  fprintf (stderr, "  --stdout           Implies -S; dump generated assembly to standard\n");
-  fprintf (stderr, "                     output.\n");
-  fprintf (stderr, "  -c                 Stop after generating object files\n");
-  fprintf (stderr, "  --ldflags=<flags>  Additional linker flags.\n");
+  fprintf (stream, "Usage: %s [options] file...\n", path);
+  fprintf (stream, "Options:\n");
+  fprintf (stream, "  -h, --help         Show this help message and exit.\n");
+  fprintf (stream, "  -p                 Stop after parsing; dump AST.\n");
+  fprintf (stream, "  -s                 Stop after semantic analysis; dump AST.\n");
+  fprintf (stream, "  -S                 Stop after code generation; write assembly file.\n");
+  fprintf (stream, "  --stdout           Implies -S; dump assembly to `stdout`.\n");
+  fprintf (stream, "  -c                 Stop after assembling; write object file.\n");
+  fprintf (stream, "  --ldflags=<flags>  Additional linker flags.\n");
 }
 
 
@@ -228,7 +227,7 @@ main (int argc, char **argv)
     {
       if (strcmp (argv[i], "-h") == 0 || strcmp (argv[i], "--help") == 0)
         {
-          usage (argv[0]);
+          usage (stdout, argv[0]);
           exit (0);
         }
 

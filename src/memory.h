@@ -13,6 +13,10 @@ enum
 
 
 void *
+malloc0 (size_t size);
+
+
+void *
 aa_malloc (size_t n_bytes);
 
 void

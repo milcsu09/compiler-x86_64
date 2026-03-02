@@ -7,6 +7,13 @@
 #include <stdlib.h>
 
 
+void *
+malloc0 (size_t size)
+{
+  return calloc (1, size);
+}
+
+
 #define AA_CHUNK_SIZE (0x10000)
 
 
@@ -31,7 +38,7 @@ aa_chunk_create (size_t n_bytes)
 
   struct aa_chunk *chunk;
 
-  chunk = calloc (1, a_bytes);
+  chunk = malloc0 (a_bytes);
 
   chunk->next = NULL;
 
@@ -93,7 +100,10 @@ size_to_human (size_t bytes, char *buffer, size_t buffer_size)
       unit++;
     }
 
-  snprintf (buffer, buffer_size, "%.1f%s", size, UNITS[unit]);
+  if (unit == 0)
+    snprintf (buffer, buffer_size, "%.0f%s", size, UNITS[unit]);
+  else
+    snprintf (buffer, buffer_size, "%.1f%s", size, UNITS[unit]);
 
   return buffer;
 }

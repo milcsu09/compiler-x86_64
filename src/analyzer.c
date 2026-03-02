@@ -255,11 +255,7 @@ analyzer_analyze_type (struct analyzer *analyzer, struct type *type)
 
         struct symbol *symbol;
 
-        // NOTE: Ignore invalidity.
-        enum scope_get_result result = scope_get (analyzer->scope_struct, struct_name->name,
-                                                  &symbol);
-
-        switch (result)
+        switch (scope_get (analyzer->scope_struct, struct_name->name, &symbol))
           {
           case SCOPE_GET_OK:
             return type_shallow_copy (symbol->type);
