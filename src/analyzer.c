@@ -618,6 +618,16 @@ analyzer_analyze_node_vdeclaration_into (struct analyzer *analyzer, struct tree 
 
   scope_set_validate (scope, symbol, tree->location);
 
+  if (type_size (vdeclaration->variable_type) == 0)
+    {
+      char name[512];
+
+      type_string (vdeclaration->variable_type, name, sizeof name);
+
+      error (tree->location, "type '%s' has no storage size", name);
+
+      exit (1);
+    }
 }
 
 
