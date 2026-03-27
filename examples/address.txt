@@ -1,0 +1,17 @@
+
+fn main() {
+  a : i64;
+  a = 10;
+
+  print a;
+  print &a;
+
+  v : [4]i64;
+
+  print v;
+  print &v;
+
+  print main;
+  print &main;
+}
+

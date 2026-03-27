@@ -1,0 +1,15 @@
+
+fn main() {
+  a : i64;
+  b : i64;
+
+  a = 10;
+  b = 20;
+
+  if a > b {
+    print a;
+  } else {
+    print b;
+  }
+}
+

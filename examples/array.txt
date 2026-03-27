@@ -1,0 +1,15 @@
+
+fn main() {
+  xs : [4]i64;
+
+  xs[0] = 10;
+  xs[1] = 20;
+  xs[2] = 30;
+  xs[3] = 40;
+
+  print xs[0];
+  print xs[1];
+  print xs[2];
+  print xs[3];
+}
+

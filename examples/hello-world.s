@@ -7,34 +7,25 @@ printi:
 	mov	rdi, printi_s
 	jmp	printf
 
+	extern	puts
 	global	main
 main:
 	push	rbp
 	mov	rbp, rsp
-	sub	rsp, 16
-	mov	r10, 0
-	lea	r11, [rbp-8]
-	mov	qword [r11], r10
-	mov	r10, qword [rbp-8]
-	test	r10, r10
-	jz	.L1
-	mov	r10, qword [rbp-8]
-	mov	r10, qword [r10]
-	mov	r11, 10
-	cmp	r10, r11
-	sete	r10b
-	movzx	r10, r10b
-.L1:
+	sub	rsp, 0
+	mov	r10, LS0
 	mov	rdi, r10
-	call	printi
+	lea	r10, [rel puts]
+	call	r10
 .L0:
 	xor	rax, rax
-	add	rsp, 16
+	add	rsp, 0
 	pop	rbp
 	ret
 
 section .rodata
 	printi_s: db "%ld", 10, 0
+	LS0: db 72, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 33, 0
 
 section .bss
 

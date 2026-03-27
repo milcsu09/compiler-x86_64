@@ -1,0 +1,11 @@
+
+fn print_pointer(p : *i64) {
+  print p;
+}
+
+fn main() {
+  v : [4]i64;
+
+  print_pointer(v);
+}
+

@@ -16,7 +16,7 @@ struct analyzer
   struct scope *scope;
   struct scope *scope_struct;
 
-  size_t loop_depth; // Depth of "while"- and "for"-loops
+  size_t loop_depth;
 };
 
 
@@ -95,68 +95,97 @@ analyzer_tree_create_scale (struct tree *value, struct type *base_type)
 }
 
 
-static void analyzer_analyze_node_extern (struct analyzer *, struct tree *);
+static void
+analyzer_analyze_node_extern (struct analyzer *analyzer, struct tree *tree);
 
-static void analyzer_analyze_node_fdeclaration (struct analyzer *, struct tree *);
+static void
+analyzer_analyze_node_fdeclaration (struct analyzer *analyzer, struct tree *tree);
 
-static void analyzer_analyze_node_fdefinition (struct analyzer *, struct tree *);
+static void
+analyzer_analyze_node_fdefinition (struct analyzer *analyzer, struct tree *tree);
 
-static void analyzer_analyze_node_struct (struct analyzer *, struct tree *);
-
-
-static void analyzer_analyze_node_if (struct analyzer *, struct tree *);
-
-static void analyzer_analyze_node_while (struct analyzer *, struct tree *);
-
-static void analyzer_analyze_node_for (struct analyzer *, struct tree *);
-
-static void analyzer_analyze_node_compound (struct analyzer *, struct tree *);
-
-static void analyzer_analyze_node_vdeclaration_into (struct analyzer *, struct tree *,
-                                                     struct scope *);
-
-static void analyzer_analyze_node_vdeclaration (struct analyzer *, struct tree *);
-
-static void analyzer_analyze_node_return (struct analyzer *, struct tree *);
-
-static void analyzer_analyze_node_break (struct analyzer *, struct tree *);
-
-static void analyzer_analyze_node_continue (struct analyzer *, struct tree *);
-
-static void analyzer_analyze_node_print (struct analyzer *, struct tree *);
+static void
+analyzer_analyze_node_struct (struct analyzer *analyzer, struct tree *tree);
 
 
-static struct tree *analyzer_analyze_node_implicit_scale (struct analyzer *, struct tree *);
+static void
+analyzer_analyze_node_if (struct analyzer *analyzer, struct tree *tree);
+
+static void
+analyzer_analyze_node_while (struct analyzer *analyzer, struct tree *tree);
+
+static void
+analyzer_analyze_node_for (struct analyzer *analyzer, struct tree *tree);
+
+static void
+analyzer_analyze_node_compound (struct analyzer *analyzer, struct tree *tree);
+
+static void
+analyzer_analyze_node_vdeclaration_into (struct analyzer *analyzer, struct tree *tree,
+                                         struct scope *scope);
+
+static void
+analyzer_analyze_node_vdeclaration (struct analyzer *analyzer, struct tree *tree);
+
+static void
+analyzer_analyze_node_return (struct analyzer *analyzer, struct tree *tree);
+
+static void
+analyzer_analyze_node_break (struct analyzer *analyzer, struct tree *tree);
+
+static void
+analyzer_analyze_node_continue (struct analyzer *analyzer, struct tree *tree);
+
+static void
+analyzer_analyze_node_print (struct analyzer *analyzer, struct tree *tree);
 
 
-static struct tree *analyzer_analyze_node_cast (struct analyzer *, struct tree *);
-
-static struct tree *analyzer_analyze_node_call (struct analyzer *, struct tree *);
-
-static struct tree *analyzer_analyze_node_assignment (struct analyzer *, struct tree *);
-
-static struct tree *analyzer_analyze_node_access (struct analyzer *, struct tree *);
-
-static struct tree *analyzer_analyze_node_or (struct analyzer *, struct tree *);
-
-static struct tree *analyzer_analyze_node_and (struct analyzer *, struct tree *);
-
-static struct tree *analyzer_analyze_node_unary (struct analyzer *, struct tree *);
-
-static struct tree *analyzer_analyze_node_binary (struct analyzer *, struct tree *);
-
-static struct tree *analyzer_analyze_node_reference (struct analyzer *, struct tree *);
-
-static struct tree *analyzer_analyze_node_dereference (struct analyzer *, struct tree *);
-
-static struct tree *analyzer_analyze_node_integer (struct analyzer *, struct tree *);
-
-static struct tree *analyzer_analyze_node_string (struct analyzer *, struct tree *);
-
-static struct tree *analyzer_analyze_node_identifier (struct analyzer *, struct tree *);
+static struct tree *
+analyzer_analyze_node_implicit_scale (struct analyzer *analyzer, struct tree *tree);
 
 
-static void analyzer_analyze_node_program (struct analyzer *, struct tree *);
+static struct tree *
+analyzer_analyze_node_cast (struct analyzer *analyzer, struct tree *tree);
+
+static struct tree *
+analyzer_analyze_node_call (struct analyzer *analyzer, struct tree *tree);
+
+static struct tree *
+analyzer_analyze_node_assignment (struct analyzer *analyzer, struct tree *tree);
+
+static struct tree *
+analyzer_analyze_node_access (struct analyzer *analyzer, struct tree *tree);
+
+static struct tree *
+analyzer_analyze_node_or (struct analyzer *analyzer, struct tree *tree);
+
+static struct tree *
+analyzer_analyze_node_and (struct analyzer *analyzer, struct tree *tree);
+
+static struct tree *
+analyzer_analyze_node_unary (struct analyzer *analyzer, struct tree *tree);
+
+static struct tree *
+analyzer_analyze_node_binary (struct analyzer *analyzer, struct tree *tree);
+
+static struct tree *
+analyzer_analyze_node_reference (struct analyzer *analyzer, struct tree *tree);
+
+static struct tree *
+analyzer_analyze_node_dereference (struct analyzer *analyzer, struct tree *tree);
+
+static struct tree *
+analyzer_analyze_node_integer (struct analyzer *analyzer, struct tree *tree);
+
+static struct tree *
+analyzer_analyze_node_string (struct analyzer *analyzer, struct tree *tree);
+
+static struct tree *
+analyzer_analyze_node_identifier (struct analyzer *analyzer, struct tree *tree);
+
+
+static void
+analyzer_analyze_node_program (struct analyzer *analyzer, struct tree *tree);
 
 
 // Handles undefined types.

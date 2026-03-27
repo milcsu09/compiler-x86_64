@@ -169,75 +169,108 @@ parser_expect_advance (struct parser *parser, enum token_kind kind)
 }
 
 
-static struct tree *parser_parse_top (struct parser *);
+static struct tree *
+parser_parse_top (struct parser *parser);
 
-static struct tree *parser_parse_top_fdeclaration (struct parser *);
+static struct tree *
+parser_parse_top_fdeclaration (struct parser *parser);
 
-static struct tree *parser_parse_top_fdefinition (struct parser *);
+static struct tree *
+parser_parse_top_fdefinition (struct parser *parser);
 
-static struct tree *parser_parse_top_struct (struct parser *);
+static struct tree *
+parser_parse_top_struct (struct parser *parser);
 
-static struct tree *parser_parse_statement (struct parser *);
+static struct tree *
+parser_parse_statement (struct parser *parser);
 
-static struct tree *parser_parse_statement_if (struct parser *);
+static struct tree *
+parser_parse_statement_if (struct parser *parser);
 
-static struct tree *parser_parse_statement_while (struct parser *);
+static struct tree *
+parser_parse_statement_while (struct parser *parser);
 
-static struct tree *parser_parse_statement_for (struct parser *);
+static struct tree *
+parser_parse_statement_for (struct parser *parser);
 
-static struct tree *parser_parse_statement_compound (struct parser *);
+static struct tree *
+parser_parse_statement_compound (struct parser *parser);
 
-static struct tree *parser_parse_vdeclaration (struct parser *);
+static struct tree *
+parser_parse_vdeclaration (struct parser *parser);
 
-static struct tree *parser_parse_vdeclaration_global (struct parser *);
+static struct tree *
+parser_parse_vdeclaration_global (struct parser *parser);
 
-static struct tree *parser_parse_vdeclaration_local (struct parser *);
+static struct tree *
+parser_parse_vdeclaration_local (struct parser *parser);
 
-static struct tree *parser_parse_vdeclaration_field (struct parser *);
+static struct tree *
+parser_parse_vdeclaration_field (struct parser *parser);
 
-static struct tree *parser_parse_statement_return (struct parser *);
+static struct tree *
+parser_parse_statement_return (struct parser *parser);
 
-static struct tree *parser_parse_statement_break (struct parser *);
+static struct tree *
+parser_parse_statement_break (struct parser *parser);
 
-static struct tree *parser_parse_statement_continue (struct parser *);
+static struct tree *
+parser_parse_statement_continue (struct parser *parser);
 
-static struct tree *parser_parse_statement_print (struct parser *);
-
-
-static struct tree *parser_parse_expression_assignment (struct parser *);
-
-static struct tree *parser_parse_expression_or (struct parser *);
-
-static struct tree *parser_parse_expression_and (struct parser *);
-
-static struct tree *parser_parse_expression_binary (struct parser *);
-
-static struct tree *parser_parse_expression_cast (struct parser *);
-
-static struct tree *parser_parse_expression_postfix (struct parser *);
-
-
-static struct tree *parser_parse_primary (struct parser *);
-
-static struct tree *parser_parse_primary_group (struct parser *);
-
-static struct tree *parser_parse_primary_reference (struct parser *);
-
-static struct tree *parser_parse_primary_dereference (struct parser *);
-
-static struct tree *parser_parse_primary_integer (struct parser *);
-
-static struct tree *parser_parse_primary_string (struct parser *);
-
-static struct tree *parser_parse_primary_identifier (struct parser *);
+static struct tree *
+parser_parse_statement_print (struct parser *parser);
 
 
-static struct tree *parser_parse_program (struct parser *);
+static struct tree *
+parser_parse_expression_assignment (struct parser *parser);
+
+static struct tree *
+parser_parse_expression_or (struct parser *parser);
+
+static struct tree *
+parser_parse_expression_and (struct parser *parser);
+
+static struct tree *
+parser_parse_expression_binary (struct parser *parser);
+
+static struct tree *
+parser_parse_expression_cast (struct parser *parser);
+
+static struct tree *
+parser_parse_expression_postfix (struct parser *parser);
 
 
-static struct type *parser_parse_type_primary (struct parser *);
+static struct tree *
+parser_parse_primary (struct parser *parser);
 
-static struct type *parser_parse_type (struct parser *);
+static struct tree *
+parser_parse_primary_group (struct parser *parser);
+
+static struct tree *
+parser_parse_primary_reference (struct parser *parser);
+
+static struct tree *
+parser_parse_primary_dereference (struct parser *parser);
+
+static struct tree *
+parser_parse_primary_integer (struct parser *parser);
+
+static struct tree *
+parser_parse_primary_string (struct parser *parser);
+
+static struct tree *
+parser_parse_primary_identifier (struct parser *parser);
+
+
+static struct tree *
+parser_parse_program (struct parser *parser);
+
+
+static struct type *
+parser_parse_type_primary (struct parser *parser);
+
+static struct type *
+parser_parse_type (struct parser *parser);
 
 
 static struct tree *

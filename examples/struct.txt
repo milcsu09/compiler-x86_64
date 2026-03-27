@@ -1,34 +1,27 @@
+
 struct S {
-  a : i8;
-  b : i16;
-  c : i32;
-  d : i64;
-  e : [4]u8;
+  x : i64;
+  y : *u8;
+  z : [4]i64;
 }
 
-fn main() -> i32 {
-  s : struct S;
+fn main() {
+  a : struct S;
 
-  s.a = 10;
-  s.b = 20;
-  s.c = 30;
-  s.d = 40;
+  a.x = 32;
+  a.y = "Hello, world!";
 
-  s.e[0] = 1;
-  s.e[1] = 2;
-  s.e[2] = 3;
-  s.e[3] = 4;
+  a.z[0] = 10;
+  a.z[1] = 20;
+  a.z[2] = 30;
+  a.z[3] = 40;
 
-  print s.a;
-  print s.b;
-  print s.c;
-  print s.d;
+  print a.x;
+  print a.y;
 
-  print s.e[0];
-  print s.e[1];
-  print s.e[2];
-  print s.e[3];
-
-  return 0;
+  print a.z[0];
+  print a.z[1];
+  print a.z[2];
+  print a.z[3];
 }
 

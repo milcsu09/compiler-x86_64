@@ -628,14 +628,14 @@ cg_write_end (struct cg *cg)
   cg_write (cg, "section .bss\n");
 
   for (struct symbol *s = cg->scope->head; s; s = s->next)
-  {
-    // TODO: Better logic for this
+    {
+      // TODO: Better logic for this
 
-    if (s->type->kind == TYPE_FUNCTION || s->external)
-      continue;
+      if (s->type->kind == TYPE_FUNCTION || s->external)
+        continue;
 
-    cg_write (cg, "\t%s: resb %ld\n", s->name, type_size (s->type));
-  }
+      cg_write (cg, "\t%s: resb %ld\n", s->name, type_size (s->type));
+    }
 
   cg_write (cg, "\n");
 
@@ -789,67 +789,92 @@ cg_count_stack_usage (struct cg *cg, struct tree *tree)
     default:
       break;
     }
-
-
 }
 
 
-static void cg_generate_node_extern (struct cg *, struct tree *);
+static void
+cg_generate_node_extern (struct cg *cg, struct tree *tree);
 
-static void cg_generate_node_fdeclaration (struct cg *, struct tree *);
+static void
+cg_generate_node_fdeclaration (struct cg *cg, struct tree *tree);
 
-static void cg_generate_node_fdefinition (struct cg *, struct tree *);
-
-
-static void cg_generate_node_if (struct cg *, struct tree *);
-
-static void cg_generate_node_while (struct cg *, struct tree *);
-
-static void cg_generate_node_for (struct cg *, struct tree *);
-
-static void cg_generate_node_compound (struct cg *, struct tree *);
-
-static void cg_generate_node_vdeclaration (struct cg *, struct tree *);
-
-static void cg_generate_node_return (struct cg *, struct tree *);
-
-static void cg_generate_node_break (struct cg *, struct tree *);
-
-static void cg_generate_node_continue (struct cg *, struct tree *);
-
-static void cg_generate_node_print (struct cg *, struct tree *);
+static void
+cg_generate_node_fdefinition (struct cg *cg, struct tree *tree);
 
 
-static struct cg_register cg_generate_node_scale (struct cg *, struct tree *);
+static void
+cg_generate_node_if (struct cg *cg, struct tree *tree);
 
-static struct cg_register cg_generate_node_cast (struct cg *, struct tree *);
+static void
+cg_generate_node_while (struct cg *cg, struct tree *tree);
 
-static struct cg_register cg_generate_node_call (struct cg *, struct tree *);
+static void
+cg_generate_node_for (struct cg *cg, struct tree *tree);
 
-static struct cg_register cg_generate_node_assignment (struct cg *, struct tree *);
+static void
+cg_generate_node_compound (struct cg *cg, struct tree *tree);
 
-static struct cg_register cg_generate_node_access (struct cg *, struct tree *);
+static void
+cg_generate_node_vdeclaration (struct cg *cg, struct tree *tree);
 
-static struct cg_register cg_generate_node_or (struct cg *, struct tree *);
+static void
+cg_generate_node_return (struct cg *cg, struct tree *tree);
 
-static struct cg_register cg_generate_node_and (struct cg *, struct tree *);
+static void
+cg_generate_node_break (struct cg *cg, struct tree *tree);
 
-static struct cg_register cg_generate_node_unary (struct cg *, struct tree *);
+static void
+cg_generate_node_continue (struct cg *cg, struct tree *tree);
 
-static struct cg_register cg_generate_node_binary (struct cg *, struct tree *);
-
-static struct cg_register cg_generate_node_reference (struct cg *, struct tree *);
-
-static struct cg_register cg_generate_node_dereference (struct cg *, struct tree *);
-
-static struct cg_register cg_generate_node_integer (struct cg *, struct tree *);
-
-static struct cg_register cg_generate_node_string (struct cg *, struct tree *);
-
-static struct cg_register cg_generate_node_identifier (struct cg *, struct tree *);
+static void
+cg_generate_node_print (struct cg *cg, struct tree *tree);
 
 
-static void cg_generate_node_program (struct cg *, struct tree *);
+static struct cg_register
+cg_generate_node_scale (struct cg *cg, struct tree *tree);
+
+static struct cg_register
+cg_generate_node_cast (struct cg *cg, struct tree *tree);
+
+static struct cg_register
+cg_generate_node_call (struct cg *cg, struct tree *tree);
+
+static struct cg_register
+cg_generate_node_assignment (struct cg *cg, struct tree *tree);
+
+static struct cg_register
+cg_generate_node_access (struct cg *cg, struct tree *tree);
+
+static struct cg_register
+cg_generate_node_or (struct cg *cg, struct tree *tree);
+
+static struct cg_register
+cg_generate_node_and (struct cg *cg, struct tree *tree);
+
+static struct cg_register
+cg_generate_node_unary (struct cg *cg, struct tree *tree);
+
+static struct cg_register
+cg_generate_node_binary (struct cg *cg, struct tree *tree);
+
+static struct cg_register
+cg_generate_node_reference (struct cg *cg, struct tree *tree);
+
+static struct cg_register
+cg_generate_node_dereference (struct cg *cg, struct tree *tree);
+
+static struct cg_register
+cg_generate_node_integer (struct cg *cg, struct tree *tree);
+
+static struct cg_register
+cg_generate_node_string (struct cg *cg, struct tree *tree);
+
+static struct cg_register
+cg_generate_node_identifier (struct cg *cg, struct tree *tree);
+
+
+static void
+cg_generate_node_program (struct cg *cg, struct tree *tree);
 
 
 static struct cg_register

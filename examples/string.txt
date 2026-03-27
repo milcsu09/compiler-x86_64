@@ -1,13 +1,11 @@
 
 extern fn putchar(u8);
 
-fn main() -> i32 {
+fn main() {
   s : *u8;
 
   for s = "Hello, world!\n"; *s; s = s + 1 {
     putchar(*s);
   }
-
-  return 0;
 }
 

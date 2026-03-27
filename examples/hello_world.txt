@@ -1,9 +1,0 @@
-
-extern fn puts(*u8);
-
-fn main() -> i32 {
-  puts("Hello, world!");
-
-  return 0;
-}
-

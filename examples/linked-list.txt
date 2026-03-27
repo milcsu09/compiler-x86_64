@@ -1,0 +1,26 @@
+
+struct Node {
+  value : i64;
+  next : *struct Node;
+}
+
+fn main() {
+  node_a : struct Node;
+  node_b : struct Node;
+  node_c : struct Node;
+
+  node_a.value = 10;
+  node_b.value = 20;
+  node_c.value = 30;
+
+  node_a.next = &node_b;
+  node_b.next = &node_c;
+  node_c.next = 0;
+
+  p : *struct Node;
+
+  for p = &node_a; p; p = p->next {
+    print p->value;
+  }
+}
+

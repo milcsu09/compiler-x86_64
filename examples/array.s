@@ -11,79 +11,53 @@ printi:
 main:
 	push	rbp
 	mov	rbp, rsp
-	sub	rsp, 48
-	mov	r10, 32
-	lea	r11, [rbp-48]
-	add	r11, 0
-	mov	qword [r11], r10
-	mov	r10, LS0
-	lea	r11, [rbp-48]
-	add	r11, 8
-	mov	qword [r11], r10
+	sub	rsp, 32
 	mov	r10, 10
-	lea	r11, [rbp-48]
-	add	r11, 16
+	lea	r11, [rbp-32]
 	mov	r12, 0
 	imul	r12, 8
 	add	r11, r12
 	mov	qword [r11], r10
 	mov	r10, 20
-	lea	r11, [rbp-48]
-	add	r11, 16
+	lea	r11, [rbp-32]
 	mov	r12, 1
 	imul	r12, 8
 	add	r11, r12
 	mov	qword [r11], r10
 	mov	r10, 30
-	lea	r11, [rbp-48]
-	add	r11, 16
+	lea	r11, [rbp-32]
 	mov	r12, 2
 	imul	r12, 8
 	add	r11, r12
 	mov	qword [r11], r10
 	mov	r10, 40
-	lea	r11, [rbp-48]
-	add	r11, 16
+	lea	r11, [rbp-32]
 	mov	r12, 3
 	imul	r12, 8
 	add	r11, r12
 	mov	qword [r11], r10
-	lea	r10, [rbp-48]
-	add	r10, 0
-	mov	r10, qword [r10]
-	mov	rdi, r10
-	call	printi
-	lea	r10, [rbp-48]
-	add	r10, 8
-	mov	r10, qword [r10]
-	mov	rdi, r10
-	call	printi
-	lea	r10, [rbp-48]
-	add	r10, 16
+	lea	r10, [rbp-32]
 	mov	r11, 0
 	imul	r11, 8
 	add	r10, r11
 	mov	r10, qword [r10]
 	mov	rdi, r10
 	call	printi
-	lea	r10, [rbp-48]
-	add	r10, 16
+	lea	r10, [rbp-32]
 	mov	r11, 1
 	imul	r11, 8
 	add	r10, r11
 	mov	r10, qword [r10]
 	mov	rdi, r10
 	call	printi
-	lea	r10, [rbp-48]
-	add	r10, 16
+	lea	r10, [rbp-32]
 	mov	r11, 2
 	imul	r11, 8
 	add	r10, r11
 	mov	r10, qword [r10]
 	mov	rdi, r10
 	call	printi
-	lea	r10, [rbp-48]
-	add	r10, 16
+	lea	r10, [rbp-32]
 	mov	r11, 3
 	imul	r11, 8
 	add	r10, r11
@@ -92,13 +66,12 @@ main:
 	call	printi
 .L0:
 	xor	rax, rax
-	add	rsp, 48
+	add	rsp, 32
 	pop	rbp
 	ret
 
 section .rodata
 	printi_s: db "%ld", 10, 0
-	LS0: db 72, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 33, 0
 
 section .bss
 

@@ -12,54 +12,64 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 48
-	mov	r10, 32
+	mov	r10, 1
 	lea	r11, [rbp-48]
-	add	r11, 0
-	mov	qword [r11], r10
-	mov	r10, LS0
-	lea	r11, [rbp-48]
-	add	r11, 8
-	mov	qword [r11], r10
-	mov	r10, 10
-	lea	r11, [rbp-48]
-	add	r11, 16
+	mov	r12, 0
+	imul	r12, 24
+	add	r11, r12
 	mov	r12, 0
 	imul	r12, 8
 	add	r11, r12
 	mov	qword [r11], r10
-	mov	r10, 20
+	mov	r10, 2
 	lea	r11, [rbp-48]
-	add	r11, 16
+	mov	r12, 0
+	imul	r12, 24
+	add	r11, r12
 	mov	r12, 1
 	imul	r12, 8
 	add	r11, r12
 	mov	qword [r11], r10
-	mov	r10, 30
+	mov	r10, 3
 	lea	r11, [rbp-48]
-	add	r11, 16
+	mov	r12, 0
+	imul	r12, 24
+	add	r11, r12
 	mov	r12, 2
 	imul	r12, 8
 	add	r11, r12
 	mov	qword [r11], r10
-	mov	r10, 40
+	mov	r10, 4
 	lea	r11, [rbp-48]
-	add	r11, 16
-	mov	r12, 3
+	mov	r12, 1
+	imul	r12, 24
+	add	r11, r12
+	mov	r12, 0
+	imul	r12, 8
+	add	r11, r12
+	mov	qword [r11], r10
+	mov	r10, 5
+	lea	r11, [rbp-48]
+	mov	r12, 1
+	imul	r12, 24
+	add	r11, r12
+	mov	r12, 1
+	imul	r12, 8
+	add	r11, r12
+	mov	qword [r11], r10
+	mov	r10, 6
+	lea	r11, [rbp-48]
+	mov	r12, 1
+	imul	r12, 24
+	add	r11, r12
+	mov	r12, 2
 	imul	r12, 8
 	add	r11, r12
 	mov	qword [r11], r10
 	lea	r10, [rbp-48]
-	add	r10, 0
-	mov	r10, qword [r10]
-	mov	rdi, r10
-	call	printi
-	lea	r10, [rbp-48]
-	add	r10, 8
-	mov	r10, qword [r10]
-	mov	rdi, r10
-	call	printi
-	lea	r10, [rbp-48]
-	add	r10, 16
+	mov	r11, 0
+	imul	r11, 24
+	add	r10, r11
 	mov	r11, 0
 	imul	r11, 8
 	add	r10, r11
@@ -67,7 +77,9 @@ main:
 	mov	rdi, r10
 	call	printi
 	lea	r10, [rbp-48]
-	add	r10, 16
+	mov	r11, 0
+	imul	r11, 24
+	add	r10, r11
 	mov	r11, 1
 	imul	r11, 8
 	add	r10, r11
@@ -75,7 +87,9 @@ main:
 	mov	rdi, r10
 	call	printi
 	lea	r10, [rbp-48]
-	add	r10, 16
+	mov	r11, 0
+	imul	r11, 24
+	add	r10, r11
 	mov	r11, 2
 	imul	r11, 8
 	add	r10, r11
@@ -83,8 +97,30 @@ main:
 	mov	rdi, r10
 	call	printi
 	lea	r10, [rbp-48]
-	add	r10, 16
-	mov	r11, 3
+	mov	r11, 1
+	imul	r11, 24
+	add	r10, r11
+	mov	r11, 0
+	imul	r11, 8
+	add	r10, r11
+	mov	r10, qword [r10]
+	mov	rdi, r10
+	call	printi
+	lea	r10, [rbp-48]
+	mov	r11, 1
+	imul	r11, 24
+	add	r10, r11
+	mov	r11, 1
+	imul	r11, 8
+	add	r10, r11
+	mov	r10, qword [r10]
+	mov	rdi, r10
+	call	printi
+	lea	r10, [rbp-48]
+	mov	r11, 1
+	imul	r11, 24
+	add	r10, r11
+	mov	r11, 2
 	imul	r11, 8
 	add	r10, r11
 	mov	r10, qword [r10]
@@ -98,7 +134,6 @@ main:
 
 section .rodata
 	printi_s: db "%ld", 10, 0
-	LS0: db 72, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 33, 0
 
 section .bss
 

@@ -1,0 +1,7 @@
+
+extern fn puts(*u8);
+
+fn main() {
+  puts("Hello, world!");
+}
+

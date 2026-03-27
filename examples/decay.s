@@ -7,29 +7,33 @@ printi:
 	mov	rdi, printi_s
 	jmp	printf
 
-	global	main
-main:
+	global	print_pointer
+print_pointer:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 16
-	mov	r10, 0
-	lea	r11, [rbp-8]
-	mov	qword [r11], r10
+	mov	qword [rbp-8], rdi
 	mov	r10, qword [rbp-8]
-	test	r10, r10
-	jz	.L1
-	mov	r10, qword [rbp-8]
-	mov	r10, qword [r10]
-	mov	r11, 10
-	cmp	r10, r11
-	sete	r10b
-	movzx	r10, r10b
-.L1:
 	mov	rdi, r10
 	call	printi
 .L0:
 	xor	rax, rax
 	add	rsp, 16
+	pop	rbp
+	ret
+
+	global	main
+main:
+	push	rbp
+	mov	rbp, rsp
+	sub	rsp, 32
+	lea	r10, [rbp-32]
+	mov	rdi, r10
+	lea	r10, [rel print_pointer]
+	call	r10
+.L1:
+	xor	rax, rax
+	add	rsp, 32
 	pop	rbp
 	ret
 

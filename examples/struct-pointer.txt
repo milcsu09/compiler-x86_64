@@ -1,0 +1,19 @@
+
+struct Person {
+  name : *u8;
+  age : i64;
+}
+
+fn main() {
+  person : struct Person;
+
+  p : *struct Person;
+  p = &person;
+
+  p->name = "John Doe";
+  p->age = 42;
+
+  print person.name;
+  print person.age;
+}
+

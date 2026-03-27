@@ -1,3 +1,4 @@
+
 extern fn fopen(*u8, *u8) -> *void;
 extern fn fclose(*void);
 extern fn fgetc(*void) -> u8;
@@ -29,7 +30,7 @@ fn main(argc : i32, argv : **u8) -> i32 {
   i : i64;
 
   for i = 1; i < argc; i = i + 1 {
-    cat_file (argv[i]);
+    cat_file(argv[i]);
   }
 
   return 0;

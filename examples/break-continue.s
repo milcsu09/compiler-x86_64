@@ -15,18 +15,41 @@ main:
 	mov	r10, 0
 	lea	r11, [rbp-8]
 	mov	qword [r11], r10
+	jmp	.L2
+.L1:
 	mov	r10, qword [rbp-8]
-	test	r10, r10
-	jz	.L1
-	mov	r10, qword [rbp-8]
-	mov	r10, qword [r10]
-	mov	r11, 10
+	mov	r11, 4
 	cmp	r10, r11
 	sete	r10b
-	movzx	r10, r10b
-.L1:
+	test	r10b, r10b
+	jz	.L5
+	jmp	.L4
+.L5:
+	mov	r10, qword [rbp-8]
+	mov	r11, 7
+	cmp	r10, r11
+	sete	r10b
+	test	r10b, r10b
+	jz	.L6
+	jmp	.L3
+.L6:
+	mov	r10, qword [rbp-8]
 	mov	rdi, r10
 	call	printi
+.L4:
+	mov	r10, qword [rbp-8]
+	mov	r11, 1
+	add	r10, r11
+	lea	r11, [rbp-8]
+	mov	qword [r11], r10
+.L2:
+	mov	r10, qword [rbp-8]
+	mov	r11, 10
+	cmp	r10, r11
+	setl	r10b
+	test	r10b, r10b
+	jnz	.L1
+.L3:
 .L0:
 	xor	rax, rax
 	add	rsp, 16

@@ -1,7 +1,6 @@
 
 extern fn putchar(u8);
 
-
 fn rule110(l : u8, m : u8, r : u8) -> u8 {
   pattern : u8;
   pattern = (l << 2) | (m << 1) | r;

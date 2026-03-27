@@ -231,11 +231,8 @@ main:
 	test	r10b, r10b
 	jnz	.L6
 .L8:
-	mov	r10, 0
-	mov	eax, r10d
-	jmp	.L5
-	xor	rax, rax
 .L5:
+	xor	rax, rax
 	add	rsp, 96
 	pop	rbp
 	ret

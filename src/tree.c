@@ -182,7 +182,6 @@ tree_get_expression_type_p (struct tree *tree)
 }
 
 
-
 struct type *
 tree_get_expression_type (struct tree *tree)
 {
