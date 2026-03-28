@@ -15,6 +15,7 @@ struct analyzer
 
   struct scope *scope;
   struct scope *scope_struct;
+  struct scope *scope_union;
 
   size_t loop_depth;
 };
@@ -43,6 +44,7 @@ analyzer_create (void)
 
   analyzer->scope        = scope_create (NULL);
   analyzer->scope_struct = scope_create (NULL);
+  analyzer->scope_union  = scope_create (NULL);
 
   return analyzer;
 }
@@ -106,6 +108,9 @@ analyzer_analyze_node_fdefinition (struct analyzer *analyzer, struct tree *tree)
 
 static void
 analyzer_analyze_node_struct (struct analyzer *analyzer, struct tree *tree);
+
+static void
+analyzer_analyze_node_union (struct analyzer *analyzer, struct tree *tree);
 
 
 static void
@@ -192,7 +197,7 @@ analyzer_analyze_node_program (struct analyzer *analyzer, struct tree *tree);
 struct type *
 analyzer_analyze_type (struct analyzer *analyzer, struct type *type)
 {
-  if (type == TYPE_ERROR)
+  if (type == NULL)
     return type;
 
   switch (type->kind)
@@ -291,6 +296,47 @@ analyzer_analyze_type (struct analyzer *analyzer, struct type *type)
 
           default:
             error (type->location, "undefined type 'struct %s'", struct_name->name);
+
+            exit (1);
+          }
+      }
+
+    case TYPE_UNION:
+      {
+        struct type_node_union *union_ = &type->d.union_;
+
+        struct type *prev = NULL;
+        struct type *curr = union_->field1;
+
+        while (curr)
+          {
+            struct type *next = analyzer_analyze_type (analyzer, curr);
+
+            if (prev)
+              prev->next = next;
+            else
+              union_->field1 = next;
+
+            prev = next;
+            curr = next->next;
+          }
+
+        return type;
+      }
+
+    case TYPE_UNION_NAME:
+      {
+        struct type_node_union_name *union_name = &type->d.union_name;
+
+        struct symbol *symbol;
+
+        switch (scope_get (analyzer->scope_union, union_name->name, &symbol))
+          {
+          case SCOPE_GET_OK:
+            return type_shallow_copy (symbol->type);
+
+          default:
+            error (type->location, "undefined type 'union %s'", union_name->name);
 
             exit (1);
           }
@@ -426,6 +472,9 @@ analyzer_analyze_statement (struct analyzer *analyzer, struct tree *tree)
       break;
     case TREE_STRUCT:
       analyzer_analyze_node_struct (analyzer, tree);
+      break;
+    case TREE_UNION:
+      analyzer_analyze_node_union (analyzer, tree);
       break;
     case TREE_IF:
       analyzer_analyze_node_if (analyzer, tree);
@@ -569,6 +618,47 @@ analyzer_analyze_node_struct (struct analyzer *analyzer, struct tree *tree)
   scope_set_validate (analyzer->scope_struct, symbol, tree->location);
 
   struct_type->name = struct_->name;
+}
+
+
+static void
+analyzer_analyze_node_union (struct analyzer *analyzer, struct tree *tree)
+{
+  struct tree_node_union *union_ = &tree->d.union_;
+
+  struct type_node_union *union_type = &union_->union_type->d.union_;
+
+  union_type->scope = scope_create (NULL);
+
+  struct type *prev_type = union_type->field1;
+
+  for (struct tree *t = union_->field1; t; t = t->next)
+    {
+      assert (t->kind == TREE_VDECLARATION);
+
+      analyzer_analyze_node_vdeclaration_into (analyzer, t, union_type->scope);
+
+      struct type *curr_type = tree_get_expression_type (t);
+
+      struct symbol *symbol = union_type->scope->head;
+
+      symbol->kind = SYMBOL_FIELD;
+
+      symbol->d.field.offset = 0;
+
+      if (prev_type)
+        prev_type->next = curr_type;
+      else
+        union_type->field1 = curr_type;
+
+      prev_type = curr_type;
+    }
+
+  struct symbol *symbol = symbol_create (SYMBOL_GLOBAL, union_->name, union_->union_type);
+
+  scope_set_validate (analyzer->scope_union, symbol, tree->location);
+
+  union_type->name = union_->name;
 }
 
 
@@ -887,15 +977,35 @@ analyzer_analyze_node_access (struct analyzer *analyzer, struct tree *tree)
 
   if (type_is_composite (type))
     {
-      assert (type->kind == TYPE_STRUCT);
+      switch (type->kind)
+        {
+        case TYPE_STRUCT:
+          {
+            struct type_node_struct type_node = type->d.struct_;
 
-      struct type_node_struct type_node = type->d.struct_;
+            struct symbol *symbol;
 
-      struct symbol *symbol;
+            scope_get_validate (type_node.scope, access->field, &symbol, tree->location);
 
-      scope_get_validate (type_node.scope, access->field, &symbol, tree->location);
+            access->expression_type = analyzer_analyze_type (analyzer, symbol->type);
+          }
+          break;
 
-      access->expression_type = analyzer_analyze_type (analyzer, symbol->type);
+        case TYPE_UNION:
+          {
+            struct type_node_union type_node = type->d.union_;
+
+            struct symbol *symbol;
+
+            scope_get_validate (type_node.scope, access->field, &symbol, tree->location);
+
+            access->expression_type = analyzer_analyze_type (analyzer, symbol->type);
+          }
+          break;
+
+        default:
+          unreachable ();
+        }
     }
   else
     {

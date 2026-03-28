@@ -31,6 +31,9 @@ enum type_kind
   TYPE_STRUCT,
   TYPE_STRUCT_NAME,
 
+  TYPE_UNION,
+  TYPE_UNION_NAME,
+
   TYPE_FUNCTION,
 };
 
@@ -71,6 +74,23 @@ struct type_node_struct_name
 };
 
 
+struct type_node_union
+{
+  char *name;
+
+  struct type *field1;
+
+  struct scope *scope;
+};
+
+
+// A reference to a union type, which may or may not exist.
+struct type_node_union_name
+{
+  char *name;
+};
+
+
 struct type_node_function
 {
   struct type *from1;
@@ -80,11 +100,16 @@ struct type_node_function
 
 union type_data
 {
-  struct type_node_pointer pointer;
-  struct type_node_array array;
-  struct type_node_struct struct_;
+  struct type_node_pointer     pointer;
+  struct type_node_array       array;
+
+  struct type_node_struct      struct_;
   struct type_node_struct_name struct_name;
-  struct type_node_function function;
+
+  struct type_node_union       union_;
+  struct type_node_union_name  union_name;
+
+  struct type_node_function    function;
 };
 
 
@@ -123,9 +148,6 @@ size_t
 type_alignment (struct type *type);
 
 
-#define TYPE_ERROR NULL
-
-
 void
 type_string (struct type *type, char *buffer, size_t size);
 
@@ -150,41 +172,82 @@ bool
 type_cast_required (struct type *a, struct type *b);
 
 
-bool
-type_is_incomplete (struct type *type);
+enum type_flag
+{
+  TYPE_FLAG_VOID           = 1 << 0,
+  TYPE_FLAG_INCOMPLETE     = 1 << 1,
+  TYPE_FLAG_INTEGER        = 1 << 2,
+  TYPE_FLAG_SIGNED         = 1 << 3,
+  TYPE_FLAG_POINTER        = 1 << 4,
+  TYPE_FLAG_LABEL          = 1 << 5,
+  TYPE_FLAG_SCALAR         = 1 << 6,
+  TYPE_FLAG_NAMED          = 1 << 7,
+  TYPE_FLAG_COMPOSITE      = 1 << 8,
+  TYPE_FLAG_NOT_ASSIGNABLE = 1 << 9,
+  TYPE_FLAG_CALLABLE       = 1 << 10,
+};
 
-bool
-type_is_void (struct type *type);
 
-bool
-type_is_integer (struct type *type);
+unsigned long long
+type_trait (struct type *type);
 
-bool
-type_is_integer_signed (struct type *type);
-
-bool
-type_is_pointer (struct type *type);
 
 bool
 type_is_pointer_to_k (struct type *type, enum type_kind kind);
 
 bool
-type_is_label (struct type *type);
-
-bool
-type_is_scalar (struct type *type);
-
-bool
-type_is_named (struct type *type);
-
-bool
-type_is_composite (struct type *type);
-
-bool
-type_is_assignable (struct type *type);
-
-bool
 type_is_callable (struct type *type);
+
+
+#define type_is_void(type) (type_trait (type) & TYPE_FLAG_VOID)
+
+#define type_is_incomplete(type) (type_trait (type) & TYPE_FLAG_INCOMPLETE)
+
+#define type_is_integer(type) (type_trait (type) & TYPE_FLAG_INTEGER)
+
+#define type_is_signed(type) (type_trait (type) & TYPE_FLAG_SIGNED)
+
+#define type_is_pointer(type) (type_trait (type) & TYPE_FLAG_POINTER)
+
+#define type_is_label(type) (type_trait (type) & TYPE_FLAG_LABEL)
+
+#define type_is_scalar(type) (type_trait (type) & TYPE_FLAG_SCALAR)
+
+#define type_is_named(type) (type_trait (type) & TYPE_FLAG_NAMED)
+
+#define type_is_composite(type) (type_trait (type) & TYPE_FLAG_COMPOSITE)
+
+#define type_is_assignable(type) (!(type_trait (type) & TYPE_FLAG_NOT_ASSIGNABLE))
+
+#define type_is_not_assignable(type) (type_trait (type) & TYPE_FLAG_NOT_ASSIGNABLE)
+
+
+// enum type_kind_trait
+// {
+//   TYPE_VOID_TRAIT = TYPE_FLAG_VOID | TYPE_FLAG_INCOMPLETE,
+// 
+//   TYPE_I8_TRAIT  = TYPE_FLAG_INTEGER | TYPE_FLAG_SIGNED | TYPE_FLAG_SCALAR,
+//   TYPE_I16_TRAIT = TYPE_FLAG_INTEGER | TYPE_FLAG_SIGNED | TYPE_FLAG_SCALAR,
+//   TYPE_I32_TRAIT = TYPE_FLAG_INTEGER | TYPE_FLAG_SIGNED | TYPE_FLAG_SCALAR,
+//   TYPE_I64_TRAIT = TYPE_FLAG_INTEGER | TYPE_FLAG_SIGNED | TYPE_FLAG_SCALAR,
+// 
+//   TYPE_U8_TRAIT  = TYPE_FLAG_INTEGER | TYPE_FLAG_SCALAR,
+//   TYPE_U16_TRAIT = TYPE_FLAG_INTEGER | TYPE_FLAG_SCALAR,
+//   TYPE_U32_TRAIT = TYPE_FLAG_INTEGER | TYPE_FLAG_SCALAR,
+//   TYPE_U64_TRAIT = TYPE_FLAG_INTEGER | TYPE_FLAG_SCALAR,
+// 
+//   TYPE_POINTER_TRAIT = TYPE_FLAG_POINTER | TYPE_FLAG_SCALAR,
+//   TYPE_ARRAY_TRAIT   = TYPE_FLAG_LABEL | TYPE_FLAG_NOT_ASSIGNABLE,
+// 
+//   TYPE_STRUCT_TRAIT,
+//   TYPE_STRUCT_NAME_TRAIT,
+// 
+//   TYPE_UNION_TRAIT,
+//   TYPE_UNION_NAME_TRAIT,
+// 
+//   TYPE_FUNCTION_TRAIT,
+// 
+// };
 
 
 struct type *

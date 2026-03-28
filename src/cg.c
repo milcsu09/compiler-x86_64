@@ -963,16 +963,30 @@ cg_generate_lvalue (struct cg *cg, struct tree *tree)
 
         struct cg_register s = cg_generate_lvalue (cg, node->value);
 
-        struct symbol *symbol;
+        struct type *type = tree_get_expression_type (node->value);
 
-        struct type_node_struct type_node = tree_get_expression_type (node->value)->d.struct_;
+        switch (type->kind)
+          {
+          case TYPE_STRUCT:
+            {
+              struct type_node_struct type_node = type->d.struct_;
 
-        scope_get_assert (type_node.scope, node->field, &symbol);
+              struct symbol *symbol;
 
-        cg_write (cg, "\tadd\t%s, %zu\n", register_string (s), symbol->d.field.offset);
+              scope_get_assert (type_node.scope, node->field, &symbol);
 
-        return s;
+              cg_write (cg, "\tadd\t%s, %zu\n", register_string (s), symbol->d.field.offset);
 
+              return s;
+            }
+            break;
+
+          case TYPE_UNION:
+            return s;
+
+          default:
+            return unreachable1 (s);
+          }
       }
 
     default:
@@ -1008,6 +1022,8 @@ cg_generate_statement (struct cg *cg, struct tree *tree)
       cg_generate_node_fdefinition (cg, tree);
       break;
     case TREE_STRUCT:
+      break;
+    case TREE_UNION:
       break;
     case TREE_IF:
       cg_generate_node_if (cg, tree);
@@ -1391,8 +1407,8 @@ cg_generate_node_cast (struct cg *cg, struct tree *tree)
   enum type_width wa = type_width (type_a);
   enum type_width wb = type_width (type_b);
 
-  bool sa = type_is_integer_signed (type_a);
-  bool sb = type_is_integer_signed (type_b);
+  bool sa = type_is_signed (type_a);
+  bool sb = type_is_signed (type_b);
 
   // Truncation
   if (wa < wb)
@@ -1560,17 +1576,39 @@ cg_generate_node_access (struct cg *cg, struct tree *tree)
 
   struct symbol *symbol;
 
-  struct type_node_struct type_node = tree_get_expression_type (node->value)->d.struct_;
+  struct type *type = tree_get_expression_type (node->value);
 
-  scope_get_assert (type_node.scope, node->field, &symbol);
+  switch (type->kind)
+    {
+    case TYPE_STRUCT:
+      {
+        struct type_node_struct type_node = type->d.struct_;
 
-  cg_write (cg, "\tadd\t%s, %zu\n", register_string (s), symbol->d.field.offset);
+        scope_get_assert (type_node.scope, node->field, &symbol);
 
-  struct cg_register r = register_modify (s, type_width (node->expression_type));
+        cg_write (cg, "\tadd\t%s, %zu\n", register_string (s), symbol->d.field.offset);
 
-  cg_write_load (cg, r, s);
+        struct cg_register r = register_modify (s, type_width (node->expression_type));
 
-  return r;
+        cg_write_load (cg, r, s);
+
+        return r;
+      }
+      break;
+
+    case TYPE_UNION:
+      {
+        struct cg_register r = register_modify (s, type_width (node->expression_type));
+
+        cg_write_load (cg, r, s);
+
+        return r;
+      }
+      break;
+
+    default:
+      return unreachable1 (s);
+    }
 }
 
 
@@ -1663,7 +1701,7 @@ cg_generate_node_binary (struct cg *cg, struct tree *tree)
   struct type *type_a = tree_get_expression_type (node->lhs);
   // struct type *type_b = tree_type (node->rhs);
 
-  bool s = type_is_integer_signed (type_a);
+  bool s = type_is_signed (type_a);
 
   // bool ai = type_is_integer (type_a);
   // bool bi = type_is_integer (type_b);

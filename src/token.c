@@ -56,6 +56,7 @@ static const char *const TOKEN_KIND_STRING[] = {
   "'fn'",
   "'extern'",
   "'struct'",
+  "'union'",
   "'if'",
   "'else'",
   "'while'",

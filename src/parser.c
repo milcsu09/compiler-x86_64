@@ -182,6 +182,9 @@ static struct tree *
 parser_parse_top_struct (struct parser *parser);
 
 static struct tree *
+parser_parse_top_union (struct parser *parser);
+
+static struct tree *
 parser_parse_statement (struct parser *parser);
 
 static struct tree *
@@ -306,6 +309,9 @@ parser_parse_top (struct parser *parser)
 
   if (parser_match (parser, TOKEN_STRUCT))
     return parser_parse_top_struct (parser);
+
+  if (parser_match (parser, TOKEN_UNION))
+    return parser_parse_top_union (parser);
 
   if (parser_match (parser, TOKEN_IDENTIFIER))
     return parser_parse_vdeclaration_global (parser);
@@ -473,6 +479,54 @@ parser_parse_top_struct (struct parser *parser)
   result->d.struct_.name = name;
 
   result->d.struct_.struct_type = type;
+
+  return result;
+}
+
+
+static struct tree *
+parser_parse_top_union (struct parser *parser)
+{
+  struct tree *result;
+
+  result = tree_create (parser->location, TREE_UNION);
+
+  if (!parser_match_advance (parser, TOKEN_UNION))
+    {
+      parser_error_expect_s (parser, "union-definition");
+
+      exit (1);
+    }
+
+  struct type *type;
+
+  type = type_create (result->location, TYPE_UNION);
+
+  parser_expect (parser, TOKEN_IDENTIFIER);
+
+  char *name = parser->current->d.s;
+
+  parser_advance (parser);
+
+  parser_expect_advance (parser, TOKEN_LBRACE);
+
+  do
+    {
+      struct tree *field;
+
+      field = parser_parse_vdeclaration_field (parser);
+
+      tree_append (&result->d.union_.field1, field);
+
+      parser_expect_advance (parser, TOKEN_SEMICOLON);
+    }
+  while (!parser_match (parser, TOKEN_RBRACE));
+
+  parser_expect_advance (parser, TOKEN_RBRACE);
+
+  result->d.union_.name = name;
+
+  result->d.union_.union_type = type;
 
   return result;
 }
@@ -1244,6 +1298,7 @@ parser_parse_program (struct parser *parser)
         {
         case TREE_FDEFINITION:
         case TREE_STRUCT:
+        case TREE_UNION:
           break; // No semicolon!
         default:
           parser_expect_advance (parser, TOKEN_SEMICOLON);
@@ -1341,6 +1396,24 @@ parser_parse_type (struct parser *parser)
         parser_expect (parser, TOKEN_IDENTIFIER);
 
         result->d.struct_name.name = parser->current->d.s;
+
+        parser_advance (parser);
+
+        return result;
+      }
+      break;
+
+    case TOKEN_UNION:
+      {
+        parser_advance (parser);
+
+        struct type *result;
+
+        result = type_create (location, TYPE_UNION_NAME);
+
+        parser_expect (parser, TOKEN_IDENTIFIER);
+
+        result->d.union_name.name = parser->current->d.s;
 
         parser_advance (parser);
 

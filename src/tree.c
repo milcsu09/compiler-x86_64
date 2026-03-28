@@ -55,6 +55,7 @@ static const char *const TREE_KIND_STRING[] = {
   "fdefinition",
 
   "struct",
+  "union",
 
   "if",
   "while",
@@ -143,6 +144,8 @@ tree_get_expression_type_p (struct tree *tree)
       return &tree->d.fdefinition.function_type;
     case TREE_STRUCT:
       return &tree->d.struct_.struct_type;
+    case TREE_UNION:
+      return &tree->d.union_.union_type;
 
     case TREE_VDECLARATION:
       return &tree->d.vdeclaration.variable_type;
@@ -277,6 +280,20 @@ tree_print (struct tree *tree, int depth)
         struct tree_node_struct node = tree->d.struct_;
 
         type_print (node.struct_type, depth + 1);
+
+        tree_print_indent (depth + 1);
+
+        fprintf (stderr, "\033[91m%s\033[0m\n", node.name);
+
+        for (struct tree *t = node.field1; t; t = t->next)
+          tree_print (t, depth + 1);
+      }
+      break;
+    case TREE_UNION:
+      {
+        struct tree_node_union node = tree->d.union_;
+
+        type_print (node.union_type, depth + 1);
 
         tree_print_indent (depth + 1);
 

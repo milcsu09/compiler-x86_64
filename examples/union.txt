@@ -1,0 +1,18 @@
+
+union U {
+  x : u16;
+  y : u8;
+}
+
+fn main() {
+  a : union U;
+
+  a.x = 0x7FFF;
+
+  print a.x;
+  print a.y;
+
+  print &a.x;
+  print &a.y;
+}
+

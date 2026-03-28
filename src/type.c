@@ -25,6 +25,9 @@ static const char *const TYPE_KIND_STRING[] = {
   "struct",
   "struct_name",
 
+  "union",
+  "union_name",
+
   "fn",
 };
 
@@ -39,9 +42,6 @@ type_kind_string (enum type_kind kind)
 enum type_width
 type_width (struct type *type)
 {
-  if (type == TYPE_ERROR)
-    return WIDTH_0;
-
   switch (type->kind)
     {
     case TYPE_VOID:
@@ -77,9 +77,6 @@ type_width (struct type *type)
 size_t
 type_size (struct type *type)
 {
-  if (type == TYPE_ERROR)
-    return 0;
-
   switch (type->kind)
     {
     case TYPE_VOID:
@@ -120,7 +117,7 @@ type_size (struct type *type)
       {
         struct type_node_struct *node = &type->d.struct_;
 
-        size_t offset = 0;
+        size_t size = 0;
         size_t alignment = 0;
 
         for (struct type *t = node->field1; t; t = t->next)
@@ -131,14 +128,36 @@ type_size (struct type *type)
             if (t_alignment > alignment)
                 alignment = t_alignment;
 
-            offset = (offset + t_alignment - 1) & ~(t_alignment - 1);
+            size = (size + t_alignment - 1) & ~(t_alignment - 1);
 
-            offset += t_size;
+            size += t_size;
           }
 
-        offset = (offset + alignment - 1) & ~(alignment - 1);
+        size = (size + alignment - 1) & ~(alignment - 1);
 
-        return offset;
+        return size;
+      }
+
+    case TYPE_UNION:
+      {
+        struct type_node_union *node = &type->d.union_;
+
+        size_t size = 0;
+        size_t alignment = 0;
+
+        for (struct type *t = node->field1; t; t = t->next)
+          {
+            size_t t_alignment = type_alignment (t);
+            size_t t_size = type_size (t);
+
+            if (t_alignment > alignment)
+                alignment = t_alignment;
+
+            if (t_size > size)
+                size = t_size;
+          }
+
+        return (size + alignment - 1) & ~(alignment - 1);
       }
 
     default:
@@ -150,15 +169,9 @@ type_size (struct type *type)
 size_t
 type_element_size (struct type *type)
 {
-  if (type == TYPE_ERROR)
-    return 0;
-
   switch (type->kind)
     {
     case TYPE_POINTER:
-      fprintf (stderr, "ELEMENT SIZE of %s = %zu\n", type_kind_string (type->d.pointer.base->kind),
-               type_size (type->d.pointer.base));
-
       return type_size (type->d.pointer.base);
     case TYPE_ARRAY:
       return type_size (type->d.array.base);
@@ -171,9 +184,6 @@ type_element_size (struct type *type)
 size_t
 type_alignment (struct type *type)
 {
-  if (type == TYPE_ERROR)
-    return 0;
-
   switch (type->kind)
     {
     case TYPE_VOID:
@@ -205,6 +215,23 @@ type_alignment (struct type *type)
     case TYPE_STRUCT:
       {
         struct type_node_struct node = type->d.struct_;
+
+        size_t alignment = 0;
+
+        for (struct type *t = node.field1; t; t = t->next)
+          {
+            size_t t_alignment = type_alignment (t);
+
+            if (t_alignment > alignment)
+              alignment = t_alignment;
+          }
+
+        return alignment;
+      }
+
+    case TYPE_UNION:
+      {
+        struct type_node_union node = type->d.union_;
 
         size_t alignment = 0;
 
@@ -261,6 +288,14 @@ type_string (struct type *type, char *buffer, size_t size)
 
     case TYPE_STRUCT_NAME:
       snprintf (buffer, size, "struct %s", type->d.struct_name.name);
+      break;
+
+    case TYPE_UNION:
+      snprintf (buffer, size, "union %s", type->d.union_.name);
+      break;
+
+    case TYPE_UNION_NAME:
+      snprintf (buffer, size, "union %s", type->d.union_name.name);
       break;
 
     default:
@@ -352,9 +387,6 @@ type_append (struct type **head, struct type *node)
 bool
 type_cast_required (struct type *a, struct type *b)
 {
-  if (a == TYPE_ERROR || b == TYPE_ERROR)
-    return false;
-
   if (a->kind != b->kind)
     return true;
 
@@ -394,93 +426,49 @@ type_cast_required (struct type *a, struct type *b)
 }
 
 
-bool
-type_is_incomplete (struct type *type)
+unsigned long long
+type_trait (struct type *type)
 {
-  if (type == TYPE_ERROR)
-    return false;
-
   switch (type->kind)
     {
     case TYPE_VOID:
-    case TYPE_STRUCT_NAME:
-      return true;
-    default:
-      return false;
-    }
-}
+      return TYPE_FLAG_VOID | TYPE_FLAG_INCOMPLETE;
 
-
-bool
-type_is_void (struct type *type)
-{
-  if (type == TYPE_ERROR)
-    return false;
-
-  switch (type->kind)
-    {
-    case TYPE_VOID:
-      return true;
-    default:
-      return false;
-    }
-}
-
-
-bool
-type_is_integer (struct type *type)
-{
-  if (type == TYPE_ERROR)
-    return false;
-
-  switch (type->kind)
-    {
     case TYPE_I8:
     case TYPE_I16:
     case TYPE_I32:
     case TYPE_I64:
+      return TYPE_FLAG_INTEGER | TYPE_FLAG_SIGNED | TYPE_FLAG_SCALAR;
+
     case TYPE_U8:
     case TYPE_U16:
     case TYPE_U32:
     case TYPE_U64:
-      return true;
-    default:
-      return false;
-    }
-}
+      return TYPE_FLAG_INTEGER | TYPE_FLAG_SCALAR;
 
-
-bool
-type_is_integer_signed (struct type *type)
-{
-  if (type == TYPE_ERROR)
-    return false;
-
-  switch (type->kind)
-    {
-    case TYPE_I8:
-    case TYPE_I16:
-    case TYPE_I32:
-    case TYPE_I64:
-      return true;
-    default:
-      return false;
-    }
-}
-
-
-bool
-type_is_pointer (struct type *type)
-{
-  if (type == TYPE_ERROR)
-    return false;
-
-  switch (type->kind)
-    {
     case TYPE_POINTER:
-      return true;
+      return TYPE_FLAG_POINTER | TYPE_FLAG_SCALAR;
+
+    case TYPE_ARRAY:
+      return TYPE_FLAG_LABEL | TYPE_FLAG_NOT_ASSIGNABLE;
+
+    case TYPE_STRUCT:
+      return TYPE_FLAG_COMPOSITE | TYPE_FLAG_NOT_ASSIGNABLE;
+
+    case TYPE_STRUCT_NAME:
+      return TYPE_FLAG_INCOMPLETE | TYPE_FLAG_NAMED;
+
+    case TYPE_UNION:
+      return TYPE_FLAG_COMPOSITE | TYPE_FLAG_NOT_ASSIGNABLE;
+
+    case TYPE_UNION_NAME:
+      return TYPE_FLAG_INCOMPLETE | TYPE_FLAG_NAMED;
+
+    case TYPE_FUNCTION:
+      return TYPE_FLAG_LABEL | TYPE_FLAG_NOT_ASSIGNABLE | TYPE_FLAG_CALLABLE;
+
     default:
-      return false;
+      return 0;
     }
 }
 
@@ -488,9 +476,6 @@ type_is_pointer (struct type *type)
 bool
 type_is_pointer_to_k (struct type *type, enum type_kind kind)
 {
-  if (type == TYPE_ERROR)
-    return false;
-
   if (!type_is_pointer (type))
     return false;
 
@@ -499,103 +484,8 @@ type_is_pointer_to_k (struct type *type, enum type_kind kind)
 
 
 bool
-type_is_label (struct type *type)
-{
-  if (type == TYPE_ERROR)
-    return false;
-
-  switch (type->kind)
-    {
-    case TYPE_ARRAY:
-    case TYPE_FUNCTION:
-      return true;
-    default:
-      return false;
-    }
-}
-
-
-bool
-type_is_scalar (struct type *type)
-{
-  if (type == TYPE_ERROR)
-    return false;
-
-  switch (type->kind)
-    {
-    case TYPE_I8:
-    case TYPE_I16:
-    case TYPE_I32:
-    case TYPE_I64:
-    case TYPE_U8:
-    case TYPE_U16:
-    case TYPE_U32:
-    case TYPE_U64:
-    case TYPE_POINTER:
-      return true;
-    default:
-      return false;
-    }
-}
-
-
-bool
-type_is_named (struct type *type)
-{
-  if (type == TYPE_ERROR)
-    return false;
-
-  switch (type->kind)
-    {
-    case TYPE_STRUCT_NAME:
-      return true;
-    default:
-      return false;
-    }
-
-}
-
-
-bool
-type_is_composite (struct type *type)
-{
-  if (type == TYPE_ERROR)
-    return false;
-
-  switch (type->kind)
-    {
-    case TYPE_STRUCT:
-      return true;
-    default:
-      return false;
-    }
-}
-
-
-bool
-type_is_assignable (struct type *type)
-{
-  if (type == TYPE_ERROR)
-    return false;
-
-  switch (type->kind)
-    {
-    case TYPE_ARRAY:
-    case TYPE_FUNCTION:
-    case TYPE_STRUCT:
-      return false;
-    default:
-      return true;
-    }
-}
-
-
-bool
 type_is_callable (struct type *type)
 {
-  if (type == TYPE_ERROR)
-    return false;
-
   switch (type->kind)
     {
     case TYPE_FUNCTION:
@@ -609,9 +499,6 @@ type_is_callable (struct type *type)
 struct type *
 type_element (struct type *type)
 {
-  if (type == TYPE_ERROR)
-    return type;
-
   switch (type->kind)
     {
     case TYPE_POINTER:
@@ -627,9 +514,6 @@ type_element (struct type *type)
 struct type *
 type_decay (struct type *type)
 {
-  if (type == TYPE_ERROR)
-    return type;
-
   switch (type->kind)
     {
     // []T -> *T
@@ -649,17 +533,11 @@ type_decay (struct type *type)
 struct type *
 type_find_common (struct type *a, struct type *b)
 {
-  if (a == TYPE_ERROR)
-    return NULL;
-
-  if (b == TYPE_ERROR)
-    return NULL;
-
   enum type_width wa = type_width (a);
   enum type_width wb = type_width (b);
 
-  bool sa = type_is_integer_signed (a);
-  bool sb = type_is_integer_signed (b);
+  bool sa = type_is_signed (a);
+  bool sb = type_is_signed (b);
 
   bool ua = !sa;
   bool ub = !sb;
@@ -745,6 +623,25 @@ type_print (struct type *type, int depth)
     case TYPE_STRUCT_NAME:
       {
         struct type_node_struct_name node = type->d.struct_name;
+
+        type_print_indent (depth + 1);
+        fprintf (stderr, "\033[91m%s\033[0m\n", node.name);
+      }
+      break;
+    case TYPE_UNION:
+      {
+        struct type_node_union node = type->d.union_;
+
+        type_print_indent (depth + 1);
+        fprintf (stderr, "\033[91m%s\033[0m\n", node.name);
+
+        for (struct type *t = node.field1; t; t = t->next)
+          type_print (t, depth + 1);
+      }
+      break;
+    case TYPE_UNION_NAME:
+      {
+        struct type_node_union_name node = type->d.union_name;
 
         type_print_indent (depth + 1);
         fprintf (stderr, "\033[91m%s\033[0m\n", node.name);
