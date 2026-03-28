@@ -1,0 +1,32 @@
+
+extern fn puts(*u8);
+
+enum {
+  APPLE,
+  PEAR,
+  ORANGE,
+}
+
+fn fruit_string(fruit: enum) -> *u8 {
+  if fruit == APPLE {
+    return "Apple";
+  }
+
+  if fruit == PEAR {
+    return "Pear";
+  }
+
+  if fruit == ORANGE {
+    return "Orange";
+  }
+
+  return "I don't know that fruit!";
+}
+
+fn main() {
+  puts(fruit_string(APPLE));
+  puts(fruit_string(PEAR));
+  puts(fruit_string(ORANGE));
+  puts(fruit_string(1234));
+}
+

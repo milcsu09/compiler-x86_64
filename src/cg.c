@@ -1025,6 +1025,10 @@ cg_generate_statement (struct cg *cg, struct tree *tree)
       break;
     case TREE_UNION:
       break;
+    case TREE_ENUM:
+      break;
+    case TREE_ENUM_FIELD:
+      break;
     case TREE_IF:
       cg_generate_node_if (cg, tree);
       break;

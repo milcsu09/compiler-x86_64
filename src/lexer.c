@@ -135,6 +135,7 @@ static struct keyword KEYWORD_TABLE[] = {
   { "extern", TOKEN_EXTERN, },
   { "struct", TOKEN_STRUCT, },
   { "union", TOKEN_UNION, },
+  { "enum", TOKEN_ENUM, },
   { "if", TOKEN_IF, },
   { "else", TOKEN_ELSE, },
   { "while", TOKEN_WHILE, },

@@ -185,6 +185,12 @@ static struct tree *
 parser_parse_top_union (struct parser *parser);
 
 static struct tree *
+parser_parse_top_enum (struct parser *parser);
+
+static struct tree *
+parser_parse_top_enum_field (struct parser *parser);
+
+static struct tree *
 parser_parse_statement (struct parser *parser);
 
 static struct tree *
@@ -312,6 +318,9 @@ parser_parse_top (struct parser *parser)
 
   if (parser_match (parser, TOKEN_UNION))
     return parser_parse_top_union (parser);
+
+  if (parser_match (parser, TOKEN_ENUM))
+    return parser_parse_top_enum (parser);
 
   if (parser_match (parser, TOKEN_IDENTIFIER))
     return parser_parse_vdeclaration_global (parser);
@@ -456,7 +465,7 @@ parser_parse_top_struct (struct parser *parser)
 
   parser_expect (parser, TOKEN_IDENTIFIER);
 
-  char *name = parser->current->d.s;
+  result->d.struct_.name = parser->current->d.s;
 
   parser_advance (parser);
 
@@ -475,8 +484,6 @@ parser_parse_top_struct (struct parser *parser)
   while (!parser_match (parser, TOKEN_RBRACE));
 
   parser_expect_advance (parser, TOKEN_RBRACE);
-
-  result->d.struct_.name = name;
 
   result->d.struct_.struct_type = type;
 
@@ -504,7 +511,7 @@ parser_parse_top_union (struct parser *parser)
 
   parser_expect (parser, TOKEN_IDENTIFIER);
 
-  char *name = parser->current->d.s;
+  result->d.union_.name = parser->current->d.s;
 
   parser_advance (parser);
 
@@ -524,9 +531,81 @@ parser_parse_top_union (struct parser *parser)
 
   parser_expect_advance (parser, TOKEN_RBRACE);
 
-  result->d.union_.name = name;
-
   result->d.union_.union_type = type;
+
+  return result;
+}
+
+
+static struct tree *
+parser_parse_top_enum (struct parser *parser)
+{
+  struct tree *result;
+
+  result = tree_create (parser->location, TREE_ENUM);
+
+  if (!parser_match_advance (parser, TOKEN_ENUM))
+    {
+      parser_error_expect_s (parser, "enum-definition");
+
+      exit (1);
+    }
+
+  parser_expect_advance (parser, TOKEN_LBRACE);
+
+  do
+    {
+      struct tree *field;
+
+      field = parser_parse_top_enum_field (parser);
+
+      tree_append (&result->d.enum_.field1, field);
+
+      if (parser_match (parser, TOKEN_COMMA))
+        parser_advance (parser);
+      else
+        parser_expect (parser, TOKEN_RBRACE);
+
+      // parser_expect_advance (parser, TOKEN_COMMA);
+    }
+  while (!parser_match (parser, TOKEN_RBRACE));
+
+  parser_expect_advance (parser, TOKEN_RBRACE);
+
+  return result;
+}
+
+
+static struct tree *
+parser_parse_top_enum_field (struct parser *parser)
+{
+  struct tree *result;
+
+  result = tree_create (parser->location, TREE_ENUM_FIELD);
+
+  if (!parser_match (parser, TOKEN_IDENTIFIER))
+    {
+      parser_error_expect_s (parser, "enum-field");
+
+      exit (1);
+    }
+
+  result->d.enum_field.name = parser->current->d.s;
+
+  parser_advance (parser);
+
+  if (parser_match (parser, TOKEN_EQ))
+    {
+      parser_advance (parser);
+
+      struct tree *value = parser_parse_primary_integer (parser);
+
+      result->d.enum_field.optional_value = value->d.integer.value;
+
+      result->d.enum_field.has_optional_value = true;
+    }
+  else
+    result->d.enum_field.has_optional_value = false;
 
   return result;
 }
@@ -1299,6 +1378,7 @@ parser_parse_program (struct parser *parser)
         case TREE_FDEFINITION:
         case TREE_STRUCT:
         case TREE_UNION:
+        case TREE_ENUM:
           break; // No semicolon!
         default:
           parser_expect_advance (parser, TOKEN_SEMICOLON);
@@ -1344,6 +1424,12 @@ parser_parse_type_primary (struct parser *parser)
     case TOKEN_U64:
       parser_advance (parser);
       return type_create (location, TYPE_U64);
+
+    // NOTE: Interpret `enum` as an alias to i64
+    case TOKEN_ENUM:
+      parser_advance (parser);
+      return type_create (location, TYPE_I64);
+
     default:
       break;
     }

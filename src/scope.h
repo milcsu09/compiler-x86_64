@@ -17,6 +17,7 @@ enum symbol_kind
   SYMBOL_LOCAL,
 
   SYMBOL_FIELD,
+  SYMBOL_ENUM,
 };
 
 
@@ -32,10 +33,17 @@ struct symbol_field
 };
 
 
+struct symbol_enum
+{
+  long long value;
+};
+
+
 union symbol_data
 {
   struct symbol_local local;
   struct symbol_field field;
+  struct symbol_enum enum_;
 };
 
 

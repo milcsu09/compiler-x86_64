@@ -56,6 +56,8 @@ static const char *const TREE_KIND_STRING[] = {
 
   "struct",
   "union",
+  "enum",
+  "enum_field",
 
   "if",
   "while",
@@ -301,6 +303,30 @@ tree_print (struct tree *tree, int depth)
 
         for (struct tree *t = node.field1; t; t = t->next)
           tree_print (t, depth + 1);
+      }
+      break;
+    case TREE_ENUM:
+      {
+        struct tree_node_enum node = tree->d.enum_;
+
+        for (struct tree *t = node.field1; t; t = t->next)
+          tree_print (t, depth + 1);
+      }
+      break;
+    case TREE_ENUM_FIELD:
+      {
+        struct tree_node_enum_field node = tree->d.enum_field;
+
+        tree_print_indent (depth + 1);
+
+        fprintf (stderr, "\033[91m%s\033[0m\n", node.name);
+
+        if (node.has_optional_value)
+          {
+            tree_print_indent (depth + 1);
+
+            fprintf (stderr, "\033[91m%lld\033[0m\n", node.optional_value);
+          }
       }
       break;
     case TREE_IF:

@@ -56,6 +56,8 @@ enum tree_kind
 
   TREE_STRUCT,
   TREE_UNION,
+  TREE_ENUM,
+  TREE_ENUM_FIELD,
 
   // Statement
   TREE_IF,
@@ -142,6 +144,22 @@ struct tree_node_union
   struct tree *field1;
 
   struct type *union_type;
+};
+
+
+struct tree_node_enum
+{
+  struct tree *field1;
+};
+
+
+struct tree_node_enum_field
+{
+  char *name;
+
+  long long optional_value;
+
+  bool has_optional_value;
 };
 
 
@@ -335,6 +353,8 @@ union tree_data
 
   struct tree_node_struct       struct_;
   struct tree_node_union        union_;
+  struct tree_node_enum         enum_;
+  struct tree_node_enum_field   enum_field;
 
   struct tree_node_if           if_;
   struct tree_node_while        while_;

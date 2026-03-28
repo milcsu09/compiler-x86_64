@@ -5,6 +5,7 @@
 #include "scope.h"
 #include "memory.h"
 
+#include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
 
@@ -111,6 +112,9 @@ analyzer_analyze_node_struct (struct analyzer *analyzer, struct tree *tree);
 
 static void
 analyzer_analyze_node_union (struct analyzer *analyzer, struct tree *tree);
+
+static void
+analyzer_analyze_node_enum (struct analyzer *analyzer, struct tree *tree);
 
 
 static void
@@ -476,6 +480,9 @@ analyzer_analyze_statement (struct analyzer *analyzer, struct tree *tree)
     case TREE_UNION:
       analyzer_analyze_node_union (analyzer, tree);
       break;
+    case TREE_ENUM:
+      analyzer_analyze_node_enum (analyzer, tree);
+      break;
     case TREE_IF:
       analyzer_analyze_node_if (analyzer, tree);
       break;
@@ -659,6 +666,37 @@ analyzer_analyze_node_union (struct analyzer *analyzer, struct tree *tree)
   scope_set_validate (analyzer->scope_union, symbol, tree->location);
 
   union_type->name = union_->name;
+}
+
+
+static void
+analyzer_analyze_node_enum (struct analyzer *analyzer, struct tree *tree)
+{
+  struct tree_node_enum *enum_ = &tree->d.enum_;
+
+  long long current_value = 0;
+
+  for (struct tree *t = enum_->field1; t; t = t->next)
+    {
+      struct tree_node_enum_field *enum_field = &t->d.enum_field;
+
+      char *name = enum_field->name;
+
+      if (enum_field->has_optional_value)
+        current_value = enum_field->optional_value;
+
+      struct symbol *symbol;
+
+      symbol = symbol_create (SYMBOL_ENUM, name, NULL);
+
+      symbol->d.enum_.value = current_value;
+
+      scope_set_validate (analyzer->scope, symbol, t->location);
+
+      // printf ("%s %d %lld\n", enum_field->name, enum_field->has_optional_value, current_value);
+
+      current_value++;
+    }
 }
 
 
@@ -1382,9 +1420,21 @@ analyzer_analyze_node_identifier (struct analyzer *analyzer, struct tree *tree)
 
   scope_get_validate (analyzer->scope, identifier->value, &symbol, tree->location);
 
-  identifier->expression_type = symbol->type;
+  if (symbol->kind != SYMBOL_ENUM)
+    {
+      identifier->expression_type = symbol->type;
 
-  return tree;
+      return tree;
+    }
+
+  struct tree *integer;
+
+  integer = tree_create (tree->location, TREE_INTEGER);
+
+  integer->d.integer.value = symbol->d.enum_.value;
+  integer->d.integer.expression_type = type_create (tree->location, TYPE_I64);
+
+  return integer;
 }
 
 
