@@ -123,11 +123,11 @@ main:
 	lea	r10, [rel particle_init]
 	call	r10
 .L5:
-	mov	r10, qword [rbp-16]
-	mov	r11, 1
-	add	r10, r11
-	lea	r11, [rbp-16]
-	mov	qword [r11], r10
+	lea	r10, [rbp-16]
+	mov	r11, qword [r10]
+	mov	r12, 1
+	add	r11, r12
+	mov	qword [r10], r11
 .L3:
 	mov	r10, qword [rbp-16]
 	mov	r11, 10000
@@ -148,54 +148,43 @@ main:
 	imul	r11, 20
 	add	r10, r11
 	add	r10, 0
-	mov	r10d, dword [r10]
-	mov	r11, qword [rbp-8]
-	mov	r12, qword [rbp-16]
-	imul	r12, 20
-	add	r11, r12
-	add	r11, 8
-	mov	r11d, dword [r11]
-	add	r10d, r11d
-	mov	r11, qword [rbp-8]
-	mov	r12, qword [rbp-16]
-	imul	r12, 20
-	add	r11, r12
-	add	r11, 0
-	mov	dword [r11], r10d
+	mov	r11d, dword [r10]
+	mov	r12, qword [rbp-8]
+	push	r10
+	mov	r10, qword [rbp-16]
+	imul	r10, 20
+	add	r12, r10
+	pop	r10
+	add	r12, 8
+	mov	r12d, dword [r12]
+	add	r11d, r12d
+	mov	dword [r10], r11d
 	mov	r10, qword [rbp-8]
 	mov	r11, qword [rbp-16]
 	imul	r11, 20
 	add	r10, r11
 	add	r10, 4
-	mov	r10d, dword [r10]
-	mov	r11, qword [rbp-8]
-	mov	r12, qword [rbp-16]
-	imul	r12, 20
-	add	r11, r12
-	add	r11, 12
-	mov	r11d, dword [r11]
-	add	r10d, r11d
-	mov	r11, qword [rbp-8]
-	mov	r12, qword [rbp-16]
-	imul	r12, 20
-	add	r11, r12
-	add	r11, 4
-	mov	dword [r11], r10d
+	mov	r11d, dword [r10]
+	mov	r12, qword [rbp-8]
+	push	r10
+	mov	r10, qword [rbp-16]
+	imul	r10, 20
+	add	r12, r10
+	pop	r10
+	add	r12, 12
+	mov	r12d, dword [r12]
+	add	r11d, r12d
+	mov	dword [r10], r11d
 	mov	r10, qword [rbp-8]
 	mov	r11, qword [rbp-16]
 	imul	r11, 20
 	add	r10, r11
 	add	r10, 16
-	mov	r10d, dword [r10]
-	movsx	r10, r10d
-	mov	r11, 5
-	sub	r10, r11
-	mov	r11, qword [rbp-8]
-	mov	r12, qword [rbp-16]
-	imul	r12, 20
-	add	r11, r12
-	add	r11, 16
-	mov	dword [r11], r10d
+	mov	r11d, dword [r10]
+	movsx	r11, r11d
+	mov	r12, 5
+	sub	r11, r12
+	mov	dword [r10], r11d
 	mov	r10, qword [rbp-8]
 	mov	r11, qword [rbp-16]
 	imul	r11, 20
@@ -217,11 +206,11 @@ main:
 	call	r10
 .L13:
 .L12:
-	mov	r10, qword [rbp-16]
-	mov	r11, 1
-	add	r10, r11
-	lea	r11, [rbp-16]
-	mov	qword [r11], r10
+	lea	r10, [rbp-16]
+	mov	r11, qword [r10]
+	mov	r12, 1
+	add	r11, r12
+	mov	qword [r10], r11
 .L10:
 	mov	r10, qword [rbp-16]
 	mov	r11, 10000
@@ -302,11 +291,11 @@ main:
 	lea	r10, [rel DrawRectangle]
 	call	r10
 .L17:
-	mov	r10, qword [rbp-16]
-	mov	r11, 1
-	add	r10, r11
-	lea	r11, [rbp-16]
-	mov	qword [r11], r10
+	lea	r10, [rbp-16]
+	mov	r11, qword [r10]
+	mov	r12, 1
+	add	r11, r12
+	mov	qword [r10], r11
 .L15:
 	mov	r10, qword [rbp-16]
 	mov	r11, 10000
