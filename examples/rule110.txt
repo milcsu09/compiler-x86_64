@@ -42,7 +42,7 @@ fn rule110(l : u8, m : u8, r : u8) -> u8 {
 fn print_cells(cells : *u8) {
   i : i64;
 
-  for i = 0; i < 80; i = i + 1 {
+  for i = 0; i < 80; i += 1 {
     if cells[i] == 1 {
       putchar('.');
     } else {
@@ -60,7 +60,7 @@ fn main() -> i32 {
 
   i : i64;
 
-  for i = 0; i < 80; i = i + 1 {
+  for i = 0; i < 80; i += 1 {
     cells_curr[i] = cells_next[i] = 0;
   }
 
@@ -68,10 +68,10 @@ fn main() -> i32 {
 
   step : i64;
 
-  for step = 0; step < 80; step = step + 1 {
+  for step = 0; step < 80; step += 1 {
     print_cells (cells_curr);
 
-    for i = 0; i < 80; i = i + 1 {
+    for i = 0; i < 80; i += 1 {
       l : u8;
       m : u8;
       r : u8;
@@ -91,7 +91,7 @@ fn main() -> i32 {
       cells_next[i] = rule110(l, m, r);
     }
 
-    for i = 0; i < 80; i = i + 1 {
+    for i = 0; i < 80; i += 1 {
       cells_curr[i] = cells_next[i];
     }
   }

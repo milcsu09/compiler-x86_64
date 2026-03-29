@@ -32,11 +32,11 @@ main:
 	lea	r10, [rel puts]
 	call	r10
 .L4:
-	mov	r10, qword [rbp-8]
-	mov	r11, 1
-	add	r10, r11
-	lea	r11, [rbp-8]
-	mov	qword [r11], r10
+	lea	r10, [rbp-8]
+	mov	r11, qword [r10]
+	mov	r12, 1
+	add	r11, r12
+	mov	qword [r10], r11
 .L2:
 	mov	r10, qword [rel environ]
 	mov	r11, qword [rbp-8]

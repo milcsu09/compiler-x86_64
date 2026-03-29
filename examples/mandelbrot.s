@@ -85,11 +85,11 @@ mandelbrot:
 	mov	r10, qword [rbp-72]
 	lea	r11, [rbp-40]
 	mov	qword [r11], r10
-	mov	r10, qword [rbp-48]
-	mov	r11, 1
-	add	r10, r11
-	lea	r11, [rbp-48]
-	mov	qword [r11], r10
+	lea	r10, [rbp-48]
+	mov	r11, qword [r10]
+	mov	r12, 1
+	add	r11, r12
+	mov	qword [r10], r11
 .L2:
 	mov	r10, qword [rbp-48]
 	mov	r11, qword [rbp-24]
@@ -200,11 +200,11 @@ main:
 	lea	r10, [rel putchar]
 	call	r10
 .L13:
-	mov	r10, qword [rbp-72]
-	mov	r11, 1
-	add	r10, r11
-	lea	r11, [rbp-72]
-	mov	qword [r11], r10
+	lea	r10, [rbp-72]
+	mov	r11, qword [r10]
+	mov	r12, 1
+	add	r11, r12
+	mov	qword [r10], r11
 .L11:
 	mov	r10, qword [rbp-72]
 	mov	r11, 80
@@ -218,11 +218,11 @@ main:
 	lea	r10, [rel putchar]
 	call	r10
 .L9:
-	mov	r10, qword [rbp-64]
-	mov	r11, 1
-	add	r10, r11
-	lea	r11, [rbp-64]
-	mov	qword [r11], r10
+	lea	r10, [rbp-64]
+	mov	r11, qword [r10]
+	mov	r12, 1
+	add	r11, r12
+	mov	qword [r10], r11
 .L7:
 	mov	r10, qword [rbp-64]
 	mov	r11, 40

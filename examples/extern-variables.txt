@@ -11,7 +11,7 @@ extern fn fputs(*u8, *void);
 fn main() {
   i : i64;
 
-  for i = 0; environ[i]; i = i + 1 {
+  for i = 0; environ[i]; i += 1 {
     puts(environ[i]);
   }
 

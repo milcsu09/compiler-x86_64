@@ -29,7 +29,7 @@ fn mandelbrot(cr : i64, ci : i64, iter_max : i64) -> i64 {
     zr = zr_next;
     zi = zi_next;
 
-    iter = iter + 1;
+    iter += 1;
   }
 
   return iter;
@@ -60,11 +60,11 @@ fn main() {
   j : i64;
   i : i64;
 
-  for j = 0; j < 40; j = j + 1 {
+  for j = 0; j < 40; j += 1 {
     ci : i64;
     ci = y_max - j * dy;
 
-    for i = 0; i < 80; i = i + 1 {
+    for i = 0; i < 80; i += 1 {
       cr : i64;
       cr = x_min + i * dx;
 

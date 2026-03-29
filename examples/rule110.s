@@ -159,11 +159,11 @@ print_cells:
 	call	r10
 .L15:
 .L13:
-	mov	r10, qword [rbp-16]
-	mov	r11, 1
-	add	r10, r11
-	lea	r11, [rbp-16]
-	mov	qword [r11], r10
+	lea	r10, [rbp-16]
+	mov	r11, qword [r10]
+	mov	r12, 1
+	add	r11, r12
+	mov	qword [r10], r11
 .L11:
 	mov	r10, qword [rbp-16]
 	mov	r11, 80
@@ -202,11 +202,11 @@ main:
 	add	r11, r12
 	mov	byte [r11], r10b
 .L20:
-	mov	r10, qword [rbp-168]
-	mov	r11, 1
-	add	r10, r11
-	lea	r11, [rbp-168]
-	mov	qword [r11], r10
+	lea	r10, [rbp-168]
+	mov	r11, qword [r10]
+	mov	r12, 1
+	add	r11, r12
+	mov	qword [r10], r11
 .L18:
 	mov	r10, qword [rbp-168]
 	mov	r11, 80
@@ -290,11 +290,11 @@ main:
 	add	r11, r12
 	mov	byte [r11], r10b
 .L28:
-	mov	r10, qword [rbp-168]
-	mov	r11, 1
-	add	r10, r11
-	lea	r11, [rbp-168]
-	mov	qword [r11], r10
+	lea	r10, [rbp-168]
+	mov	r11, qword [r10]
+	mov	r12, 1
+	add	r11, r12
+	mov	qword [r10], r11
 .L26:
 	mov	r10, qword [rbp-168]
 	mov	r11, 80
@@ -317,11 +317,11 @@ main:
 	add	r11, r12
 	mov	byte [r11], r10b
 .L34:
-	mov	r10, qword [rbp-168]
-	mov	r11, 1
-	add	r10, r11
-	lea	r11, [rbp-168]
-	mov	qword [r11], r10
+	lea	r10, [rbp-168]
+	mov	r11, qword [r10]
+	mov	r12, 1
+	add	r11, r12
+	mov	qword [r10], r11
 .L32:
 	mov	r10, qword [rbp-168]
 	mov	r11, 80
@@ -331,11 +331,11 @@ main:
 	jnz	.L31
 .L33:
 .L24:
-	mov	r10, qword [rbp-176]
-	mov	r11, 1
-	add	r10, r11
-	lea	r11, [rbp-176]
-	mov	qword [r11], r10
+	lea	r10, [rbp-176]
+	mov	r11, qword [r10]
+	mov	r12, 1
+	add	r11, r12
+	mov	qword [r10], r11
 .L22:
 	mov	r10, qword [rbp-176]
 	mov	r11, 80
