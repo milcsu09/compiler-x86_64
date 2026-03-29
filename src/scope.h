@@ -6,6 +6,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 
 
 struct tree;
@@ -35,7 +36,7 @@ struct symbol_field
 
 struct symbol_enum
 {
-  long long value;
+  int64_t value;
 };
 
 

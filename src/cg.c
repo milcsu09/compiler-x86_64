@@ -238,7 +238,7 @@ cg_write_store (struct cg *cg, struct cg_register a, struct cg_register b)
 
 
 static void
-cg_write_load_i (struct cg *cg, struct cg_register r, long i)
+cg_write_load_i (struct cg *cg, struct cg_register r, int64_t i)
 {
   cg_write (cg, "\tmov\t%s, %ld\n", register_string (r), i);
 }

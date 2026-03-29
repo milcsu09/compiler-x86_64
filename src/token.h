@@ -5,11 +5,12 @@
 #include "error.h"
 
 #include <stdbool.h>
+#include <stdint.h>
 
 
 union token_data
 {
-  long i;
+  int64_t i;
 
   char *s;
 };
@@ -113,7 +114,7 @@ struct token *
 token_create (struct location location, enum token_kind kind);
 
 struct token *
-token_create_i (struct location location, enum token_kind kind, long i);
+token_create_i (struct location location, enum token_kind kind, int64_t i);
 
 struct token *
 token_create_s (struct location location, enum token_kind kind, char *s);

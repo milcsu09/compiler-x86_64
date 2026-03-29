@@ -327,7 +327,7 @@ tree_print (struct tree *tree, int depth)
           {
             tree_print_indent (depth + 1);
 
-            fprintf (stderr, "\033[91m%lld\033[0m\n", node.optional_value);
+            fprintf (stderr, "\033[91m%ld\033[0m\n", node.optional_value);
           }
       }
       break;

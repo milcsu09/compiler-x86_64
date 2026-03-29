@@ -228,7 +228,7 @@ lexer_next (struct lexer *lexer)
         lexer_advance (lexer);
 
       errno = 0;
-      long i = strtoul (start, NULL, base);
+      int64_t i = strtoul (start, NULL, base);
 
       if (errno == ERANGE)
         warning (location, "number out of range");

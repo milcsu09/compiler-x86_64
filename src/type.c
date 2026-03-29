@@ -426,7 +426,7 @@ type_cast_required (struct type *a, struct type *b)
 }
 
 
-unsigned long long
+uint64_t
 type_trait (struct type *type)
 {
   switch (type->kind)

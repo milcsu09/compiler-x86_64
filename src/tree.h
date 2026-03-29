@@ -6,6 +6,7 @@
 #include "scope.h"
 
 #include <stdbool.h>
+#include <stdint.h>
 
 
 enum unary_operator
@@ -159,7 +160,7 @@ struct tree_node_enum_field
 {
   char *name;
 
-  long long optional_value;
+  int64_t optional_value;
 
   bool has_optional_value;
 };
@@ -319,7 +320,7 @@ struct tree_node_dereference
 
 struct tree_node_integer
 {
-  long value;
+  int64_t value;
 
   struct type *expression_type;
 };

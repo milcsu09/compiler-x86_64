@@ -699,7 +699,7 @@ analyzer_analyze_node_enum (struct analyzer *analyzer, struct tree *tree)
 {
   struct tree_node_enum *enum_ = &tree->d.enum_;
 
-  long long current_value = 0;
+  int64_t current_value = 0;
 
   for (struct tree *t = enum_->field1; t; t = t->next)
     {

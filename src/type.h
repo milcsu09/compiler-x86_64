@@ -6,6 +6,7 @@
 
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 
 struct tree;
@@ -188,7 +189,7 @@ enum type_flag
 };
 
 
-unsigned long long
+uint64_t
 type_trait (struct type *type);
 
 
