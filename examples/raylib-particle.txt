@@ -42,7 +42,7 @@ fn main() {
   SetTargetFPS(60);
 
   particles : *struct Particle;
-  particles = malloc(20 * 10000); // TODO: sizeof
+  particles = malloc(sizeof struct Particle * 10000);
 
   i : i64;
 

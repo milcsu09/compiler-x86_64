@@ -76,6 +76,8 @@ static const char *const TOKEN_KIND_STRING[] = {
   "'u16'",
   "'u32'",
   "'u64'",
+
+  "'sizeof'",
 };
 
 

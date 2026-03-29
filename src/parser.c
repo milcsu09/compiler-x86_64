@@ -270,6 +270,9 @@ parser_parse_primary_string (struct parser *parser);
 static struct tree *
 parser_parse_primary_identifier (struct parser *parser);
 
+static struct tree *
+parser_parse_primary_sizeof (struct parser *parser);
+
 
 static struct tree *
 parser_parse_program (struct parser *parser);
@@ -1237,6 +1240,8 @@ parser_parse_primary (struct parser *parser)
       return parser_parse_primary_string (parser);
     case TOKEN_IDENTIFIER:
       return parser_parse_primary_identifier (parser);
+    case TOKEN_SIZEOF:
+      return parser_parse_primary_sizeof (parser);
     default:
       break;
     }
@@ -1350,9 +1355,26 @@ parser_parse_primary_identifier (struct parser *parser)
 
   result = tree_create (parser->location, TREE_IDENTIFIER);
 
-  result->d.identifier .value = parser->current->d.s;
+  result->d.identifier.value = parser->current->d.s;
 
   parser_advance (parser);
+
+  return result;
+}
+
+
+static struct tree *
+parser_parse_primary_sizeof (struct parser *parser)
+{
+  parser_expect (parser, TOKEN_SIZEOF);
+
+  struct tree *result;
+
+  result = tree_create (parser->location, TREE_SIZEOF);
+
+  parser_advance (parser);
+
+  result->d.sizeof_.type = parser_parse_type (parser);
 
   return result;
 }

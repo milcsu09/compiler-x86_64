@@ -90,6 +90,8 @@ enum token_kind
   TOKEN_U16,
   TOKEN_U32,
   TOKEN_U64,
+
+  TOKEN_SIZEOF,
 };
 
 

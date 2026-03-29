@@ -913,6 +913,8 @@ cg_generate_expression (struct cg *cg, struct tree *tree)
       return cg_generate_node_string (cg, tree);
     case TREE_IDENTIFIER:
       return cg_generate_node_identifier (cg, tree);
+    case TREE_SIZEOF:
+      return unreachable1 (register_none);
     default:
       return unreachable1 (register_none);
     }

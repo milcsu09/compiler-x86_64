@@ -87,6 +87,8 @@ enum tree_kind
   TREE_STRING,
   TREE_IDENTIFIER,
 
+  TREE_SIZEOF,
+
   // Miscellaneous
   TREE_PROGRAM,
 };
@@ -339,6 +341,12 @@ struct tree_node_identifier
 };
 
 
+struct tree_node_sizeof
+{
+  struct type *type;
+};
+
+
 struct tree_node_program
 {
   struct tree *top_level1;
@@ -379,6 +387,8 @@ union tree_data
   struct tree_node_integer      integer;
   struct tree_node_string       string;
   struct tree_node_identifier   identifier;
+
+  struct tree_node_sizeof       sizeof_;
 
   struct tree_node_program      program;
 };

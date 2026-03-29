@@ -85,6 +85,8 @@ static const char *const TREE_KIND_STRING[] = {
   "string",
   "identifier",
 
+  "sizeof",
+
   "program",
 };
 
@@ -554,6 +556,13 @@ tree_print (struct tree *tree, int depth)
         tree_print_indent (depth + 1);
 
         fprintf (stderr, "\033[91m%s\033[0m\n", node.value);
+      }
+      break;
+    case TREE_SIZEOF:
+      {
+        struct tree_node_sizeof node = tree->d.sizeof_;
+
+        type_print (node.type, depth + 1);
       }
       break;
     case TREE_PROGRAM:

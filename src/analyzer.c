@@ -192,6 +192,9 @@ analyzer_analyze_node_string (struct analyzer *analyzer, struct tree *tree);
 static struct tree *
 analyzer_analyze_node_identifier (struct analyzer *analyzer, struct tree *tree);
 
+static struct tree *
+analyzer_analyze_node_sizeof (struct analyzer *analyzer, struct tree *tree);
+
 
 static void
 analyzer_analyze_node_program (struct analyzer *analyzer, struct tree *tree);
@@ -355,43 +358,65 @@ analyzer_analyze_type (struct analyzer *analyzer, struct type *type)
 struct tree *
 analyzer_analyze_expression_and_type (struct analyzer *analyzer, struct tree *tree)
 {
-  struct type **type = tree_get_expression_type_p (tree);
-
-  *type = analyzer_analyze_type (analyzer, *type);
+  struct tree *result;
 
   switch (tree->kind)
     {
     case TREE_IMPLICIT_SCALE:
-      return analyzer_analyze_node_implicit_scale (analyzer, tree);
+      result = analyzer_analyze_node_implicit_scale (analyzer, tree);
+      break;
     case TREE_CAST:
-      return analyzer_analyze_node_cast (analyzer, tree);
+      result = analyzer_analyze_node_cast (analyzer, tree);
+      break;
     case TREE_CALL:
-      return analyzer_analyze_node_call (analyzer, tree);
+      result = analyzer_analyze_node_call (analyzer, tree);
+      break;
     case TREE_ASSIGNMENT:
-      return analyzer_analyze_node_assignment (analyzer, tree);
+      result = analyzer_analyze_node_assignment (analyzer, tree);
+      break;
     case TREE_ACCESS:
-      return analyzer_analyze_node_access (analyzer, tree);
+      result = analyzer_analyze_node_access (analyzer, tree);
+      break;
     case TREE_OR:
-      return analyzer_analyze_node_or (analyzer, tree);
+      result = analyzer_analyze_node_or (analyzer, tree);
+      break;
     case TREE_AND:
-      return analyzer_analyze_node_and (analyzer, tree);
+      result = analyzer_analyze_node_and (analyzer, tree);
+      break;
     case TREE_UNARY:
-      return analyzer_analyze_node_unary (analyzer, tree);
+      result = analyzer_analyze_node_unary (analyzer, tree);
+      break;
     case TREE_BINARY:
-      return analyzer_analyze_node_binary (analyzer, tree);
+      result = analyzer_analyze_node_binary (analyzer, tree);
+      break;
     case TREE_REFERENCE:
-      return analyzer_analyze_node_reference (analyzer, tree);
+      result = analyzer_analyze_node_reference (analyzer, tree);
+      break;
     case TREE_DEREFERENCE:
-      return analyzer_analyze_node_dereference (analyzer, tree);
+      result = analyzer_analyze_node_dereference (analyzer, tree);
+      break;
     case TREE_INTEGER:
-      return analyzer_analyze_node_integer (analyzer, tree);
+      result = analyzer_analyze_node_integer (analyzer, tree);
+      break;
     case TREE_STRING:
-      return analyzer_analyze_node_string (analyzer, tree);
+      result = analyzer_analyze_node_string (analyzer, tree);
+      break;
     case TREE_IDENTIFIER:
-      return analyzer_analyze_node_identifier (analyzer, tree);
+      result = analyzer_analyze_node_identifier (analyzer, tree);
+      break;
+    case TREE_SIZEOF:
+      result = analyzer_analyze_node_sizeof (analyzer, tree);
+      break;
     default:
-      return unreachable1 (NULL);
+      result = unreachable1 (NULL);
+      break;
     }
+
+  struct type **type = tree_get_expression_type_p (result);
+
+  *type = analyzer_analyze_type (analyzer, *type);
+
+  return result;
 }
 
 
@@ -1432,6 +1457,24 @@ analyzer_analyze_node_identifier (struct analyzer *analyzer, struct tree *tree)
   integer = tree_create (tree->location, TREE_INTEGER);
 
   integer->d.integer.value = symbol->d.enum_.value;
+  integer->d.integer.expression_type = type_create (tree->location, TYPE_I64);
+
+  return integer;
+}
+
+
+static struct tree *
+analyzer_analyze_node_sizeof (struct analyzer *analyzer, struct tree *tree)
+{
+  struct tree_node_sizeof *sizeof_ = &tree->d.sizeof_;
+
+  sizeof_->type = analyzer_analyze_type (analyzer, sizeof_->type);
+
+  struct tree *integer;
+
+  integer = tree_create (tree->location, TREE_INTEGER);
+
+  integer->d.integer.value = type_size (sizeof_->type);
   integer->d.integer.expression_type = type_create (tree->location, TYPE_I64);
 
   return integer;

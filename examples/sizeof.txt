@@ -1,0 +1,12 @@
+
+struct S {
+  _8 : u64;
+  _4 : u32;
+  _2 : u16;
+  _1 : u8;
+}
+
+fn main() {
+  print sizeof struct S;
+}
+

@@ -154,6 +154,8 @@ static struct keyword KEYWORD_TABLE[] = {
   { "u16", TOKEN_U16, },
   { "u32", TOKEN_U32, },
   { "u64", TOKEN_U64, },
+
+  { "sizeof", TOKEN_SIZEOF, },
 };
 
 
