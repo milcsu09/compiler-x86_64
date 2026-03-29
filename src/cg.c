@@ -843,6 +843,9 @@ static struct cg_register
 cg_generate_node_assignment (struct cg *cg, struct tree *tree);
 
 static struct cg_register
+cg_generate_node_assignment_binary (struct cg *cg, struct tree *tree);
+
+static struct cg_register
 cg_generate_node_access (struct cg *cg, struct tree *tree);
 
 static struct cg_register
@@ -893,6 +896,8 @@ cg_generate_expression (struct cg *cg, struct tree *tree)
       return cg_generate_node_call (cg, tree);
     case TREE_ASSIGNMENT:
       return cg_generate_node_assignment (cg, tree);
+    case TREE_ASSIGNMENT_BINARY:
+      return cg_generate_node_assignment_binary (cg, tree);
     case TREE_ACCESS:
       return cg_generate_node_access (cg, tree);
     case TREE_OR:
@@ -1401,6 +1406,41 @@ cg_generate_node_scale (struct cg *cg, struct tree *tree)
 
 
 static struct cg_register
+cg_generate_cast (struct cg *cg, struct cg_register r, struct type *desired, struct type *base)
+{
+  enum type_width wa = type_width (desired);
+  enum type_width wb = type_width (base);
+
+  bool sa = type_is_signed (desired);
+  bool sb = type_is_signed (base);
+
+  // Truncation
+  if (wa < wb)
+    {
+      return register_modify (r, wa);
+    }
+
+  // Extension
+  if (wa > wb)
+    {
+      struct cg_register s = register_modify (r, wa);
+
+      if (sa && sb)
+        cg_write_sext (cg, s, r);
+      else
+        {
+          if (wb < WIDTH_4)
+            cg_write_zext (cg, s, r);
+        }
+
+      return s;
+    }
+
+  return r;
+}
+
+
+static struct cg_register
 cg_generate_node_cast (struct cg *cg, struct tree *tree)
 {
   struct tree_node_cast *node = &tree->d.cast;
@@ -1410,6 +1450,9 @@ cg_generate_node_cast (struct cg *cg, struct tree *tree)
   struct type *type_a = node->expression_type;
   struct type *type_b = tree_get_expression_type (node->value);
 
+  return cg_generate_cast (cg, r, type_a, type_b);
+
+  /*
   enum type_width wa = type_width (type_a);
   enum type_width wb = type_width (type_b);
 
@@ -1439,6 +1482,7 @@ cg_generate_node_cast (struct cg *cg, struct tree *tree)
     }
 
   return r;
+  */
 }
 
 
@@ -1570,6 +1614,106 @@ cg_generate_node_assignment (struct cg *cg, struct tree *tree)
   cg_register_free (cg, lhs);
 
   return rhs;
+}
+
+
+static struct cg_register
+cg_generate_node_assignment_binary (struct cg *cg, struct tree *tree)
+{
+  struct tree_node_assignment_binary *node = &tree->d.assignment_binary;
+
+  // Generate this pattern:
+  // lea r10, x
+  // mov r11, [r10]
+  // mov r12, 10
+  // add r11, r12
+  // mov [r10], r11
+
+  struct cg_register lhs_lvalue = cg_generate_lvalue (cg, node->lhs);
+
+  struct type *lhs_type = tree_get_expression_type (node->lhs);
+
+  struct cg_register lhs_rvalue = cg_register_allocate (cg, type_width (lhs_type));
+
+  cg_write_load (cg, lhs_rvalue, lhs_lvalue);
+
+  struct cg_register a = lhs_rvalue;
+
+  if (node->lhs_promoted_type != NULL)
+    a = cg_generate_cast (cg, lhs_rvalue, node->lhs_promoted_type, lhs_type);
+
+  struct cg_register b = cg_generate_rvalue (cg, node->rhs);
+
+  struct type *common_type;
+
+  if (node->lhs_promoted_type != NULL)
+    common_type = node->lhs_promoted_type;
+  else
+    common_type = lhs_type;
+
+  bool s = type_is_signed (common_type);
+
+  enum assignment_operator o = node->operator;
+
+  switch (o)
+    {
+    case ASSIGNMENT_ADD:
+      cg_write_add (cg, a, b);
+      break;
+    case ASSIGNMENT_SUB:
+      cg_write_sub (cg, a, b);
+      break;
+
+    case ASSIGNMENT_SHL:
+      cg_write_shl (cg, a, b);
+      break;
+    case ASSIGNMENT_SHR:
+      if (s)
+        cg_write_sar (cg, a, b);
+      else
+        cg_write_shr (cg, a, b);
+      break;
+    case ASSIGNMENT_BOR:
+      cg_write_bor (cg, a, b);
+      break;
+    case ASSIGNMENT_BAND:
+      cg_write_band (cg, a, b);
+      break;
+    case ASSIGNMENT_BXOR:
+      cg_write_bxor (cg, a, b);
+      break;
+
+    case ASSIGNMENT_MUL:
+      cg_write_mul (cg, a, b);
+      break;
+    case ASSIGNMENT_DIV:
+      if (s)
+        cg_write_sdiv (cg, a, b);
+      else
+        cg_write_udiv (cg, a, b);
+      break;
+    case ASSIGNMENT_MOD:
+      if (s)
+        cg_write_smod (cg, a, b);
+      else
+        cg_write_umod (cg, a, b);
+      break;
+
+    default:
+      unreachable ();
+      break;
+    }
+
+  cg_register_free (cg, b);
+
+  if (node->lhs_promoted_type != NULL)
+    a = cg_generate_cast (cg, lhs_rvalue, lhs_type, node->lhs_promoted_type);
+
+  cg_write_store (cg, lhs_lvalue, a);
+
+  cg_register_free (cg, lhs_lvalue);
+
+  return a;
 }
 
 

@@ -347,25 +347,41 @@ lexer_next (struct lexer *lexer)
           return lexer_advance_token (lexer, TOKEN_TILDE);
 
         case '+':
+          if (lexer_match_start (lexer, "+="))
+            return lexer_advance_n_token (lexer, 2, TOKEN_PLUS_EQ);
           return lexer_advance_token (lexer, TOKEN_PLUS);
         case '-':
           if (lexer_match_start (lexer, "->"))
             return lexer_advance_n_token (lexer, 2, TOKEN_ARROW);
+          if (lexer_match_start (lexer, "-="))
+            return lexer_advance_n_token (lexer, 2, TOKEN_MINUS_EQ);
           return lexer_advance_token (lexer, TOKEN_MINUS);
 
         case '*':
+          if (lexer_match_start (lexer, "*="))
+            return lexer_advance_n_token (lexer, 2, TOKEN_STAR_EQ);
           return lexer_advance_token (lexer, TOKEN_STAR);
         case '/':
+          if (lexer_match_start (lexer, "/="))
+            return lexer_advance_n_token (lexer, 2, TOKEN_SLASH_EQ);
           return lexer_advance_token (lexer, TOKEN_SLASH);
 
         case '%':
+          if (lexer_match_start (lexer, "%="))
+            return lexer_advance_n_token (lexer, 2, TOKEN_PERCENT_EQ);
           return lexer_advance_token (lexer, TOKEN_PERCENT);
 
         case '^':
+          if (lexer_match_start (lexer, "^="))
+            return lexer_advance_n_token (lexer, 2, TOKEN_CARET_EQ);
           return lexer_advance_token (lexer, TOKEN_CARET);
         case '|':
+          if (lexer_match_start (lexer, "|="))
+            return lexer_advance_n_token (lexer, 2, TOKEN_PIPE_EQ);
           return lexer_advance_token (lexer, TOKEN_PIPE);
         case '&':
+          if (lexer_match_start (lexer, "&="))
+            return lexer_advance_n_token (lexer, 2, TOKEN_AMPERSAND_EQ);
           return lexer_advance_token (lexer, TOKEN_AMPERSAND);
 
         case '=':
@@ -374,12 +390,16 @@ lexer_next (struct lexer *lexer)
           return lexer_advance_token (lexer, TOKEN_EQ);
 
         case '<':
+          if (lexer_match_start (lexer, "<<="))
+            return lexer_advance_n_token (lexer, 3, TOKEN_SHL_EQ);
           if (lexer_match_start (lexer, "<<"))
             return lexer_advance_n_token (lexer, 2, TOKEN_SHL);
           if (lexer_match_start (lexer, "<="))
             return lexer_advance_n_token (lexer, 2, TOKEN_LE);
           return lexer_advance_token (lexer, TOKEN_L);
         case '>':
+          if (lexer_match_start (lexer, ">>="))
+            return lexer_advance_n_token (lexer, 3, TOKEN_SHR_EQ);
           if (lexer_match_start (lexer, ">>"))
             return lexer_advance_n_token (lexer, 2, TOKEN_SHR);
           if (lexer_match_start (lexer, ">="))

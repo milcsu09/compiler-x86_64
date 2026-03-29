@@ -8,6 +8,11 @@ A toy compiler for a _custom_ language that generates x86_64 assembly code for L
   - [x] Local, global and extern
   - [ ] Initializer values
   - [ ] Immutability
+- Operators
+  - [x] Arithmetic
+  - [x] Bitwise
+  - [x] Comparison
+  - [x] Assignment
 - Types
   - [x] Void
   - [x] Integers (signed and unsigned)

@@ -913,8 +913,63 @@ parser_parse_expression_assignment (struct parser *parser)
 
   lhs = parser_parse_expression_or (parser);
 
-  if (!parser_match (parser, TOKEN_EQ))
-    return lhs;
+  enum assignment_operator operator;
+
+  switch (parser->current->kind)
+    {
+    case TOKEN_EQ:
+      {
+        parser_advance (parser);
+
+        struct tree *rhs;
+
+        rhs = parser_parse_expression_assignment (parser);
+
+        struct tree *result;
+
+        result = tree_create (lhs->location, TREE_ASSIGNMENT);
+
+        result->d.assignment.lhs = lhs;
+        result->d.assignment.rhs = rhs;
+
+        return result;
+      }
+      break;
+
+    case TOKEN_PLUS_EQ:
+      operator = ASSIGNMENT_ADD;
+      break;
+    case TOKEN_MINUS_EQ:
+      operator = ASSIGNMENT_SUB;
+      break;
+    case TOKEN_STAR_EQ:
+      operator = ASSIGNMENT_MUL;
+      break;
+    case TOKEN_SLASH_EQ:
+      operator = ASSIGNMENT_DIV;
+      break;
+    case TOKEN_PERCENT_EQ:
+      operator = ASSIGNMENT_MOD;
+      break;
+
+    case TOKEN_SHL_EQ:
+      operator = ASSIGNMENT_SHL;
+      break;
+    case TOKEN_SHR_EQ:
+      operator = ASSIGNMENT_SHR;
+      break;
+    case TOKEN_PIPE_EQ:
+      operator = ASSIGNMENT_BOR;
+      break;
+    case TOKEN_AMPERSAND_EQ:
+      operator = ASSIGNMENT_BAND;
+      break;
+    case TOKEN_CARET_EQ:
+      operator = ASSIGNMENT_BXOR;
+      break;
+    default:
+      return lhs;
+    }
 
   parser_advance (parser);
 
@@ -924,10 +979,12 @@ parser_parse_expression_assignment (struct parser *parser)
 
   struct tree *result;
 
-  result = tree_create (lhs->location, TREE_ASSIGNMENT);
+  result = tree_create (lhs->location, TREE_ASSIGNMENT_BINARY);
 
-  result->d.assignment.lhs = lhs;
-  result->d.assignment.rhs = rhs;
+  result->d.assignment_binary.operator = operator;
+
+  result->d.assignment_binary.lhs = lhs;
+  result->d.assignment_binary.rhs = rhs;
 
   return result;
 }

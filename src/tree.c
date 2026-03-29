@@ -6,6 +6,28 @@
 #include <stdio.h>
 
 
+static const char *const ASSIGNMENT_OPERATOR_STRING[] = {
+  "+=",
+  "-=",
+  "*=",
+  "/=",
+  "%=",
+
+  "<<=",
+  ">>=",
+  "|=",
+  "&=",
+  "^=",
+};
+
+
+const char *
+assignment_operator_string (enum assignment_operator operator)
+{
+  return ASSIGNMENT_OPERATOR_STRING[operator];
+}
+
+
 static const char *const UNARY_OPERATOR_STRING[] = {
   "-",
   "~",
@@ -74,6 +96,7 @@ static const char *const TREE_KIND_STRING[] = {
   "cast",
   "call",
   "assignment",
+  "assignment_binary",
   "access",
   "or",
   "and",
@@ -162,6 +185,8 @@ tree_get_expression_type_p (struct tree *tree)
       return &tree->d.call.expression_type;
     case TREE_ASSIGNMENT:
       return &tree->d.assignment.expression_type;
+    case TREE_ASSIGNMENT_BINARY:
+      return &tree->d.assignment_binary.expression_type;
     case TREE_ACCESS:
       return &tree->d.access.expression_type;
     case TREE_OR:
@@ -434,6 +459,21 @@ tree_print (struct tree *tree, int depth)
         type_print (node.expression_type, depth + 1);
 
         tree_print (node.lhs, depth + 1);
+        tree_print (node.rhs, depth + 1);
+      }
+      break;
+    case TREE_ASSIGNMENT_BINARY:
+      {
+        struct tree_node_assignment_binary node = tree->d.assignment_binary;
+
+        type_print (node.expression_type, depth + 1);
+
+        tree_print_indent (depth + 1);
+
+        fprintf (stderr, "%s\n", assignment_operator_string (node.operator));
+
+        tree_print (node.lhs, depth + 1);
+        type_print (node.lhs_promoted_type, depth + 1);
         tree_print (node.rhs, depth + 1);
       }
       break;

@@ -1,0 +1,18 @@
+
+extern fn puts(*u8);
+
+a : i64;
+
+fn f() -> *i64 {
+  puts("Called 'f()'");
+  return &a;
+}
+
+fn main() {
+  a = 5;
+
+  *f() += 15;
+
+  print a;
+}
+

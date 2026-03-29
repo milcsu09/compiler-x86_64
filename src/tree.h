@@ -9,6 +9,26 @@
 #include <stdint.h>
 
 
+enum assignment_operator
+{
+  ASSIGNMENT_ADD,
+  ASSIGNMENT_SUB,
+  ASSIGNMENT_MUL,
+  ASSIGNMENT_DIV,
+  ASSIGNMENT_MOD,
+
+  ASSIGNMENT_SHL,
+  ASSIGNMENT_SHR,
+  ASSIGNMENT_BOR,
+  ASSIGNMENT_BAND,
+  ASSIGNMENT_BXOR,
+};
+
+
+const char *
+assignment_operator_string (enum assignment_operator operator);
+
+
 enum unary_operator
 {
   UNARY_NEG,
@@ -77,6 +97,7 @@ enum tree_kind
   TREE_CAST,
   TREE_CALL,
   TREE_ASSIGNMENT,
+  TREE_ASSIGNMENT_BINARY,
   TREE_ACCESS,
   TREE_OR,
   TREE_AND,
@@ -253,6 +274,19 @@ struct tree_node_assignment
 };
 
 
+struct tree_node_assignment_binary
+{
+  enum assignment_operator operator;
+
+  struct tree *lhs;
+  struct tree *rhs;
+
+  struct type *expression_type;
+
+  struct type *lhs_promoted_type; // NULL if promotion is not required
+};
+
+
 struct tree_node_access
 {
   struct tree *value;
@@ -356,42 +390,43 @@ struct tree_node_program
 
 union tree_data
 {
-  struct tree_node_extern       extern_;
-  struct tree_node_fdeclaration fdeclaration;
-  struct tree_node_fdefinition  fdefinition;
+  struct tree_node_extern            extern_;
+  struct tree_node_fdeclaration      fdeclaration;
+  struct tree_node_fdefinition       fdefinition;
 
-  struct tree_node_struct       struct_;
-  struct tree_node_union        union_;
-  struct tree_node_enum         enum_;
-  struct tree_node_enum_field   enum_field;
+  struct tree_node_struct            struct_;
+  struct tree_node_union             union_;
+  struct tree_node_enum              enum_;
+  struct tree_node_enum_field        enum_field;
 
-  struct tree_node_if           if_;
-  struct tree_node_while        while_;
-  struct tree_node_for          for_;
-  struct tree_node_compound     compound;
-  struct tree_node_vdeclaration vdeclaration;
-  struct tree_node_return       return_;
-  struct tree_node_print        print;
+  struct tree_node_if                if_;
+  struct tree_node_while             while_;
+  struct tree_node_for               for_;
+  struct tree_node_compound          compound;
+  struct tree_node_vdeclaration      vdeclaration;
+  struct tree_node_return            return_;
+  struct tree_node_print             print;
 
-  struct tree_node_scale        scale;
+  struct tree_node_scale             scale;
 
-  struct tree_node_cast         cast;
-  struct tree_node_call         call;
-  struct tree_node_assignment   assignment;
-  struct tree_node_access       access;
-  struct tree_node_or           or;
-  struct tree_node_and          and;
-  struct tree_node_unary        unary;
-  struct tree_node_binary       binary;
-  struct tree_node_reference    reference;
-  struct tree_node_dereference  dereference;
-  struct tree_node_integer      integer;
-  struct tree_node_string       string;
-  struct tree_node_identifier   identifier;
+  struct tree_node_cast              cast;
+  struct tree_node_call              call;
+  struct tree_node_assignment        assignment;
+  struct tree_node_assignment_binary assignment_binary;
+  struct tree_node_access            access;
+  struct tree_node_or                or;
+  struct tree_node_and               and;
+  struct tree_node_unary             unary;
+  struct tree_node_binary            binary;
+  struct tree_node_reference         reference;
+  struct tree_node_dereference       dereference;
+  struct tree_node_integer           integer;
+  struct tree_node_string            string;
+  struct tree_node_identifier        identifier;
 
-  struct tree_node_sizeof       sizeof_;
+  struct tree_node_sizeof            sizeof_;
 
-  struct tree_node_program      program;
+  struct tree_node_program           program;
 };
 
 

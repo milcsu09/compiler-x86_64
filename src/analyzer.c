@@ -163,6 +163,9 @@ static struct tree *
 analyzer_analyze_node_assignment (struct analyzer *analyzer, struct tree *tree);
 
 static struct tree *
+analyzer_analyze_node_assignment_binary (struct analyzer *analyzer, struct tree *tree);
+
+static struct tree *
 analyzer_analyze_node_access (struct analyzer *analyzer, struct tree *tree);
 
 static struct tree *
@@ -373,6 +376,9 @@ analyzer_analyze_expression_and_type (struct analyzer *analyzer, struct tree *tr
       break;
     case TREE_ASSIGNMENT:
       result = analyzer_analyze_node_assignment (analyzer, tree);
+      break;
+    case TREE_ASSIGNMENT_BINARY:
+      result = analyzer_analyze_node_assignment_binary (analyzer, tree);
       break;
     case TREE_ACCESS:
       result = analyzer_analyze_node_access (analyzer, tree);
@@ -1026,6 +1032,157 @@ analyzer_analyze_node_assignment (struct analyzer *analyzer, struct tree *tree)
     }
 
   return tree;
+}
+
+
+static struct tree *
+analyzer_analyze_node_assignment_binary (struct analyzer *analyzer, struct tree *tree)
+{
+  struct tree_node_assignment_binary *assignment = &tree->d.assignment_binary;
+
+  assignment->lhs = analyzer_analyze_lvalue_and_type (analyzer, assignment->lhs);
+  assignment->rhs = analyzer_analyze_rvalue_and_type (analyzer, assignment->rhs);
+
+  assignment->lhs_promoted_type = NULL;
+
+  struct type *lhs_type = tree_get_expression_type (assignment->lhs);
+
+  if (!type_is_assignable (lhs_type))
+    {
+      char name[512];
+
+      type_string (lhs_type, name, sizeof name);
+
+      error (tree->location, "assignment to non-assignable type '%s'", name);
+
+      exit (1);
+    }
+
+  struct type *rhs_type = tree_get_expression_type (assignment->rhs);
+
+  enum assignment_operator operator = assignment->operator;
+
+  bool lhs_is_integer = type_is_integer (lhs_type);
+  bool rhs_is_integer = type_is_integer (rhs_type);
+
+  bool lhs_is_pointer = type_is_pointer (lhs_type);
+  // bool rhs_is_pointer = type_is_pointer (rhs_type);
+
+  switch (operator)
+    {
+    case ASSIGNMENT_ADD:
+    case ASSIGNMENT_SUB:
+      if (lhs_is_integer && rhs_is_integer)
+        {
+          struct type *common = type_find_common (lhs_type, rhs_type);
+
+          if (type_cast_required (lhs_type, common))
+            assignment->lhs_promoted_type = common;
+
+          assignment->rhs = analyzer_tree_create_cast (assignment->rhs, common);
+
+          assignment->expression_type = lhs_type;
+
+          return tree;
+        }
+
+      // if (lhs_is_integer && rhs_is_pointer)
+      //   {
+      //     assignment->lhs
+      //         = analyzer_tree_create_cast (assignment->lhs, type_create (tree->location, TYPE_I64));
+
+      //     assignment->expression_type = rhs_type;
+
+      //     struct type *type_base
+      //         = analyzer_analyze_type (analyzer, type_element (assignment->expression_type));
+
+      //     assignment->lhs = analyzer_tree_create_scale (assignment->lhs, type_base);
+
+      //     return tree;
+      //   }
+
+      if (lhs_is_pointer && rhs_is_integer)
+        {
+          assignment->rhs
+              = analyzer_tree_create_cast (assignment->rhs, type_create (tree->location, TYPE_I64));
+
+          assignment->expression_type = lhs_type;
+
+          struct type *type_base
+              = analyzer_analyze_type (analyzer, type_element (assignment->expression_type));
+
+          assignment->rhs = analyzer_tree_create_scale (assignment->rhs, type_base);
+
+          return tree;
+        }
+
+      // if (operator == ASSIGNMENT_SUB)
+      //   if (lhs_is_pointer && rhs_is_pointer)
+      //     {
+      //       assignment->expression_type = type_create (tree->location, TYPE_I64);
+
+      //       return tree;
+      //     }
+
+      break;
+
+    case ASSIGNMENT_SHL:
+    case ASSIGNMENT_SHR:
+    case ASSIGNMENT_BOR:
+    case ASSIGNMENT_BAND:
+    case ASSIGNMENT_BXOR:
+      if (lhs_is_integer && rhs_is_integer)
+        {
+          struct type *common = type_find_common (lhs_type, rhs_type);
+
+          if (type_cast_required (lhs_type, common))
+            assignment->lhs_promoted_type = common;
+
+          assignment->rhs = analyzer_tree_create_cast (assignment->rhs, common);
+
+          assignment->expression_type = lhs_type;
+
+          return tree;
+        }
+
+      break;
+
+    case ASSIGNMENT_MUL:
+    case ASSIGNMENT_DIV:
+    case ASSIGNMENT_MOD:
+      if (lhs_is_integer && rhs_is_integer)
+        {
+          struct type *common = type_find_common (lhs_type, rhs_type);
+
+          if (type_cast_required (lhs_type, common))
+            assignment->lhs_promoted_type = common;
+
+          assignment->rhs = analyzer_tree_create_cast (assignment->rhs, common);
+
+          assignment->expression_type = lhs_type;
+
+          return tree;
+        }
+
+      break;
+
+    default:
+      unreachable ();
+      break;
+    }
+
+  const char *operator_name = assignment_operator_string (operator);
+
+  char lhs_name[512];
+  char rhs_name[512];
+
+  type_string (lhs_type, lhs_name, sizeof lhs_name);
+  type_string (rhs_type, rhs_name, sizeof rhs_name);
+
+  error (tree->location, "operator '%s' between '%s' and '%s' is not allowed", operator_name,
+         lhs_name, rhs_name);
+
+  exit (1);
 }
 
 
