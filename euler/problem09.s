@@ -52,11 +52,11 @@ main:
 	call	printi
 .L9:
 .L8:
-	mov	r10, qword [rbp-16]
-	mov	r11, 1
-	add	r10, r11
-	lea	r11, [rbp-16]
-	mov	qword [r11], r10
+	lea	r10, [rbp-16]
+	mov	r11, qword [r10]
+	mov	r12, 1
+	add	r11, r12
+	mov	qword [r10], r11
 .L6:
 	mov	r10, qword [rbp-16]
 	mov	r11, 1000
@@ -66,11 +66,11 @@ main:
 	jnz	.L5
 .L7:
 .L4:
-	mov	r10, qword [rbp-8]
-	mov	r11, 1
-	add	r10, r11
-	lea	r11, [rbp-8]
-	mov	qword [r11], r10
+	lea	r10, [rbp-8]
+	mov	r11, qword [r10]
+	mov	r12, 1
+	add	r11, r12
+	mov	qword [r10], r11
 .L2:
 	mov	r10, qword [rbp-8]
 	mov	r11, 1000

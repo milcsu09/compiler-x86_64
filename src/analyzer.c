@@ -765,11 +765,13 @@ analyzer_analyze_node_for (struct analyzer *analyzer, struct tree *tree)
 {
   struct tree_node_for *for_ = &tree->d.for_;
 
-  for_->init = analyzer_analyze_expression_and_type (analyzer, for_->init);
+  if (for_->init)
+    for_->init = analyzer_analyze_expression_and_type (analyzer, for_->init);
 
   for_->condition = analyzer_analyze_rvalue_and_type (analyzer, for_->condition);
 
-  for_->increment = analyzer_analyze_expression_and_type (analyzer, for_->increment);
+  if (for_->increment)
+    for_->increment = analyzer_analyze_expression_and_type (analyzer, for_->increment);
 
   analyzer->loop_depth++;
 

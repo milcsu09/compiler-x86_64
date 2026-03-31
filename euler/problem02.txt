@@ -1,5 +1,5 @@
 
-fn main() -> i32 {
+fn main() {
   a : i64;
   b : i64;
 
@@ -11,7 +11,7 @@ fn main() -> i32 {
 
   while a < 4000000 {
     if a % 2 == 0 {
-      s = s + a;
+      s += a;
     }
 
     c : i64;
@@ -22,7 +22,5 @@ fn main() -> i32 {
   }
 
   print s;
-
-  return 0;
 }
 

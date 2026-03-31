@@ -34,11 +34,11 @@ main:
 	sete	r10b
 	test	r10b, r10b
 	jz	.L4
-	mov	r10, qword [rbp-24]
-	mov	r11, qword [rbp-8]
-	add	r10, r11
-	lea	r11, [rbp-24]
-	mov	qword [r11], r10
+	lea	r10, [rbp-24]
+	mov	r11, qword [r10]
+	mov	r12, qword [rbp-8]
+	add	r11, r12
+	mov	qword [r10], r11
 .L4:
 	mov	r10, qword [rbp-8]
 	mov	r11, qword [rbp-16]
@@ -62,11 +62,8 @@ main:
 	mov	r10, qword [rbp-24]
 	mov	rdi, r10
 	call	printi
-	mov	r10, 0
-	mov	eax, r10d
-	jmp	.L0
-	xor	rax, rax
 .L0:
+	xor	rax, rax
 	add	rsp, 32
 	pop	rbp
 	ret

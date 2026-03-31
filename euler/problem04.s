@@ -18,29 +18,31 @@ reverse:
 	mov	qword [r11], r10
 	jmp	.L2
 .L1:
-	mov	r10, qword [rbp-16]
-	mov	r11, 10
-	imul	r10, r11
-	lea	r11, [rbp-16]
-	mov	qword [r11], r10
-	mov	r10, qword [rbp-16]
-	mov	r11, qword [rbp-8]
+	lea	r10, [rbp-16]
+	mov	r11, qword [r10]
+	mov	r12, 10
+	imul	r11, r12
+	mov	qword [r10], r11
+	lea	r10, [rbp-16]
+	mov	r11, qword [r10]
+	mov	r12, qword [rbp-8]
+	push	r10
+	mov	r10, 10
+	mov	rax, r12
+	cqo
+	idiv	r10
+	mov	r12, rdx
+	pop	r10
+	add	r11, r12
+	mov	qword [r10], r11
+	lea	r10, [rbp-8]
+	mov	r11, qword [r10]
 	mov	r12, 10
 	mov	rax, r11
 	cqo
 	idiv	r12
-	mov	r11, rdx
-	add	r10, r11
-	lea	r11, [rbp-16]
-	mov	qword [r11], r10
-	mov	r10, qword [rbp-8]
-	mov	r11, 10
-	mov	rax, r10
-	cqo
-	idiv	r11
-	mov	r10, rax
-	lea	r11, [rbp-8]
-	mov	qword [r11], r10
+	mov	r11, rax
+	mov	qword [r10], r11
 .L2:
 	mov	r10, qword [rbp-8]
 	test	r10, r10
@@ -123,11 +125,11 @@ main:
 	mov	qword [r11], r10
 .L14:
 .L13:
-	mov	r10, qword [rbp-16]
-	mov	r11, 1
-	add	r10, r11
-	lea	r11, [rbp-16]
-	mov	qword [r11], r10
+	lea	r10, [rbp-16]
+	mov	r11, qword [r10]
+	mov	r12, 1
+	add	r11, r12
+	mov	qword [r10], r11
 .L11:
 	mov	r10, qword [rbp-16]
 	mov	r11, 999
@@ -137,11 +139,11 @@ main:
 	jnz	.L10
 .L12:
 .L9:
-	mov	r10, qword [rbp-8]
-	mov	r11, 1
-	add	r10, r11
-	lea	r11, [rbp-8]
-	mov	qword [r11], r10
+	lea	r10, [rbp-8]
+	mov	r11, qword [r10]
+	mov	r12, 1
+	add	r11, r12
+	mov	qword [r10], r11
 .L7:
 	mov	r10, qword [rbp-8]
 	mov	r11, 999

@@ -120,26 +120,26 @@ n_divisors:
 	sete	r10b
 	test	r10b, r10b
 	jz	.L12
-	mov	r10, qword [rbp-16]
-	mov	r11, 1
-	add	r10, r11
-	lea	r11, [rbp-16]
-	mov	qword [r11], r10
+	lea	r10, [rbp-16]
+	mov	r11, qword [r10]
+	mov	r12, 1
+	add	r11, r12
+	mov	qword [r10], r11
 	jmp	.L13
 .L12:
-	mov	r10, qword [rbp-16]
-	mov	r11, 2
-	add	r10, r11
-	lea	r11, [rbp-16]
-	mov	qword [r11], r10
+	lea	r10, [rbp-16]
+	mov	r11, qword [r10]
+	mov	r12, 2
+	add	r11, r12
+	mov	qword [r10], r11
 .L13:
 .L11:
 .L10:
-	mov	r10, qword [rbp-24]
-	mov	r11, 1
-	add	r10, r11
-	lea	r11, [rbp-24]
-	mov	qword [r11], r10
+	lea	r10, [rbp-24]
+	mov	r11, qword [r10]
+	mov	r12, 1
+	add	r11, r12
+	mov	qword [r10], r11
 .L8:
 	mov	r10, qword [rbp-24]
 	mov	r11, qword [rbp-32]
@@ -185,16 +185,16 @@ main:
 	call	printi
 	jmp	.L17
 .L18:
-	mov	r10, qword [rbp-8]
-	mov	r11, qword [rbp-16]
-	add	r10, r11
-	lea	r11, [rbp-8]
-	mov	qword [r11], r10
-	mov	r10, qword [rbp-16]
-	mov	r11, 1
-	add	r10, r11
-	lea	r11, [rbp-16]
-	mov	qword [r11], r10
+	lea	r10, [rbp-8]
+	mov	r11, qword [r10]
+	mov	r12, qword [rbp-16]
+	add	r11, r12
+	mov	qword [r10], r11
+	lea	r10, [rbp-16]
+	mov	r11, qword [r10]
+	mov	r12, 1
+	add	r11, r12
+	mov	qword [r10], r11
 .L16:
 	mov	r10, 1
 	test	r10, r10

@@ -39,23 +39,27 @@ main:
 	mov	qword [r11], r10
 	jmp	.L6
 .L5:
-	mov	r10, qword [rbp-48]
-	mov	r11, qword [rbp-8]
-	mov	r12, qword [rbp-32]
-	add	r11, r12
-	mov	r11b, byte [r11]
-	movzx	r11, r11b
-	mov	r12, 48
-	sub	r11, r12
-	imul	r10, r11
-	lea	r11, [rbp-48]
-	mov	qword [r11], r10
-.L8:
+	lea	r10, [rbp-48]
+	mov	r11, qword [r10]
+	mov	r12, qword [rbp-8]
+	push	r10
 	mov	r10, qword [rbp-32]
-	mov	r11, 1
-	add	r10, r11
-	lea	r11, [rbp-32]
-	mov	qword [r11], r10
+	add	r12, r10
+	pop	r10
+	mov	r12b, byte [r12]
+	movzx	r12, r12b
+	push	r10
+	mov	r10, 48
+	sub	r12, r10
+	pop	r10
+	imul	r11, r12
+	mov	qword [r10], r11
+.L8:
+	lea	r10, [rbp-32]
+	mov	r11, qword [r10]
+	mov	r12, 1
+	add	r11, r12
+	mov	qword [r10], r11
 .L6:
 	mov	r10, qword [rbp-32]
 	mov	r11, qword [rbp-24]
@@ -77,11 +81,11 @@ main:
 	mov	qword [r11], r10
 .L9:
 .L4:
-	mov	r10, qword [rbp-24]
-	mov	r11, 1
-	add	r10, r11
-	lea	r11, [rbp-24]
-	mov	qword [r11], r10
+	lea	r10, [rbp-24]
+	mov	r11, qword [r10]
+	mov	r12, 1
+	add	r11, r12
+	mov	qword [r10], r11
 .L2:
 	mov	r10, qword [rbp-24]
 	mov	r11, qword [rbp-16]

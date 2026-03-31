@@ -18,18 +18,20 @@ sum_square:
 	mov	qword [r11], r10
 	jmp	.L2
 .L1:
-	mov	r10, qword [rbp-16]
-	mov	r11, qword [rbp-8]
+	lea	r10, [rbp-16]
+	mov	r11, qword [r10]
 	mov	r12, qword [rbp-8]
-	imul	r11, r12
-	add	r10, r11
-	lea	r11, [rbp-16]
-	mov	qword [r11], r10
+	push	r10
 	mov	r10, qword [rbp-8]
-	mov	r11, 1
-	sub	r10, r11
-	lea	r11, [rbp-8]
-	mov	qword [r11], r10
+	imul	r12, r10
+	pop	r10
+	add	r11, r12
+	mov	qword [r10], r11
+	lea	r10, [rbp-8]
+	mov	r11, qword [r10]
+	mov	r12, 1
+	sub	r11, r12
+	mov	qword [r10], r11
 .L2:
 	mov	r10, qword [rbp-8]
 	mov	r11, 0
@@ -58,16 +60,16 @@ square_sum:
 	mov	qword [r11], r10
 	jmp	.L6
 .L5:
-	mov	r10, qword [rbp-16]
-	mov	r11, qword [rbp-8]
-	add	r10, r11
-	lea	r11, [rbp-16]
-	mov	qword [r11], r10
-	mov	r10, qword [rbp-8]
-	mov	r11, 1
-	sub	r10, r11
-	lea	r11, [rbp-8]
-	mov	qword [r11], r10
+	lea	r10, [rbp-16]
+	mov	r11, qword [r10]
+	mov	r12, qword [rbp-8]
+	add	r11, r12
+	mov	qword [r10], r11
+	lea	r10, [rbp-8]
+	mov	r11, qword [r10]
+	mov	r12, 1
+	sub	r11, r12
+	mov	qword [r10], r11
 .L6:
 	mov	r10, qword [rbp-8]
 	mov	r11, 0

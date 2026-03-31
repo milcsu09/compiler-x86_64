@@ -111,11 +111,11 @@ isprime:
 	jmp	.L6
 .L11:
 .L10:
-	mov	r10, qword [rbp-16]
-	mov	r11, 1
-	add	r10, r11
-	lea	r11, [rbp-16]
-	mov	qword [r11], r10
+	lea	r10, [rbp-16]
+	mov	r11, qword [r10]
+	mov	r12, 1
+	add	r11, r12
+	mov	qword [r10], r11
 .L8:
 	mov	r10, qword [rbp-16]
 	mov	r11, qword [rbp-24]
@@ -176,20 +176,20 @@ biggest_prime_factor:
 	lea	r11, [rbp-24]
 	mov	qword [r11], r10
 .L18:
-	mov	r10, qword [rbp-8]
-	mov	r11, qword [rbp-16]
-	mov	rax, r10
+	lea	r10, [rbp-8]
+	mov	r11, qword [r10]
+	mov	r12, qword [rbp-16]
+	mov	rax, r11
 	cqo
-	idiv	r11
-	mov	r10, rax
-	lea	r11, [rbp-8]
-	mov	qword [r11], r10
+	idiv	r12
+	mov	r11, rax
+	mov	qword [r10], r11
 .L16:
-	mov	r10, qword [rbp-16]
-	mov	r11, 1
-	add	r10, r11
-	lea	r11, [rbp-16]
-	mov	qword [r11], r10
+	lea	r10, [rbp-16]
+	mov	r11, qword [r10]
+	mov	r12, 1
+	add	r11, r12
+	mov	qword [r10], r11
 .L14:
 	mov	r10, qword [rbp-8]
 	mov	r11, 1

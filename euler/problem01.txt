@@ -1,18 +1,16 @@
 
-fn main() -> i32 {
+fn main() {
   s : i64;
   s = 0;
 
   i : i64;
 
-  for i = 0; i < 1000; i = i + 1 {
+  for i = 0; i < 1000; i += 1 {
     if i % 3 == 0 or i % 5 == 0 {
-      s = s + i;
+      s += i;
     }
   }
 
   print s;
-
-  return 0;
 }
 
