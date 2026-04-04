@@ -107,7 +107,7 @@ type_size (struct type *type)
       {
         struct type_node_array *node = &type->d.array;
 
-        size_t n = node->size;
+        size_t n = node->size->d.integer.value;
         size_t s = type_size (node->base);
 
         return n * s;
@@ -273,7 +273,7 @@ type_string (struct type *type, char *buffer, size_t size)
 
     case TYPE_ARRAY:
       {
-        int n = snprintf (buffer, size, "[%zu]", type->d.array.size);
+        int n = snprintf (buffer, size, "[%zu]", type->d.array.size->d.integer.value);
 
         if (n < 0 || (size_t)n >= size)
           return;
@@ -335,7 +335,7 @@ type_create_pointer (struct location location, struct type *base)
 
 
 struct type *
-type_create_array (struct location location, size_t size, struct type *base)
+type_create_array (struct location location, struct tree *size, struct type *base)
 {
   struct type *result;
 
@@ -603,9 +603,10 @@ type_print (struct type *type, int depth)
       {
         struct type_node_array node = type->d.array;
 
-        type_print_indent (depth + 1);
-        fprintf (stderr, "\033[38;5;100m%zu\033[0m\n", node.size);
+        // type_print_indent (depth + 1);
+        // fprintf (stderr, "\033[38;5;100m%zu\033[0m\n", node.size);
 
+        tree_print (node.size, depth + 1);
         type_print (node.base, depth + 1);
       }
       break;

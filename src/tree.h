@@ -181,7 +181,7 @@ struct tree_node_enum_field
 {
   char *name;
 
-  int64_t optional_value;
+  struct tree *optional_value;
 
   bool has_optional_value;
 };
@@ -444,6 +444,9 @@ struct tree
 
 struct tree *
 tree_create (struct location location, enum tree_kind kind);
+
+struct tree *
+tree_create_integer (struct location location, int64_t value);
 
 
 void

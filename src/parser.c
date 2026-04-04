@@ -4,7 +4,9 @@
 #include "lexer.h"
 #include "type.h"
 #include "memory.h"
+#include "fold.h"
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -568,8 +570,6 @@ parser_parse_top_enum (struct parser *parser)
         parser_advance (parser);
       else
         parser_expect (parser, TOKEN_RBRACE);
-
-      // parser_expect_advance (parser, TOKEN_COMMA);
     }
   while (!parser_match (parser, TOKEN_RBRACE));
 
@@ -601,9 +601,11 @@ parser_parse_top_enum_field (struct parser *parser)
     {
       parser_advance (parser);
 
-      struct tree *value = parser_parse_primary_integer (parser);
+      struct tree *value;
 
-      result->d.enum_field.optional_value = value->d.integer.value;
+      value = parser_parse_expression_binary (parser);
+
+      result->d.enum_field.optional_value = value;
 
       result->d.enum_field.has_optional_value = true;
     }
@@ -1537,12 +1539,9 @@ parser_parse_type (struct parser *parser)
       {
         parser_advance (parser);
 
-        // TODO: Implement constant expressions.
-        parser_expect (parser, TOKEN_INTEGER);
+        struct tree *size;
 
-        size_t size = parser->current->d.i;
-
-        parser_advance (parser);
+        size = parser_parse_expression_binary (parser);
 
         parser_expect_advance (parser, TOKEN_RBRACKET);
 

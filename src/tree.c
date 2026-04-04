@@ -138,6 +138,20 @@ tree_create (struct location location, enum tree_kind kind)
 }
 
 
+struct tree *
+tree_create_integer (struct location location, int64_t value)
+{
+  struct tree *tree;
+
+  tree = tree_create (location, TREE_INTEGER);
+
+  tree->d.integer.value = value;
+  tree->d.integer.expression_type = type_create (location, TYPE_I64);
+
+  return tree;
+}
+
+
 void
 tree_append (struct tree **head, struct tree *node)
 {
@@ -349,11 +363,7 @@ tree_print (struct tree *tree, int depth)
         fprintf (stderr, "\033[91m%s\033[0m\n", node.name);
 
         if (node.has_optional_value)
-          {
-            tree_print_indent (depth + 1);
-
-            fprintf (stderr, "\033[91m%ld\033[0m\n", node.optional_value);
-          }
+          tree_print (node.optional_value, depth + 1);
       }
       break;
     case TREE_IF:

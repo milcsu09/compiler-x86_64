@@ -1,6 +1,8 @@
 
 extern fn putchar(u8);
 
+enum { N = 80, }
+
 fn rule110(l : u8, m : u8, r : u8) -> u8 {
   pattern : u8;
   pattern = (l << 2) | (m << 1) | r;
@@ -42,7 +44,7 @@ fn rule110(l : u8, m : u8, r : u8) -> u8 {
 fn print_cells(cells : *u8) {
   i : i64;
 
-  for i = 0; i < 80; i += 1 {
+  for i = 0; i < N; i += 1 {
     if cells[i] == 1 {
       putchar('.');
     } else {
@@ -55,23 +57,23 @@ fn print_cells(cells : *u8) {
 
 
 fn main() -> i32 {
-  cells_curr : [80]u8;
-  cells_next : [80]u8;
+  cells_curr : [N]u8;
+  cells_next : [N]u8;
 
   i : i64;
 
-  for i = 0; i < 80; i += 1 {
+  for i = 0; i < N; i += 1 {
     cells_curr[i] = cells_next[i] = 0;
   }
 
-  cells_curr[79] = 1;
+  cells_curr[N - 1] = 1;
 
   step : i64;
 
-  for step = 0; step < 80; step += 1 {
+  for step = 0; step < N; step += 1 {
     print_cells (cells_curr);
 
-    for i = 0; i < 80; i += 1 {
+    for i = 0; i < N; i += 1 {
       l : u8;
       m : u8;
       r : u8;
@@ -84,14 +86,14 @@ fn main() -> i32 {
         l = cells_curr[i - 1];
       }
 
-      if i != 79 {
+      if i != N - 1 {
         r = cells_curr[i + 1];
       }
 
       cells_next[i] = rule110(l, m, r);
     }
 
-    for i = 0; i < 80; i += 1 {
+    for i = 0; i < N; i += 1 {
       cells_curr[i] = cells_next[i];
     }
   }

@@ -4,6 +4,7 @@
 #include "type.h"
 #include "scope.h"
 #include "memory.h"
+#include "fold.h"
 
 #include <stdio.h>
 #include <assert.h>
@@ -96,6 +97,10 @@ analyzer_tree_create_scale (struct tree *value, struct type *base_type)
 
   return result;
 }
+
+
+struct tree *
+analyzer_analyze_expression_and_type (struct analyzer *analyzer, struct tree *tree);
 
 
 static void
@@ -225,6 +230,9 @@ analyzer_analyze_type (struct analyzer *analyzer, struct type *type)
     case TYPE_ARRAY:
       {
         struct type_node_array *array = &type->d.array;
+
+        array->size = analyzer_analyze_expression_and_type (analyzer, array->size);
+        array->size = fold_tree_strict (array->size);
 
         array->base = analyzer_analyze_type (analyzer, array->base);
 
@@ -417,6 +425,8 @@ analyzer_analyze_expression_and_type (struct analyzer *analyzer, struct tree *tr
       result = unreachable1 (NULL);
       break;
     }
+
+  (void)fold_tree (&result, result);
 
   struct type **type = tree_get_expression_type_p (result);
 
@@ -714,7 +724,18 @@ analyzer_analyze_node_enum (struct analyzer *analyzer, struct tree *tree)
       char *name = enum_field->name;
 
       if (enum_field->has_optional_value)
-        current_value = enum_field->optional_value;
+        {
+          enum_field->optional_value
+            = analyzer_analyze_expression_and_type (analyzer, enum_field->optional_value);
+
+          enum_field->optional_value = fold_tree_strict (enum_field->optional_value);
+
+          assert (enum_field->optional_value->kind == TREE_INTEGER);
+
+          int64_t optional_value = enum_field->optional_value->d.integer.value;
+
+          current_value = optional_value;
+        }
 
       struct symbol *symbol;
 
@@ -1088,21 +1109,6 @@ analyzer_analyze_node_assignment_binary (struct analyzer *analyzer, struct tree 
           return tree;
         }
 
-      // if (lhs_is_integer && rhs_is_pointer)
-      //   {
-      //     assignment->lhs
-      //         = analyzer_tree_create_cast (assignment->lhs, type_create (tree->location, TYPE_I64));
-
-      //     assignment->expression_type = rhs_type;
-
-      //     struct type *type_base
-      //         = analyzer_analyze_type (analyzer, type_element (assignment->expression_type));
-
-      //     assignment->lhs = analyzer_tree_create_scale (assignment->lhs, type_base);
-
-      //     return tree;
-      //   }
-
       if (lhs_is_pointer && rhs_is_integer)
         {
           assignment->rhs
@@ -1117,14 +1123,6 @@ analyzer_analyze_node_assignment_binary (struct analyzer *analyzer, struct tree 
 
           return tree;
         }
-
-      // if (operator == ASSIGNMENT_SUB)
-      //   if (lhs_is_pointer && rhs_is_pointer)
-      //     {
-      //       assignment->expression_type = type_create (tree->location, TYPE_I64);
-
-      //       return tree;
-      //     }
 
       break;
 
@@ -1611,14 +1609,7 @@ analyzer_analyze_node_identifier (struct analyzer *analyzer, struct tree *tree)
       return tree;
     }
 
-  struct tree *integer;
-
-  integer = tree_create (tree->location, TREE_INTEGER);
-
-  integer->d.integer.value = symbol->d.enum_.value;
-  integer->d.integer.expression_type = type_create (tree->location, TYPE_I64);
-
-  return integer;
+  return tree_create_integer (tree->location, symbol->d.enum_.value);
 }
 
 
@@ -1629,14 +1620,7 @@ analyzer_analyze_node_sizeof (struct analyzer *analyzer, struct tree *tree)
 
   sizeof_->type = analyzer_analyze_type (analyzer, sizeof_->type);
 
-  struct tree *integer;
-
-  integer = tree_create (tree->location, TREE_INTEGER);
-
-  integer->d.integer.value = type_size (sizeof_->type);
-  integer->d.integer.expression_type = type_create (tree->location, TYPE_I64);
-
-  return integer;
+  return tree_create_integer (tree->location, type_size (sizeof_->type));
 }
 
 

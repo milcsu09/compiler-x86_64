@@ -49,9 +49,7 @@ mandelbrot:
 	mov	r10, qword [rbp-56]
 	mov	r11, qword [rbp-64]
 	add	r10, r11
-	mov	r11, 4
-	mov	r12, 16777216
-	imul	r11, r12
+	mov	r11, 67108864
 	cmp	r10, r11
 	setg	r10b
 	test	r10b, r10b
@@ -113,15 +111,13 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 96
-	mov	r10, 33554432
-	neg	r10
+	mov	r10, -33554432
 	lea	r11, [rbp-8]
 	mov	qword [r11], r10
 	mov	r10, 16777216
 	lea	r11, [rbp-16]
 	mov	qword [r11], r10
-	mov	r10, 25165824
-	neg	r10
+	mov	r10, -25165824
 	lea	r11, [rbp-24]
 	mov	qword [r11], r10
 	mov	r10, 25165824

@@ -26,15 +26,11 @@ particle_init:
 	mov	rbp, rsp
 	sub	rsp, 16
 	mov	qword [rbp-8], rdi
-	mov	r10, 400
-	mov	r11, 256
-	imul	r10, r11
+	mov	r10, 102400
 	mov	r11, qword [rbp-8]
 	add	r11, 0
 	mov	dword [r11], r10d
-	mov	r10, 300
-	mov	r11, 256
-	imul	r10, r11
+	mov	r10, 76800
 	mov	r11, qword [rbp-8]
 	add	r11, 4
 	mov	dword [r11], r10d
@@ -101,9 +97,7 @@ main:
 	mov	edi, r10d
 	lea	r10, [rel SetTargetFPS]
 	call	r10
-	mov	r10, 20
-	mov	r11, 10000
-	imul	r10, r11
+	mov	r10, 200000
 	mov	rdi, r10
 	lea	r10, [rel malloc]
 	call	r10

@@ -51,9 +51,7 @@ struct type_node_pointer
 
 struct type_node_array
 {
-  // struct tree *size;
-
-  size_t size;
+  struct tree *size;
   struct type *base;
 };
 
@@ -159,7 +157,7 @@ struct type *
 type_create_pointer (struct location location, struct type *base);
 
 struct type *
-type_create_array (struct location location, size_t size, struct type *base);
+type_create_array (struct location location, struct tree *size, struct type *base);
 
 struct type *
 type_shallow_copy (struct type *type);
