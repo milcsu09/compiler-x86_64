@@ -112,7 +112,7 @@ fold_tree (struct tree **result, struct tree *tree)
 
         if (is_integer)
           {
-            int value = unary.value->d.integer.value;
+            int64_t value = unary.value->d.integer.value;
 
             int64_t r;
 
