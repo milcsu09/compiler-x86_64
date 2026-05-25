@@ -662,9 +662,6 @@ cg_write_pop_register_id (struct cg *cg, enum cg_register_id r)
 // Register allocation boundaries
 enum
 {
-  // CG_RA_S = REGISTER_R10,
-  // CG_RA_E = REGISTER_R12,
-
   // https://wiki.osdev.org/System_V_ABI
   // "Functions preserve the registers rbx, rsp, rbp, r12, r13, r14, and r15; while rax, rdi, rsi, rdx, rcx, r8, r9, r10, r11 are scratch registers."
   CG_RA_S = REGISTER_R8,
@@ -1583,6 +1580,7 @@ cg_generate_node_call (struct cg *cg, struct tree *tree)
 
 #undef CALL_REGISTERS
 
+
   for (size_t i = REGISTER_COUNT; i-- > 0; )
     if (cg->register_free[i] == false)
       cg_write_pop_register_id (cg, i);
@@ -1602,152 +1600,6 @@ cg_generate_node_call (struct cg *cg, struct tree *tree)
 
   return register_none;
 }
-
-
-
-
-/*
-static struct cg_register
-cg_generate_node_call (struct cg *cg, struct tree *tree)
-{
-  struct tree_node_call *node = &tree->d.call;
-
-  size_t registers_saved = 0;
-
-  for (size_t i = CG_RA_S; i <= CG_RA_E; ++i)
-    if (cg->register_free[i] == 0)
-      {
-        cg_write_push_register_id (cg, i);
-
-        registers_saved++;
-      }
-
-  // https://wiki.osdev.org/System_V_ABI
-  // Parameters to functions are passed in via the registers rdi, rsi, rdx, rcx, r8, and r9.
-
-  const enum cg_register_id p_register[] = {
-    REGISTER_RDI,
-    REGISTER_RSI,
-    REGISTER_RDX,
-    REGISTER_RCX,
-    REGISTER_R8,
-    REGISTER_R9,
-  };
-
-  size_t p_n = 0;
-
-  for (struct tree *t = node->argument1; t; t = t->next)
-    p_n++;
-
-  size_t i = 0;
-
-  struct tree *argument = node->argument1;
-
-  // Save the state of registers used for arguments, and make them non-free.
-  bool register_free0 = cg->register_free[p_register[0]];
-  bool register_free1 = cg->register_free[p_register[1]];
-  bool register_free2 = cg->register_free[p_register[2]];
-  bool register_free3 = cg->register_free[p_register[3]];
-  bool register_free4 = cg->register_free[p_register[4]];
-  bool register_free5 = cg->register_free[p_register[5]];
-
-  cg->register_free[p_register[0]] = false;
-  cg->register_free[p_register[1]] = false;
-  cg->register_free[p_register[2]] = false;
-  cg->register_free[p_register[3]] = false;
-  cg->register_free[p_register[4]] = false;
-  cg->register_free[p_register[5]] = false;
-
-  while (argument)
-    {
-      if (i >= 6)
-        break;
-
-      struct cg_register a = cg_generate_rvalue (cg, argument);
-
-      struct cg_register b = register_create (p_register[i], a.w);
-
-      cg_write (cg, "\tmov\t%s, %s\n", register_string (b), register_string (a));
-
-      cg_register_free (cg, a);
-
-      argument = argument->next;
-      i++;
-    }
-
-  // https://wiki.osdev.org/System_V_ABI
-  // The stack is 16-byte aligned just before the call instruction is executed.
-
-  size_t P = registers_saved + cg->registers_spilled;
-  size_t S = p_n - i;
-
-  // Odd stack needs 8 byte alignment.
-  size_t pad = (P + S) & 1 ? 8 : 0;
-
-  size_t offset = S * 8 + pad;
-
-  if (offset != 0)
-    cg_write (cg, "\tsub\trsp, %zu\n", offset);
-
-  // https://wiki.osdev.org/System_V_ABI
-  // Any additional arguments that do not fit in these registers are passed on the stack in reverse order.
-
-  while (argument)
-    {
-      if (i >= p_n)
-        break;
-
-      struct cg_register a = cg_generate_rvalue (cg, argument);
-
-      size_t offset_p = (i - 6) * 8;
-
-      cg_write (cg, "\tmov\tqword [rsp+%zu], %s\n", offset_p, register_string (a));
-
-      cg_register_free (cg, a);
-
-      argument = argument->next;
-      i++;
-    }
-
-  struct cg_register a = cg_generate_rvalue (cg, node->callee);
-
-  cg_write (cg, "\tcall\t%s\n", register_string (a));
-
-  cg_register_free (cg, a);
-
-  if (offset != 0)
-    cg_write (cg, "\tadd\trsp, %zu\n", offset);
-
-  // Restore the state of registers used for arguments.
-  cg->register_free[p_register[5]] = register_free5;
-  cg->register_free[p_register[4]] = register_free4;
-  cg->register_free[p_register[3]] = register_free3;
-  cg->register_free[p_register[2]] = register_free2;
-  cg->register_free[p_register[1]] = register_free1;
-  cg->register_free[p_register[0]] = register_free0;
-
-  for (size_t i = CG_RA_E + 1; i-- > CG_RA_S; )
-    if (cg->register_free[i] == 0)
-      {
-        cg_write_pop_register_id (cg, i);
-      }
-
-  if (node->expression_type->kind != TYPE_VOID)
-    {
-      size_t w = type_width (node->expression_type);
-
-      struct cg_register r = register_create (REGISTER_RAX, w);
-
-      struct cg_register s = cg_register_allocate (cg, w);
-
-      cg_write (cg, "\tmov\t%s, %s\n", register_string (s), register_string (r));
-
-      return s;
-    }
-
-  return register_none;
-}
-*/
 
 
 static struct cg_register
