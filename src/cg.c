@@ -1458,11 +1458,6 @@ cg_generate_node_cast (struct cg *cg, struct tree *tree)
 }
 
 
-// TODO: Fix function call
-
-
-
-
 static struct cg_register
 cg_generate_node_call (struct cg *cg, struct tree *tree)
 {
