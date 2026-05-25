@@ -1461,6 +1461,152 @@ cg_generate_node_cast (struct cg *cg, struct tree *tree)
 }
 
 
+// TODO: Fix function call
+
+
+
+
+static struct cg_register
+cg_generate_node_call (struct cg *cg, struct tree *tree)
+{
+  struct tree_node_call *node = &tree->d.call;
+
+  // https://wiki.osdev.org/System_V_ABI
+  // Parameters to functions are passed in via the registers rdi, rsi, rdx, rcx, r8, and r9.
+
+  size_t registers_saved = 0;
+
+  for (int i = 0; i < REGISTER_COUNT; ++i)
+    if (cg->register_free[i] == false)
+      {
+        cg_write_push_register_id (cg, i);
+
+        registers_saved++;
+      }
+
+  // Count parameters
+  size_t p_n = 0;
+
+  for (struct tree *t = node->argument1; t; t = t->next)
+    p_n++;
+
+
+#define CALL_REGISTERS 6
+
+
+  const enum cg_register_id p_register[CALL_REGISTERS] = {
+    REGISTER_RDI,
+    REGISTER_RSI,
+    REGISTER_RDX,
+    REGISTER_RCX,
+    REGISTER_R8,
+    REGISTER_R9,
+  };
+
+  bool register_state[CALL_REGISTERS];
+
+  for (size_t i = 0; i < CALL_REGISTERS; ++i)
+    {
+      register_state[i] = cg->register_free[p_register[i]];
+
+      cg->register_free[p_register[i]] = false;
+    }
+
+  size_t i = 0;
+
+  struct tree *argument = node->argument1;
+
+  while (argument)
+    {
+      if (i >= 6)
+        break;
+
+      struct cg_register a = cg_generate_rvalue (cg, argument);
+
+      struct cg_register b = register_create (p_register[i], a.w);
+
+      cg_write (cg, "\tmov\t%s, %s\n", register_string (b), register_string (a));
+
+      cg_register_free (cg, a);
+
+      argument = argument->next;
+      i++;
+    }
+
+  // https://wiki.osdev.org/System_V_ABI
+  // The stack is 16-byte aligned just before the call instruction is executed.
+
+  size_t P = registers_saved + cg->registers_spilled;
+  size_t S = p_n - i;
+
+  // Odd stack needs 8 byte alignment.
+  size_t pad = (P + S) & 1 ? 8 : 0;
+
+  size_t offset = S * 8 + pad;
+
+  if (offset != 0)
+    cg_write (cg, "\tsub\trsp, %zu\n", offset);
+
+  // https://wiki.osdev.org/System_V_ABI
+  // Any additional arguments that do not fit in these registers are passed on the stack in reverse order.
+
+  while (argument)
+    {
+      if (i >= p_n)
+        break;
+
+      struct cg_register a = cg_generate_rvalue (cg, argument);
+
+      size_t offset_p = (i - 6) * 8;
+
+      cg_write (cg, "\tmov\tqword [rsp+%zu], %s\n", offset_p, register_string (a));
+
+      cg_register_free (cg, a);
+
+      argument = argument->next;
+      i++;
+    }
+
+  struct cg_register a = cg_generate_rvalue (cg, node->callee);
+
+  cg_write (cg, "\tcall\t%s\n", register_string (a));
+
+  cg_register_free (cg, a);
+
+  if (offset != 0)
+    cg_write (cg, "\tadd\trsp, %zu\n", offset);
+
+  // Restore the state of registers used for arguments.
+  for (size_t i = 0; i < CALL_REGISTERS; ++i)
+    cg->register_free[p_register[i]] = register_state[i];
+
+
+#undef CALL_REGISTERS
+
+  for (size_t i = REGISTER_COUNT; i-- > 0; )
+    if (cg->register_free[i] == false)
+      cg_write_pop_register_id (cg, i);
+
+  if (node->expression_type->kind != TYPE_VOID)
+    {
+      size_t w = type_width (node->expression_type);
+
+      struct cg_register r = register_create (REGISTER_RAX, w);
+
+      struct cg_register s = cg_register_allocate (cg, w);
+
+      cg_write (cg, "\tmov\t%s, %s\n", register_string (s), register_string (r));
+
+      return s;
+    }
+
+  return register_none;
+}
+
+
+
+
+/*
 static struct cg_register
 cg_generate_node_call (struct cg *cg, struct tree *tree)
 {
@@ -1601,6 +1747,7 @@ cg_generate_node_call (struct cg *cg, struct tree *tree)
 
   return register_none;
 }
+*/
 
 
 static struct cg_register

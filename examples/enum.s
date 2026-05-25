@@ -58,6 +58,10 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 0
+	push	rcx
+	push	rdx
+	push	rsi
+	push	rdi
 	push	r8
 	push	r9
 	mov	r10, 0
@@ -66,10 +70,18 @@ main:
 	call	r10
 	pop	r9
 	pop	r8
+	pop	rdi
+	pop	rsi
+	pop	rdx
+	pop	rcx
 	mov	r10, rax
 	mov	rdi, r10
 	lea	r10, [rel puts]
 	call	r10
+	push	rcx
+	push	rdx
+	push	rsi
+	push	rdi
 	push	r8
 	push	r9
 	mov	r10, 1
@@ -78,10 +90,18 @@ main:
 	call	r10
 	pop	r9
 	pop	r8
+	pop	rdi
+	pop	rsi
+	pop	rdx
+	pop	rcx
 	mov	r10, rax
 	mov	rdi, r10
 	lea	r10, [rel puts]
 	call	r10
+	push	rcx
+	push	rdx
+	push	rsi
+	push	rdi
 	push	r8
 	push	r9
 	mov	r10, 2
@@ -90,10 +110,18 @@ main:
 	call	r10
 	pop	r9
 	pop	r8
+	pop	rdi
+	pop	rsi
+	pop	rdx
+	pop	rcx
 	mov	r10, rax
 	mov	rdi, r10
 	lea	r10, [rel puts]
 	call	r10
+	push	rcx
+	push	rdx
+	push	rsi
+	push	rdi
 	push	r8
 	push	r9
 	mov	r10, 1234
@@ -102,6 +130,10 @@ main:
 	call	r10
 	pop	r9
 	pop	r8
+	pop	rdi
+	pop	rsi
+	pop	rdx
+	pop	rcx
 	mov	r10, rax
 	mov	rdi, r10
 	lea	r10, [rel puts]
