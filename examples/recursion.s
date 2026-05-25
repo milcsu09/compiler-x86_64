@@ -13,30 +13,30 @@ factorial:
 	mov	rbp, rsp
 	sub	rsp, 16
 	mov	qword [rbp-8], rdi
-	mov	r10, qword [rbp-8]
-	mov	r11, 0
-	cmp	r10, r11
-	setle	r10b
-	test	r10b, r10b
+	mov	r8, qword [rbp-8]
+	mov	r9, 0
+	cmp	r8, r9
+	setle	r8b
+	test	r8b, r8b
 	jz	.L1
-	mov	r10, 1
-	mov	rax, r10
+	mov	r8, 1
+	mov	rax, r8
 	jmp	.L0
 .L1:
+	mov	r8, qword [rbp-8]
+	push	r8
 	mov	r10, qword [rbp-8]
-	push	r10
-	mov	r11, qword [rbp-8]
-	mov	r12, 1
-	sub	r11, r12
-	mov	rdi, r11
+	mov	r11, 1
+	sub	r10, r11
+	mov	rdi, r10
 	sub	rsp, 8
-	lea	r11, [rel factorial]
-	call	r11
+	lea	r10, [rel factorial]
+	call	r10
 	add	rsp, 8
-	pop	r10
-	mov	r11, rax
-	imul	r10, r11
-	mov	rax, r10
+	pop	r8
+	mov	r9, rax
+	imul	r8, r9
+	mov	rax, r8
 	jmp	.L0
 	xor	rax, rax
 .L0:
@@ -53,8 +53,8 @@ main:
 	mov	rdi, r10
 	lea	r10, [rel factorial]
 	call	r10
-	mov	r10, rax
-	mov	rdi, r10
+	mov	r8, rax
+	mov	rdi, r8
 	call	printi
 .L2:
 	xor	rax, rax

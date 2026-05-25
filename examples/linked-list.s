@@ -12,49 +12,49 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 64
-	mov	r10, 10
-	lea	r11, [rbp-16]
-	add	r11, 0
-	mov	qword [r11], r10
-	mov	r10, 20
-	lea	r11, [rbp-32]
-	add	r11, 0
-	mov	qword [r11], r10
-	mov	r10, 30
-	lea	r11, [rbp-48]
-	add	r11, 0
-	mov	qword [r11], r10
-	lea	r10, [rbp-32]
-	lea	r11, [rbp-16]
-	add	r11, 8
-	mov	qword [r11], r10
-	lea	r10, [rbp-48]
-	lea	r11, [rbp-32]
-	add	r11, 8
-	mov	qword [r11], r10
-	mov	r10, 0
-	lea	r11, [rbp-48]
-	add	r11, 8
-	mov	qword [r11], r10
-	lea	r10, [rbp-16]
-	lea	r11, [rbp-56]
-	mov	qword [r11], r10
+	mov	r8, 10
+	lea	r9, [rbp-16]
+	add	r9, 0
+	mov	qword [r9], r8
+	mov	r8, 20
+	lea	r9, [rbp-32]
+	add	r9, 0
+	mov	qword [r9], r8
+	mov	r8, 30
+	lea	r9, [rbp-48]
+	add	r9, 0
+	mov	qword [r9], r8
+	lea	r8, [rbp-32]
+	lea	r9, [rbp-16]
+	add	r9, 8
+	mov	qword [r9], r8
+	lea	r8, [rbp-48]
+	lea	r9, [rbp-32]
+	add	r9, 8
+	mov	qword [r9], r8
+	mov	r8, 0
+	lea	r9, [rbp-48]
+	add	r9, 8
+	mov	qword [r9], r8
+	lea	r8, [rbp-16]
+	lea	r9, [rbp-56]
+	mov	qword [r9], r8
 	jmp	.L2
 .L1:
-	mov	r10, qword [rbp-56]
-	add	r10, 0
-	mov	r10, qword [r10]
-	mov	rdi, r10
+	mov	r8, qword [rbp-56]
+	add	r8, 0
+	mov	r8, qword [r8]
+	mov	rdi, r8
 	call	printi
 .L4:
-	mov	r10, qword [rbp-56]
-	add	r10, 8
-	mov	r10, qword [r10]
-	lea	r11, [rbp-56]
-	mov	qword [r11], r10
+	mov	r8, qword [rbp-56]
+	add	r8, 8
+	mov	r8, qword [r8]
+	lea	r9, [rbp-56]
+	mov	qword [r9], r8
 .L2:
-	mov	r10, qword [rbp-56]
-	test	r10, r10
+	mov	r8, qword [rbp-56]
+	test	r8, r8
 	jnz	.L1
 .L3:
 .L0:

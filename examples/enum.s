@@ -14,38 +14,38 @@ fruit_string:
 	mov	rbp, rsp
 	sub	rsp, 16
 	mov	qword [rbp-8], rdi
-	mov	r10, qword [rbp-8]
-	mov	r11, 0
-	cmp	r10, r11
-	sete	r10b
-	test	r10b, r10b
+	mov	r8, qword [rbp-8]
+	mov	r9, 0
+	cmp	r8, r9
+	sete	r8b
+	test	r8b, r8b
 	jz	.L1
-	mov	r10, LS0
-	mov	rax, r10
+	mov	r8, LS0
+	mov	rax, r8
 	jmp	.L0
 .L1:
-	mov	r10, qword [rbp-8]
-	mov	r11, 1
-	cmp	r10, r11
-	sete	r10b
-	test	r10b, r10b
+	mov	r8, qword [rbp-8]
+	mov	r9, 1
+	cmp	r8, r9
+	sete	r8b
+	test	r8b, r8b
 	jz	.L2
-	mov	r10, LS1
-	mov	rax, r10
+	mov	r8, LS1
+	mov	rax, r8
 	jmp	.L0
 .L2:
-	mov	r10, qword [rbp-8]
-	mov	r11, 2
-	cmp	r10, r11
-	sete	r10b
-	test	r10b, r10b
+	mov	r8, qword [rbp-8]
+	mov	r9, 2
+	cmp	r8, r9
+	sete	r8b
+	test	r8b, r8b
 	jz	.L3
-	mov	r10, LS2
-	mov	rax, r10
+	mov	r8, LS2
+	mov	rax, r8
 	jmp	.L0
 .L3:
-	mov	r10, LS3
-	mov	rax, r10
+	mov	r8, LS3
+	mov	rax, r8
 	jmp	.L0
 	xor	rax, rax
 .L0:
@@ -58,34 +58,50 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 0
+	push	r8
+	push	r9
 	mov	r10, 0
 	mov	rdi, r10
 	lea	r10, [rel fruit_string]
 	call	r10
+	pop	r9
+	pop	r8
 	mov	r10, rax
 	mov	rdi, r10
 	lea	r10, [rel puts]
 	call	r10
+	push	r8
+	push	r9
 	mov	r10, 1
 	mov	rdi, r10
 	lea	r10, [rel fruit_string]
 	call	r10
+	pop	r9
+	pop	r8
 	mov	r10, rax
 	mov	rdi, r10
 	lea	r10, [rel puts]
 	call	r10
+	push	r8
+	push	r9
 	mov	r10, 2
 	mov	rdi, r10
 	lea	r10, [rel fruit_string]
 	call	r10
+	pop	r9
+	pop	r8
 	mov	r10, rax
 	mov	rdi, r10
 	lea	r10, [rel puts]
 	call	r10
+	push	r8
+	push	r9
 	mov	r10, 1234
 	mov	rdi, r10
 	lea	r10, [rel fruit_string]
 	call	r10
+	pop	r9
+	pop	r8
 	mov	r10, rax
 	mov	rdi, r10
 	lea	r10, [rel puts]

@@ -12,25 +12,25 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 16
-	mov	r10, 10
-	lea	r11, [rbp-8]
-	mov	qword [r11], r10
-	mov	r10, 20
-	lea	r11, [rbp-16]
-	mov	qword [r11], r10
-	mov	r10, qword [rbp-8]
-	mov	r11, qword [rbp-16]
-	cmp	r10, r11
-	setg	r10b
-	test	r10b, r10b
+	mov	r8, 10
+	lea	r9, [rbp-8]
+	mov	qword [r9], r8
+	mov	r8, 20
+	lea	r9, [rbp-16]
+	mov	qword [r9], r8
+	mov	r8, qword [rbp-8]
+	mov	r9, qword [rbp-16]
+	cmp	r8, r9
+	setg	r8b
+	test	r8b, r8b
 	jz	.L1
-	mov	r10, qword [rbp-8]
-	mov	rdi, r10
+	mov	r8, qword [rbp-8]
+	mov	rdi, r8
 	call	printi
 	jmp	.L2
 .L1:
-	mov	r10, qword [rbp-16]
-	mov	rdi, r10
+	mov	r8, qword [rbp-16]
+	mov	rdi, r8
 	call	printi
 .L2:
 .L0:

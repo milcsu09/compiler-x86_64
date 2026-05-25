@@ -12,26 +12,26 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 32
-	lea	r10, [rbp-16]
-	lea	r11, [rbp-24]
-	mov	qword [r11], r10
-	mov	r10, LS0
-	mov	r11, qword [rbp-24]
-	add	r11, 0
-	mov	qword [r11], r10
-	mov	r10, 42
-	mov	r11, qword [rbp-24]
-	add	r11, 8
-	mov	qword [r11], r10
-	lea	r10, [rbp-16]
-	add	r10, 0
-	mov	r10, qword [r10]
-	mov	rdi, r10
+	lea	r8, [rbp-16]
+	lea	r9, [rbp-24]
+	mov	qword [r9], r8
+	mov	r8, LS0
+	mov	r9, qword [rbp-24]
+	add	r9, 0
+	mov	qword [r9], r8
+	mov	r8, 42
+	mov	r9, qword [rbp-24]
+	add	r9, 8
+	mov	qword [r9], r8
+	lea	r8, [rbp-16]
+	add	r8, 0
+	mov	r8, qword [r8]
+	mov	rdi, r8
 	call	printi
-	lea	r10, [rbp-16]
-	add	r10, 8
-	mov	r10, qword [r10]
-	mov	rdi, r10
+	lea	r8, [rbp-16]
+	add	r8, 8
+	mov	r8, qword [r8]
+	mov	rdi, r8
 	call	printi
 .L0:
 	xor	rax, rax

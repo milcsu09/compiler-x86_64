@@ -40,13 +40,12 @@ fn rule110(l : u8, m : u8, r : u8) -> u8 {
   }
 }
 
-
 fn print_cells(cells : *u8) {
   i : i64;
 
   for i = 0; i < N; i += 1 {
     if cells[i] == 1 {
-      putchar('.');
+      putchar('*');
     } else {
       putchar(' ');
     }
@@ -55,8 +54,7 @@ fn print_cells(cells : *u8) {
   putchar('\n');
 }
 
-
-fn main() -> i32 {
+fn main() {
   cells_curr : [N]u8;
   cells_next : [N]u8;
 
@@ -71,7 +69,7 @@ fn main() -> i32 {
   step : i64;
 
   for step = 0; step < N; step += 1 {
-    print_cells (cells_curr);
+    print_cells(cells_curr);
 
     for i = 0; i < N; i += 1 {
       l : u8;
@@ -97,7 +95,5 @@ fn main() -> i32 {
       cells_curr[i] = cells_next[i];
     }
   }
-
-  return 0;
 }
 

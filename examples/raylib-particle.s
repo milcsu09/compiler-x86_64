@@ -26,54 +26,54 @@ particle_init:
 	mov	rbp, rsp
 	sub	rsp, 16
 	mov	qword [rbp-8], rdi
-	mov	r10, 102400
-	mov	r11, qword [rbp-8]
-	add	r11, 0
-	mov	dword [r11], r10d
-	mov	r10, 76800
-	mov	r11, qword [rbp-8]
-	add	r11, 4
-	mov	dword [r11], r10d
+	mov	r8, 102400
+	mov	r9, qword [rbp-8]
+	add	r9, 0
+	mov	dword [r9], r8d
+	mov	r8, 76800
+	mov	r9, qword [rbp-8]
+	add	r9, 4
+	mov	dword [r9], r8d
 	mov	r10, 0
 	mov	edi, r10d
 	mov	r10, 512
 	mov	esi, r10d
 	lea	r10, [rel GetRandomValue]
 	call	r10
-	mov	r10d, eax
-	movsx	r10, r10d
-	mov	r11, 256
-	sub	r10, r11
-	mov	r11, 2
-	imul	r10, r11
-	mov	r11, qword [rbp-8]
-	add	r11, 8
-	mov	dword [r11], r10d
+	mov	r8d, eax
+	movsx	r8, r8d
+	mov	r9, 256
+	sub	r8, r9
+	mov	r9, 2
+	imul	r8, r9
+	mov	r9, qword [rbp-8]
+	add	r9, 8
+	mov	dword [r9], r8d
 	mov	r10, 0
 	mov	edi, r10d
 	mov	r10, 512
 	mov	esi, r10d
 	lea	r10, [rel GetRandomValue]
 	call	r10
-	mov	r10d, eax
-	movsx	r10, r10d
-	mov	r11, 256
-	sub	r10, r11
-	mov	r11, 2
-	imul	r10, r11
-	mov	r11, qword [rbp-8]
-	add	r11, 12
-	mov	dword [r11], r10d
+	mov	r8d, eax
+	movsx	r8, r8d
+	mov	r9, 256
+	sub	r8, r9
+	mov	r9, 2
+	imul	r8, r9
+	mov	r9, qword [rbp-8]
+	add	r9, 12
+	mov	dword [r9], r8d
 	mov	r10, 200
 	mov	edi, r10d
 	mov	r10, 1000
 	mov	esi, r10d
 	lea	r10, [rel GetRandomValue]
 	call	r10
-	mov	r10d, eax
-	mov	r11, qword [rbp-8]
-	add	r11, 16
-	mov	dword [r11], r10d
+	mov	r8d, eax
+	mov	r9, qword [rbp-8]
+	add	r9, 16
+	mov	dword [r9], r8d
 .L0:
 	xor	rax, rax
 	add	rsp, 16
@@ -101,12 +101,12 @@ main:
 	mov	rdi, r10
 	lea	r10, [rel malloc]
 	call	r10
-	mov	r10, rax
-	lea	r11, [rbp-8]
-	mov	qword [r11], r10
-	mov	r10, 0
-	lea	r11, [rbp-16]
-	mov	qword [r11], r10
+	mov	r8, rax
+	lea	r9, [rbp-8]
+	mov	qword [r9], r8
+	mov	r8, 0
+	lea	r9, [rbp-16]
+	mov	qword [r9], r8
 	jmp	.L3
 .L2:
 	mov	r10, qword [rbp-8]
@@ -117,79 +117,75 @@ main:
 	lea	r10, [rel particle_init]
 	call	r10
 .L5:
-	lea	r10, [rbp-16]
-	mov	r11, qword [r10]
-	mov	r12, 1
-	add	r11, r12
-	mov	qword [r10], r11
+	lea	r8, [rbp-16]
+	mov	r9, qword [r8]
+	mov	r10, 1
+	add	r9, r10
+	mov	qword [r8], r9
 .L3:
-	mov	r10, qword [rbp-16]
-	mov	r11, 10000
-	cmp	r10, r11
-	setl	r10b
-	test	r10b, r10b
+	mov	r8, qword [rbp-16]
+	mov	r9, 10000
+	cmp	r8, r9
+	setl	r8b
+	test	r8b, r8b
 	jnz	.L2
 .L4:
 	jmp	.L7
 .L6:
-	mov	r10, 0
-	lea	r11, [rbp-16]
-	mov	qword [r11], r10
+	mov	r8, 0
+	lea	r9, [rbp-16]
+	mov	qword [r9], r8
 	jmp	.L10
 .L9:
+	mov	r8, qword [rbp-8]
+	mov	r9, qword [rbp-16]
+	imul	r9, 20
+	add	r8, r9
+	add	r8, 0
+	mov	r9d, dword [r8]
 	mov	r10, qword [rbp-8]
 	mov	r11, qword [rbp-16]
 	imul	r11, 20
 	add	r10, r11
-	add	r10, 0
-	mov	r11d, dword [r10]
-	mov	r12, qword [rbp-8]
-	push	r10
-	mov	r10, qword [rbp-16]
-	imul	r10, 20
-	add	r12, r10
-	pop	r10
-	add	r12, 8
-	mov	r12d, dword [r12]
-	add	r11d, r12d
-	mov	dword [r10], r11d
-	mov	r10, qword [rbp-8]
-	mov	r11, qword [rbp-16]
-	imul	r11, 20
-	add	r10, r11
-	add	r10, 4
-	mov	r11d, dword [r10]
-	mov	r12, qword [rbp-8]
-	push	r10
-	mov	r10, qword [rbp-16]
-	imul	r10, 20
-	add	r12, r10
-	pop	r10
-	add	r12, 12
-	mov	r12d, dword [r12]
-	add	r11d, r12d
-	mov	dword [r10], r11d
-	mov	r10, qword [rbp-8]
-	mov	r11, qword [rbp-16]
-	imul	r11, 20
-	add	r10, r11
-	add	r10, 16
-	mov	r11d, dword [r10]
-	movsx	r11, r11d
-	mov	r12, 5
-	sub	r11, r12
-	mov	dword [r10], r11d
-	mov	r10, qword [rbp-8]
-	mov	r11, qword [rbp-16]
-	imul	r11, 20
-	add	r10, r11
-	add	r10, 16
+	add	r10, 8
 	mov	r10d, dword [r10]
-	movsx	r10, r10d
-	mov	r11, 200
-	cmp	r10, r11
-	setle	r10b
-	test	r10b, r10b
+	add	r9d, r10d
+	mov	dword [r8], r9d
+	mov	r8, qword [rbp-8]
+	mov	r9, qword [rbp-16]
+	imul	r9, 20
+	add	r8, r9
+	add	r8, 4
+	mov	r9d, dword [r8]
+	mov	r10, qword [rbp-8]
+	mov	r11, qword [rbp-16]
+	imul	r11, 20
+	add	r10, r11
+	add	r10, 12
+	mov	r10d, dword [r10]
+	add	r9d, r10d
+	mov	dword [r8], r9d
+	mov	r8, qword [rbp-8]
+	mov	r9, qword [rbp-16]
+	imul	r9, 20
+	add	r8, r9
+	add	r8, 16
+	mov	r9d, dword [r8]
+	movsx	r9, r9d
+	mov	r10, 5
+	sub	r9, r10
+	mov	dword [r8], r9d
+	mov	r8, qword [rbp-8]
+	mov	r9, qword [rbp-16]
+	imul	r9, 20
+	add	r8, r9
+	add	r8, 16
+	mov	r8d, dword [r8]
+	movsx	r8, r8d
+	mov	r9, 200
+	cmp	r8, r9
+	setle	r8b
+	test	r8b, r8b
 	jz	.L13
 	mov	r10, qword [rbp-8]
 	mov	r11, qword [rbp-16]
@@ -200,17 +196,17 @@ main:
 	call	r10
 .L13:
 .L12:
-	lea	r10, [rbp-16]
-	mov	r11, qword [r10]
-	mov	r12, 1
-	add	r11, r12
-	mov	qword [r10], r11
+	lea	r8, [rbp-16]
+	mov	r9, qword [r8]
+	mov	r10, 1
+	add	r9, r10
+	mov	qword [r8], r9
 .L10:
-	mov	r10, qword [rbp-16]
-	mov	r11, 10000
-	cmp	r10, r11
-	setl	r10b
-	test	r10b, r10b
+	mov	r8, qword [rbp-16]
+	mov	r9, 10000
+	cmp	r8, r9
+	setl	r8b
+	test	r8b, r8b
 	jnz	.L9
 .L11:
 	lea	r10, [rel BeginDrawing]
@@ -225,53 +221,77 @@ main:
 	mov	esi, r10d
 	lea	r10, [rel DrawFPS]
 	call	r10
-	mov	r10, 0
-	lea	r11, [rbp-16]
-	mov	qword [r11], r10
+	mov	r8, 0
+	lea	r9, [rbp-16]
+	mov	qword [r9], r8
 	jmp	.L15
 .L14:
-	mov	r10, qword [rbp-8]
-	mov	r11, qword [rbp-16]
-	imul	r11, 20
-	add	r10, r11
-	add	r10, 0
-	mov	r10d, dword [r10]
-	movsx	r10, r10d
-	mov	r11, 256
-	mov	rax, r10
+	mov	r8, qword [rbp-8]
+	mov	r9, qword [rbp-16]
+	imul	r9, 20
+	add	r8, r9
+	add	r8, 0
+	mov	r8d, dword [r8]
+	movsx	r8, r8d
+	mov	r9, 256
+	mov	rax, r8
 	cqo
-	idiv	r11
-	mov	r10, rax
-	lea	r11, [rbp-20]
-	mov	dword [r11], r10d
-	mov	r10, qword [rbp-8]
-	mov	r11, qword [rbp-16]
-	imul	r11, 20
-	add	r10, r11
-	add	r10, 4
-	mov	r10d, dword [r10]
-	movsx	r10, r10d
-	mov	r11, 256
-	mov	rax, r10
+	idiv	r9
+	mov	r8, rax
+	lea	r9, [rbp-20]
+	mov	dword [r9], r8d
+	mov	r8, qword [rbp-8]
+	mov	r9, qword [rbp-16]
+	imul	r9, 20
+	add	r8, r9
+	add	r8, 4
+	mov	r8d, dword [r8]
+	movsx	r8, r8d
+	mov	r9, 256
+	mov	rax, r8
 	cqo
-	idiv	r11
-	mov	r10, rax
-	lea	r11, [rbp-24]
-	mov	dword [r11], r10d
-	mov	r10, qword [rbp-8]
-	mov	r11, qword [rbp-16]
-	imul	r11, 20
-	add	r10, r11
-	add	r10, 16
-	mov	r10d, dword [r10]
-	movsx	r10, r10d
-	mov	r11, 100
-	mov	rax, r10
+	idiv	r9
+	mov	r8, rax
+	lea	r9, [rbp-24]
+	mov	dword [r9], r8d
+	mov	r8, qword [rbp-8]
+	mov	r9, qword [rbp-16]
+	imul	r9, 20
+	add	r8, r9
+	add	r8, 16
+	mov	r8d, dword [r8]
+	movsx	r8, r8d
+	mov	r9, 100
+	mov	rax, r8
 	cqo
-	idiv	r11
-	mov	r10, rax
-	lea	r11, [rbp-28]
-	mov	dword [r11], r10d
+	idiv	r9
+	mov	r8, rax
+	lea	r9, [rbp-28]
+	mov	dword [r9], r8d
+	mov	r10d, dword [rbp-20]
+	movsx	r10, r10d
+	mov	r11, 1
+	sub	r10, r11
+	mov	edi, r10d
+	mov	r10d, dword [rbp-24]
+	movsx	r10, r10d
+	mov	r11, 1
+	sub	r10, r11
+	mov	esi, r10d
+	mov	r10d, dword [rbp-28]
+	movsx	r10, r10d
+	mov	r11, 2
+	add	r10, r11
+	mov	edx, r10d
+	mov	r10d, dword [rbp-28]
+	movsx	r10, r10d
+	mov	r11, 2
+	add	r10, r11
+	mov	ecx, r10d
+	mov	r10, 4278190080
+	mov	r8, r10
+	lea	r10, [rel DrawRectangle]
+	call	r10
 	mov	r10d, dword [rbp-20]
 	mov	edi, r10d
 	mov	r10d, dword [rbp-24]
@@ -285,17 +305,17 @@ main:
 	lea	r10, [rel DrawRectangle]
 	call	r10
 .L17:
-	lea	r10, [rbp-16]
-	mov	r11, qword [r10]
-	mov	r12, 1
-	add	r11, r12
-	mov	qword [r10], r11
+	lea	r8, [rbp-16]
+	mov	r9, qword [r8]
+	mov	r10, 1
+	add	r9, r10
+	mov	qword [r8], r9
 .L15:
-	mov	r10, qword [rbp-16]
-	mov	r11, 10000
-	cmp	r10, r11
-	setl	r10b
-	test	r10b, r10b
+	mov	r8, qword [rbp-16]
+	mov	r9, 10000
+	cmp	r8, r9
+	setl	r8b
+	test	r8b, r8b
 	jnz	.L14
 .L16:
 	lea	r10, [rel EndDrawing]
@@ -303,10 +323,10 @@ main:
 .L7:
 	lea	r10, [rel WindowShouldClose]
 	call	r10
-	mov	r10b, al
-	test	r10b, r10b
-	sete	r10b
-	test	r10b, r10b
+	mov	r8b, al
+	test	r8b, r8b
+	sete	r8b
+	test	r8b, r8b
 	jnz	.L6
 .L8:
 	lea	r10, [rel CloseWindow]

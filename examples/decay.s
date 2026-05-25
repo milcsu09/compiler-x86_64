@@ -13,8 +13,8 @@ print_pointer:
 	mov	rbp, rsp
 	sub	rsp, 16
 	mov	qword [rbp-8], rdi
-	mov	r10, qword [rbp-8]
-	mov	rdi, r10
+	mov	r8, qword [rbp-8]
+	mov	rdi, r8
 	call	printi
 .L0:
 	xor	rax, rax

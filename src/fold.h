@@ -17,3 +17,4 @@ fold_tree_strict (struct tree *tree);
 
 
 #endif // FOLD_H
+

@@ -12,53 +12,53 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 16
-	mov	r10, 10
-	lea	r11, [rbp-8]
-	mov	qword [r11], r10
-	mov	r10, 20
-	lea	r11, [rbp-16]
-	mov	qword [r11], r10
-	mov	r10, qword [rbp-8]
-	mov	r11, qword [rbp-16]
-	cmp	r10, r11
-	sete	r10b
-	movzx	r10, r10b
-	mov	rdi, r10
+	mov	r8, 10
+	lea	r9, [rbp-8]
+	mov	qword [r9], r8
+	mov	r8, 20
+	lea	r9, [rbp-16]
+	mov	qword [r9], r8
+	mov	r8, qword [rbp-8]
+	mov	r9, qword [rbp-16]
+	cmp	r8, r9
+	sete	r8b
+	movzx	r8, r8b
+	mov	rdi, r8
 	call	printi
-	mov	r10, qword [rbp-8]
-	mov	r11, qword [rbp-16]
-	cmp	r10, r11
-	setne	r10b
-	movzx	r10, r10b
-	mov	rdi, r10
+	mov	r8, qword [rbp-8]
+	mov	r9, qword [rbp-16]
+	cmp	r8, r9
+	setne	r8b
+	movzx	r8, r8b
+	mov	rdi, r8
 	call	printi
-	mov	r10, qword [rbp-8]
-	mov	r11, qword [rbp-16]
-	cmp	r10, r11
-	setl	r10b
-	movzx	r10, r10b
-	mov	rdi, r10
+	mov	r8, qword [rbp-8]
+	mov	r9, qword [rbp-16]
+	cmp	r8, r9
+	setl	r8b
+	movzx	r8, r8b
+	mov	rdi, r8
 	call	printi
-	mov	r10, qword [rbp-8]
-	mov	r11, qword [rbp-16]
-	cmp	r10, r11
-	setg	r10b
-	movzx	r10, r10b
-	mov	rdi, r10
+	mov	r8, qword [rbp-8]
+	mov	r9, qword [rbp-16]
+	cmp	r8, r9
+	setg	r8b
+	movzx	r8, r8b
+	mov	rdi, r8
 	call	printi
-	mov	r10, qword [rbp-8]
-	mov	r11, qword [rbp-16]
-	cmp	r10, r11
-	setle	r10b
-	movzx	r10, r10b
-	mov	rdi, r10
+	mov	r8, qword [rbp-8]
+	mov	r9, qword [rbp-16]
+	cmp	r8, r9
+	setle	r8b
+	movzx	r8, r8b
+	mov	rdi, r8
 	call	printi
-	mov	r10, qword [rbp-8]
-	mov	r11, qword [rbp-16]
-	cmp	r10, r11
-	setge	r10b
-	movzx	r10, r10b
-	mov	rdi, r10
+	mov	r8, qword [rbp-8]
+	mov	r9, qword [rbp-16]
+	cmp	r8, r9
+	setge	r8b
+	movzx	r8, r8b
+	mov	rdi, r8
 	call	printi
 .L0:
 	xor	rax, rax

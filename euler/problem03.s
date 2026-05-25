@@ -13,63 +13,63 @@ isqrt:
 	mov	rbp, rsp
 	sub	rsp, 48
 	mov	qword [rbp-8], rdi
-	mov	r10, 0
-	lea	r11, [rbp-16]
-	mov	qword [r11], r10
-	mov	r10, qword [rbp-8]
-	lea	r11, [rbp-24]
-	mov	qword [r11], r10
-	mov	r10, 0
-	lea	r11, [rbp-32]
-	mov	qword [r11], r10
+	mov	r8, 0
+	lea	r9, [rbp-16]
+	mov	qword [r9], r8
+	mov	r8, qword [rbp-8]
+	lea	r9, [rbp-24]
+	mov	qword [r9], r8
+	mov	r8, 0
+	lea	r9, [rbp-32]
+	mov	qword [r9], r8
 	jmp	.L2
 .L1:
+	mov	r8, qword [rbp-16]
+	mov	r9, qword [rbp-24]
 	mov	r10, qword [rbp-16]
-	mov	r11, qword [rbp-24]
-	mov	r12, qword [rbp-16]
-	sub	r11, r12
-	mov	r12, 2
-	mov	rax, r11
+	sub	r9, r10
+	mov	r10, 2
+	mov	rax, r9
 	cqo
-	idiv	r12
-	mov	r11, rax
-	add	r10, r11
-	lea	r11, [rbp-40]
-	mov	qword [r11], r10
-	mov	r10, qword [rbp-40]
-	mov	r11, qword [rbp-40]
-	imul	r10, r11
-	mov	r11, qword [rbp-8]
-	cmp	r10, r11
-	setle	r10b
-	test	r10b, r10b
+	idiv	r10
+	mov	r9, rax
+	add	r8, r9
+	lea	r9, [rbp-40]
+	mov	qword [r9], r8
+	mov	r8, qword [rbp-40]
+	mov	r9, qword [rbp-40]
+	imul	r8, r9
+	mov	r9, qword [rbp-8]
+	cmp	r8, r9
+	setle	r8b
+	test	r8b, r8b
 	jz	.L4
-	mov	r10, qword [rbp-40]
-	lea	r11, [rbp-32]
-	mov	qword [r11], r10
-	mov	r10, qword [rbp-40]
-	mov	r11, 1
-	add	r10, r11
-	lea	r11, [rbp-16]
-	mov	qword [r11], r10
+	mov	r8, qword [rbp-40]
+	lea	r9, [rbp-32]
+	mov	qword [r9], r8
+	mov	r8, qword [rbp-40]
+	mov	r9, 1
+	add	r8, r9
+	lea	r9, [rbp-16]
+	mov	qword [r9], r8
 	jmp	.L5
 .L4:
-	mov	r10, qword [rbp-40]
-	mov	r11, 1
-	sub	r10, r11
-	lea	r11, [rbp-24]
-	mov	qword [r11], r10
+	mov	r8, qword [rbp-40]
+	mov	r9, 1
+	sub	r8, r9
+	lea	r9, [rbp-24]
+	mov	qword [r9], r8
 .L5:
 .L2:
-	mov	r10, qword [rbp-16]
-	mov	r11, qword [rbp-24]
-	cmp	r10, r11
-	setle	r10b
-	test	r10b, r10b
+	mov	r8, qword [rbp-16]
+	mov	r9, qword [rbp-24]
+	cmp	r8, r9
+	setle	r8b
+	test	r8b, r8b
 	jnz	.L1
 .L3:
-	mov	r10, qword [rbp-32]
-	mov	rax, r10
+	mov	r8, qword [rbp-32]
+	mov	rax, r8
 	jmp	.L0
 	xor	rax, rax
 .L0:
@@ -87,45 +87,45 @@ isprime:
 	mov	rdi, r10
 	lea	r10, [rel isqrt]
 	call	r10
-	mov	r10, rax
-	lea	r11, [rbp-24]
-	mov	qword [r11], r10
-	mov	r10, 2
-	lea	r11, [rbp-16]
-	mov	qword [r11], r10
+	mov	r8, rax
+	lea	r9, [rbp-24]
+	mov	qword [r9], r8
+	mov	r8, 2
+	lea	r9, [rbp-16]
+	mov	qword [r9], r8
 	jmp	.L8
 .L7:
-	mov	r10, qword [rbp-8]
-	mov	r11, qword [rbp-16]
-	mov	rax, r10
+	mov	r8, qword [rbp-8]
+	mov	r9, qword [rbp-16]
+	mov	rax, r8
 	cqo
-	idiv	r11
-	mov	r10, rdx
-	mov	r11, 0
-	cmp	r10, r11
-	sete	r10b
-	test	r10b, r10b
+	idiv	r9
+	mov	r8, rdx
+	mov	r9, 0
+	cmp	r8, r9
+	sete	r8b
+	test	r8b, r8b
 	jz	.L11
-	mov	r10, 0
-	mov	al, r10b
+	mov	r8, 0
+	mov	al, r8b
 	jmp	.L6
 .L11:
 .L10:
-	lea	r10, [rbp-16]
-	mov	r11, qword [r10]
-	mov	r12, 1
-	add	r11, r12
-	mov	qword [r10], r11
+	lea	r8, [rbp-16]
+	mov	r9, qword [r8]
+	mov	r10, 1
+	add	r9, r10
+	mov	qword [r8], r9
 .L8:
-	mov	r10, qword [rbp-16]
-	mov	r11, qword [rbp-24]
-	cmp	r10, r11
-	setle	r10b
-	test	r10b, r10b
+	mov	r8, qword [rbp-16]
+	mov	r9, qword [rbp-24]
+	cmp	r8, r9
+	setle	r8b
+	test	r8b, r8b
 	jnz	.L7
 .L9:
-	mov	r10, 1
-	mov	al, r10b
+	mov	r8, 1
+	mov	al, r8b
 	jmp	.L6
 	xor	rax, rax
 .L6:
@@ -139,67 +139,67 @@ biggest_prime_factor:
 	mov	rbp, rsp
 	sub	rsp, 32
 	mov	qword [rbp-8], rdi
-	mov	r10, 2
-	lea	r11, [rbp-16]
-	mov	qword [r11], r10
-	mov	r10, 0
-	lea	r11, [rbp-24]
-	mov	qword [r11], r10
+	mov	r8, 2
+	lea	r9, [rbp-16]
+	mov	qword [r9], r8
+	mov	r8, 0
+	lea	r9, [rbp-24]
+	mov	qword [r9], r8
 	jmp	.L14
 .L13:
 	mov	r10, qword [rbp-16]
 	mov	rdi, r10
 	lea	r10, [rel isprime]
 	call	r10
-	mov	r10b, al
-	test	r10b, r10b
+	mov	r8b, al
+	test	r8b, r8b
 	jz	.L17
-	mov	r10, qword [rbp-8]
-	mov	r11, qword [rbp-16]
-	mov	rax, r10
+	mov	r8, qword [rbp-8]
+	mov	r9, qword [rbp-16]
+	mov	rax, r8
 	cqo
-	idiv	r11
-	mov	r10, rdx
-	mov	r11, 0
-	cmp	r10, r11
-	sete	r10b
+	idiv	r9
+	mov	r8, rdx
+	mov	r9, 0
+	cmp	r8, r9
+	sete	r8b
 .L17:
-	test	r10b, r10b
+	test	r8b, r8b
 	jz	.L16
-	mov	r10, qword [rbp-16]
-	mov	r11, qword [rbp-24]
-	cmp	r10, r11
-	setg	r10b
-	test	r10b, r10b
+	mov	r8, qword [rbp-16]
+	mov	r9, qword [rbp-24]
+	cmp	r8, r9
+	setg	r8b
+	test	r8b, r8b
 	jz	.L18
-	mov	r10, qword [rbp-16]
-	lea	r11, [rbp-24]
-	mov	qword [r11], r10
+	mov	r8, qword [rbp-16]
+	lea	r9, [rbp-24]
+	mov	qword [r9], r8
 .L18:
-	lea	r10, [rbp-8]
-	mov	r11, qword [r10]
-	mov	r12, qword [rbp-16]
-	mov	rax, r11
+	lea	r8, [rbp-8]
+	mov	r9, qword [r8]
+	mov	r10, qword [rbp-16]
+	mov	rax, r9
 	cqo
-	idiv	r12
-	mov	r11, rax
-	mov	qword [r10], r11
+	idiv	r10
+	mov	r9, rax
+	mov	qword [r8], r9
 .L16:
-	lea	r10, [rbp-16]
-	mov	r11, qword [r10]
-	mov	r12, 1
-	add	r11, r12
-	mov	qword [r10], r11
+	lea	r8, [rbp-16]
+	mov	r9, qword [r8]
+	mov	r10, 1
+	add	r9, r10
+	mov	qword [r8], r9
 .L14:
-	mov	r10, qword [rbp-8]
-	mov	r11, 1
-	cmp	r10, r11
-	setne	r10b
-	test	r10b, r10b
+	mov	r8, qword [rbp-8]
+	mov	r9, 1
+	cmp	r8, r9
+	setne	r8b
+	test	r8b, r8b
 	jnz	.L13
 .L15:
-	mov	r10, qword [rbp-24]
-	mov	rax, r10
+	mov	r8, qword [rbp-24]
+	mov	rax, r8
 	jmp	.L12
 	xor	rax, rax
 .L12:
@@ -216,8 +216,8 @@ main:
 	mov	rdi, r10
 	lea	r10, [rel biggest_prime_factor]
 	call	r10
-	mov	r10, rax
-	mov	rdi, r10
+	mov	r8, rax
+	mov	rdi, r8
 	call	printi
 .L19:
 	xor	rax, rax

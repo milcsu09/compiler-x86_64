@@ -190,3 +190,4 @@ fold_tree_strict (struct tree *tree)
 
   return result;
 }
+

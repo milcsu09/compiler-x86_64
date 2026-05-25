@@ -12,42 +12,42 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 16
-	mov	r10, 0
-	lea	r11, [rbp-8]
-	mov	qword [r11], r10
+	mov	r8, 0
+	lea	r9, [rbp-8]
+	mov	qword [r9], r8
 	jmp	.L2
 .L1:
-	mov	r10, qword [rbp-8]
-	mov	r11, 4
-	cmp	r10, r11
-	sete	r10b
-	test	r10b, r10b
+	mov	r8, qword [rbp-8]
+	mov	r9, 4
+	cmp	r8, r9
+	sete	r8b
+	test	r8b, r8b
 	jz	.L5
 	jmp	.L4
 .L5:
-	mov	r10, qword [rbp-8]
-	mov	r11, 7
-	cmp	r10, r11
-	sete	r10b
-	test	r10b, r10b
+	mov	r8, qword [rbp-8]
+	mov	r9, 7
+	cmp	r8, r9
+	sete	r8b
+	test	r8b, r8b
 	jz	.L6
 	jmp	.L3
 .L6:
-	mov	r10, qword [rbp-8]
-	mov	rdi, r10
+	mov	r8, qword [rbp-8]
+	mov	rdi, r8
 	call	printi
 .L4:
-	lea	r10, [rbp-8]
-	mov	r11, qword [r10]
-	mov	r12, 1
-	add	r11, r12
-	mov	qword [r10], r11
+	lea	r8, [rbp-8]
+	mov	r9, qword [r8]
+	mov	r10, 1
+	add	r9, r10
+	mov	qword [r8], r9
 .L2:
-	mov	r10, qword [rbp-8]
-	mov	r11, 10
-	cmp	r10, r11
-	setl	r10b
-	test	r10b, r10b
+	mov	r8, qword [rbp-8]
+	mov	r9, 10
+	cmp	r8, r9
+	setl	r8b
+	test	r8b, r8b
 	jnz	.L1
 .L3:
 .L0:

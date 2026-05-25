@@ -78,6 +78,9 @@ fn main() {
       size : i32;
       size = particles[i].size / 100;
 
+      // Outline
+      DrawRectangle(x - 1, y - 1, size + 2, size + 2, 0xFF000000);
+
       DrawRectangle(x, y, size, size, 0xFF0000FF);
     }
 

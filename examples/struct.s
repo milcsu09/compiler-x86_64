@@ -12,83 +12,83 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 48
-	mov	r10, 32
-	lea	r11, [rbp-48]
-	add	r11, 0
-	mov	qword [r11], r10
-	mov	r10, LS0
-	lea	r11, [rbp-48]
-	add	r11, 8
-	mov	qword [r11], r10
-	mov	r10, 10
-	lea	r11, [rbp-48]
-	add	r11, 16
-	mov	r12, 0
-	imul	r12, 8
-	add	r11, r12
-	mov	qword [r11], r10
-	mov	r10, 20
-	lea	r11, [rbp-48]
-	add	r11, 16
-	mov	r12, 1
-	imul	r12, 8
-	add	r11, r12
-	mov	qword [r11], r10
-	mov	r10, 30
-	lea	r11, [rbp-48]
-	add	r11, 16
-	mov	r12, 2
-	imul	r12, 8
-	add	r11, r12
-	mov	qword [r11], r10
-	mov	r10, 40
-	lea	r11, [rbp-48]
-	add	r11, 16
-	mov	r12, 3
-	imul	r12, 8
-	add	r11, r12
-	mov	qword [r11], r10
-	lea	r10, [rbp-48]
-	add	r10, 0
-	mov	r10, qword [r10]
-	mov	rdi, r10
+	mov	r8, 32
+	lea	r9, [rbp-48]
+	add	r9, 0
+	mov	qword [r9], r8
+	mov	r8, LS0
+	lea	r9, [rbp-48]
+	add	r9, 8
+	mov	qword [r9], r8
+	mov	r8, 10
+	lea	r9, [rbp-48]
+	add	r9, 16
+	mov	r10, 0
+	imul	r10, 8
+	add	r9, r10
+	mov	qword [r9], r8
+	mov	r8, 20
+	lea	r9, [rbp-48]
+	add	r9, 16
+	mov	r10, 1
+	imul	r10, 8
+	add	r9, r10
+	mov	qword [r9], r8
+	mov	r8, 30
+	lea	r9, [rbp-48]
+	add	r9, 16
+	mov	r10, 2
+	imul	r10, 8
+	add	r9, r10
+	mov	qword [r9], r8
+	mov	r8, 40
+	lea	r9, [rbp-48]
+	add	r9, 16
+	mov	r10, 3
+	imul	r10, 8
+	add	r9, r10
+	mov	qword [r9], r8
+	lea	r8, [rbp-48]
+	add	r8, 0
+	mov	r8, qword [r8]
+	mov	rdi, r8
 	call	printi
-	lea	r10, [rbp-48]
-	add	r10, 8
-	mov	r10, qword [r10]
-	mov	rdi, r10
+	lea	r8, [rbp-48]
+	add	r8, 8
+	mov	r8, qword [r8]
+	mov	rdi, r8
 	call	printi
-	lea	r10, [rbp-48]
-	add	r10, 16
-	mov	r11, 0
-	imul	r11, 8
-	add	r10, r11
-	mov	r10, qword [r10]
-	mov	rdi, r10
+	lea	r8, [rbp-48]
+	add	r8, 16
+	mov	r9, 0
+	imul	r9, 8
+	add	r8, r9
+	mov	r8, qword [r8]
+	mov	rdi, r8
 	call	printi
-	lea	r10, [rbp-48]
-	add	r10, 16
-	mov	r11, 1
-	imul	r11, 8
-	add	r10, r11
-	mov	r10, qword [r10]
-	mov	rdi, r10
+	lea	r8, [rbp-48]
+	add	r8, 16
+	mov	r9, 1
+	imul	r9, 8
+	add	r8, r9
+	mov	r8, qword [r8]
+	mov	rdi, r8
 	call	printi
-	lea	r10, [rbp-48]
-	add	r10, 16
-	mov	r11, 2
-	imul	r11, 8
-	add	r10, r11
-	mov	r10, qword [r10]
-	mov	rdi, r10
+	lea	r8, [rbp-48]
+	add	r8, 16
+	mov	r9, 2
+	imul	r9, 8
+	add	r8, r9
+	mov	r8, qword [r8]
+	mov	rdi, r8
 	call	printi
-	lea	r10, [rbp-48]
-	add	r10, 16
-	mov	r11, 3
-	imul	r11, 8
-	add	r10, r11
-	mov	r10, qword [r10]
-	mov	rdi, r10
+	lea	r8, [rbp-48]
+	add	r8, 16
+	mov	r9, 3
+	imul	r9, 8
+	add	r8, r9
+	mov	r8, qword [r8]
+	mov	rdi, r8
 	call	printi
 .L0:
 	xor	rax, rax

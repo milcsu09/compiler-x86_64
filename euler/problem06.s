@@ -13,35 +13,33 @@ sum_square:
 	mov	rbp, rsp
 	sub	rsp, 16
 	mov	qword [rbp-8], rdi
-	mov	r10, 0
-	lea	r11, [rbp-16]
-	mov	qword [r11], r10
+	mov	r8, 0
+	lea	r9, [rbp-16]
+	mov	qword [r9], r8
 	jmp	.L2
 .L1:
-	lea	r10, [rbp-16]
-	mov	r11, qword [r10]
-	mov	r12, qword [rbp-8]
-	push	r10
+	lea	r8, [rbp-16]
+	mov	r9, qword [r8]
 	mov	r10, qword [rbp-8]
-	imul	r12, r10
-	pop	r10
-	add	r11, r12
-	mov	qword [r10], r11
-	lea	r10, [rbp-8]
-	mov	r11, qword [r10]
-	mov	r12, 1
-	sub	r11, r12
-	mov	qword [r10], r11
+	mov	r11, qword [rbp-8]
+	imul	r10, r11
+	add	r9, r10
+	mov	qword [r8], r9
+	lea	r8, [rbp-8]
+	mov	r9, qword [r8]
+	mov	r10, 1
+	sub	r9, r10
+	mov	qword [r8], r9
 .L2:
-	mov	r10, qword [rbp-8]
-	mov	r11, 0
-	cmp	r10, r11
-	setg	r10b
-	test	r10b, r10b
+	mov	r8, qword [rbp-8]
+	mov	r9, 0
+	cmp	r8, r9
+	setg	r8b
+	test	r8b, r8b
 	jnz	.L1
 .L3:
-	mov	r10, qword [rbp-16]
-	mov	rax, r10
+	mov	r8, qword [rbp-16]
+	mov	rax, r8
 	jmp	.L0
 	xor	rax, rax
 .L0:
@@ -55,33 +53,33 @@ square_sum:
 	mov	rbp, rsp
 	sub	rsp, 16
 	mov	qword [rbp-8], rdi
-	mov	r10, 0
-	lea	r11, [rbp-16]
-	mov	qword [r11], r10
+	mov	r8, 0
+	lea	r9, [rbp-16]
+	mov	qword [r9], r8
 	jmp	.L6
 .L5:
-	lea	r10, [rbp-16]
-	mov	r11, qword [r10]
-	mov	r12, qword [rbp-8]
-	add	r11, r12
-	mov	qword [r10], r11
-	lea	r10, [rbp-8]
-	mov	r11, qword [r10]
-	mov	r12, 1
-	sub	r11, r12
-	mov	qword [r10], r11
-.L6:
+	lea	r8, [rbp-16]
+	mov	r9, qword [r8]
 	mov	r10, qword [rbp-8]
-	mov	r11, 0
-	cmp	r10, r11
-	setg	r10b
-	test	r10b, r10b
+	add	r9, r10
+	mov	qword [r8], r9
+	lea	r8, [rbp-8]
+	mov	r9, qword [r8]
+	mov	r10, 1
+	sub	r9, r10
+	mov	qword [r8], r9
+.L6:
+	mov	r8, qword [rbp-8]
+	mov	r9, 0
+	cmp	r8, r9
+	setg	r8b
+	test	r8b, r8b
 	jnz	.L5
 .L7:
-	mov	r10, qword [rbp-16]
-	mov	r11, qword [rbp-16]
-	imul	r10, r11
-	mov	rax, r10
+	mov	r8, qword [rbp-16]
+	mov	r9, qword [rbp-16]
+	imul	r8, r9
+	mov	rax, r8
 	jmp	.L4
 	xor	rax, rax
 .L4:
@@ -98,18 +96,18 @@ main:
 	mov	rdi, r10
 	lea	r10, [rel square_sum]
 	call	r10
-	mov	r10, rax
-	push	r10
-	mov	r11, 100
-	mov	rdi, r11
-	sub	rsp, 8
-	lea	r11, [rel sum_square]
-	call	r11
-	add	rsp, 8
-	pop	r10
-	mov	r11, rax
-	sub	r10, r11
+	mov	r8, rax
+	push	r8
+	mov	r10, 100
 	mov	rdi, r10
+	sub	rsp, 8
+	lea	r10, [rel sum_square]
+	call	r10
+	add	rsp, 8
+	pop	r8
+	mov	r9, rax
+	sub	r8, r9
+	mov	rdi, r8
 	call	printi
 .L8:
 	xor	rax, rax

@@ -17,8 +17,8 @@ f:
 	mov	rdi, r10
 	lea	r10, [rel puts]
 	call	r10
-	lea	r10, [rel a]
-	mov	rax, r10
+	lea	r8, [rel a]
+	mov	rax, r8
 	jmp	.L0
 	xor	rax, rax
 .L0:
@@ -31,18 +31,18 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 0
-	mov	r10, 5
-	lea	r11, [rel a]
-	mov	qword [r11], r10
+	mov	r8, 5
+	lea	r9, [rel a]
+	mov	qword [r9], r8
 	lea	r10, [rel f]
 	call	r10
-	mov	r10, rax
-	mov	r11, qword [r10]
-	mov	r12, 15
-	add	r11, r12
-	mov	qword [r10], r11
-	mov	r10, qword [rel a]
-	mov	rdi, r10
+	mov	r8, rax
+	mov	r9, qword [r8]
+	mov	r10, 15
+	add	r9, r10
+	mov	qword [r8], r9
+	mov	r8, qword [rel a]
+	mov	rdi, r8
 	call	printi
 .L1:
 	xor	rax, rax

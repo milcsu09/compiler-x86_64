@@ -13,9 +13,9 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 16
-	mov	r10, LS0
-	lea	r11, [rbp-8]
-	mov	qword [r11], r10
+	mov	r8, LS0
+	lea	r9, [rbp-8]
+	mov	qword [r9], r8
 	jmp	.L2
 .L1:
 	mov	r10, qword [rbp-8]
@@ -24,15 +24,15 @@ main:
 	lea	r10, [rel putchar]
 	call	r10
 .L4:
-	lea	r10, [rbp-8]
-	mov	r11, qword [r10]
-	mov	r12, 1
-	add	r11, r12
-	mov	qword [r10], r11
+	lea	r8, [rbp-8]
+	mov	r9, qword [r8]
+	mov	r10, 1
+	add	r9, r10
+	mov	qword [r8], r9
 .L2:
-	mov	r10, qword [rbp-8]
-	mov	r10b, byte [r10]
-	test	r10b, r10b
+	mov	r8, qword [rbp-8]
+	mov	r8b, byte [r8]
+	test	r8b, r8b
 	jnz	.L1
 .L3:
 .L0:

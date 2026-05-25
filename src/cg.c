@@ -105,7 +105,7 @@ struct cg
 
   bool register_free[REGISTER_COUNT];
 
-  size_t register_spill;
+  size_t registers_spilled;
 
   struct cg_string *string_head;
   struct cg_string *string_tail;
@@ -174,7 +174,7 @@ cg_create (FILE *f)
 
   cg->label = 0;
 
-  cg->register_spill = 0;
+  cg->registers_spilled = 0;
 
   cg_register_free_all (cg);
 
@@ -664,8 +664,14 @@ cg_write_pop_register_id (struct cg *cg, enum cg_register_id r)
 // Register allocation boundaries
 enum
 {
-  CG_RA_S = REGISTER_R10,
-  CG_RA_E = REGISTER_R12,
+  // CG_RA_S = REGISTER_R10,
+  // CG_RA_E = REGISTER_R12,
+
+  // https://wiki.osdev.org/System_V_ABI
+  // "Functions preserve the registers rbx, rsp, rbp, r12, r13, r14, and r15; while rax, rdi, rsi, rdx, rcx, r8, r9, r10, r11 are scratch registers."
+  CG_RA_S = REGISTER_R8,
+  CG_RA_E = REGISTER_R11,
+
   CG_RA_COUNT = CG_RA_E - CG_RA_S + 1,
 };
 
@@ -683,7 +689,7 @@ cg_register_allocate (struct cg *cg, enum type_width width)
         }
     }
 
-  enum cg_register_id i = CG_RA_S + cg->register_spill++ % (CG_RA_COUNT - 1);
+  enum cg_register_id i = CG_RA_S + cg->registers_spilled++ % (CG_RA_COUNT - 1);
 
   cg_write_push_register_id (cg, i);
 
@@ -694,11 +700,11 @@ cg_register_allocate (struct cg *cg, enum type_width width)
 static void
 cg_register_free (struct cg *cg, struct cg_register r)
 {
-  if (cg->register_spill == 0)
+  if (cg->registers_spilled == 0)
     cg->register_free[r.id] = 1;
   else
     {
-      enum cg_register_id i = CG_RA_S + --cg->register_spill % (CG_RA_COUNT - 1);
+      enum cg_register_id i = CG_RA_S + --cg->registers_spilled % (CG_RA_COUNT - 1);
 
       cg_write_pop_register_id (cg, i);
     }
@@ -708,9 +714,9 @@ cg_register_free (struct cg *cg, struct cg_register r)
 static void
 cg_register_free_all (struct cg *cg)
 {
-  while (cg->register_spill > 0)
+  while (cg->registers_spilled > 0)
     {
-      enum cg_register_id i = CG_RA_S + --cg->register_spill % (CG_RA_COUNT - 1);
+      enum cg_register_id i = CG_RA_S + --cg->registers_spilled % (CG_RA_COUNT - 1);
 
       cg_write_pop_register_id (cg, i);
     }
@@ -1128,6 +1134,9 @@ cg_generate_node_fdefinition (struct cg *cg, struct tree *tree)
   cg_write (cg, "\tmov\trbp, rsp\n");
   cg_write (cg, "\tsub\trsp, %zu\n", stack_usage);
 
+  // https://wiki.osdev.org/System_V_ABI
+  // Parameters to functions are passed in via the registers rdi, rsi, rdx, rcx, r8, and r9.
+
   const enum cg_register_id p_register[] = {
     REGISTER_RDI,
     REGISTER_RSI,
@@ -1451,38 +1460,6 @@ cg_generate_node_cast (struct cg *cg, struct tree *tree)
   struct type *type_b = tree_get_expression_type (node->value);
 
   return cg_generate_cast (cg, r, type_a, type_b);
-
-  /*
-  enum type_width wa = type_width (type_a);
-  enum type_width wb = type_width (type_b);
-
-  bool sa = type_is_signed (type_a);
-  bool sb = type_is_signed (type_b);
-
-  // Truncation
-  if (wa < wb)
-    {
-      return register_modify (r, wa);
-    }
-
-  // Extension
-  if (wa > wb)
-    {
-      struct cg_register s = register_modify (r, wa);
-
-      if (sa && sb)
-        cg_write_sext (cg, s, r);
-      else
-        {
-          if (wb < WIDTH_4)
-            cg_write_zext (cg, s, r);
-        }
-
-      return s;
-    }
-
-  return r;
-  */
 }
 
 
@@ -1494,15 +1471,18 @@ cg_generate_node_call (struct cg *cg, struct tree *tree)
 {
   struct tree_node_call *node = &tree->d.call;
 
-  size_t register_save = 0;
+  size_t registers_saved = 0;
 
   for (size_t i = CG_RA_S; i <= CG_RA_E; ++i)
     if (cg->register_free[i] == 0)
       {
         cg_write_push_register_id (cg, i);
 
-        register_save++;
+        registers_saved++;
       }
+
+  // https://wiki.osdev.org/System_V_ABI
+  // Parameters to functions are passed in via the registers rdi, rsi, rdx, rcx, r8, and r9.
 
   const enum cg_register_id p_register[] = {
     REGISTER_RDI,
@@ -1522,6 +1502,21 @@ cg_generate_node_call (struct cg *cg, struct tree *tree)
 
   struct tree *argument = node->argument1;
 
+  // Save the state of registers used for arguments, and make them non-free.
+  bool register_free0 = cg->register_free[p_register[0]];
+  bool register_free1 = cg->register_free[p_register[1]];
+  bool register_free2 = cg->register_free[p_register[2]];
+  bool register_free3 = cg->register_free[p_register[3]];
+  bool register_free4 = cg->register_free[p_register[4]];
+  bool register_free5 = cg->register_free[p_register[5]];
+
+  cg->register_free[p_register[0]] = false;
+  cg->register_free[p_register[1]] = false;
+  cg->register_free[p_register[2]] = false;
+  cg->register_free[p_register[3]] = false;
+  cg->register_free[p_register[4]] = false;
+  cg->register_free[p_register[5]] = false;
+
   while (argument)
     {
       if (i >= 6)
@@ -1539,18 +1534,22 @@ cg_generate_node_call (struct cg *cg, struct tree *tree)
       i++;
     }
 
-  // System V bullshit
+  // https://wiki.osdev.org/System_V_ABI
+  // The stack is 16-byte aligned just before the call instruction is executed.
 
-  size_t P = register_save + cg->register_spill;
+  size_t P = registers_saved + cg->registers_spilled;
+  size_t S = p_n - i;
 
-  size_t stack_args = p_n - i;
+  // Odd stack needs 8 byte alignment.
+  size_t pad = (P + S) & 1 ? 8 : 0;
 
-  size_t pad = (P + stack_args) & 1 ? 8 : 0;
-
-  size_t offset = stack_args * 8 + pad;
+  size_t offset = S * 8 + pad;
 
   if (offset != 0)
     cg_write (cg, "\tsub\trsp, %zu\n", offset);
+
+  // https://wiki.osdev.org/System_V_ABI
+  // Any additional arguments that do not fit in these registers are passed on the stack in reverse order.
 
   while (argument)
     {
@@ -1577,6 +1576,14 @@ cg_generate_node_call (struct cg *cg, struct tree *tree)
 
   if (offset != 0)
     cg_write (cg, "\tadd\trsp, %zu\n", offset);
+
+  // Restore the state of registers used for arguments.
+  cg->register_free[p_register[5]] = register_free5;
+  cg->register_free[p_register[4]] = register_free4;
+  cg->register_free[p_register[3]] = register_free3;
+  cg->register_free[p_register[2]] = register_free2;
+  cg->register_free[p_register[1]] = register_free1;
+  cg->register_free[p_register[0]] = register_free0;
 
   for (size_t i = CG_RA_E + 1; i-- > CG_RA_S; )
     if (cg->register_free[i] == 0)

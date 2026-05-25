@@ -12,8 +12,8 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 0
-	mov	r10, 16
-	mov	rdi, r10
+	mov	r8, 16
+	mov	rdi, r8
 	call	printi
 .L0:
 	xor	rax, rax

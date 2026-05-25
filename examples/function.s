@@ -14,10 +14,10 @@ add:
 	sub	rsp, 16
 	mov	qword [rbp-8], rdi
 	mov	qword [rbp-16], rsi
-	mov	r10, qword [rbp-8]
-	mov	r11, qword [rbp-16]
-	add	r10, r11
-	mov	rax, r10
+	mov	r8, qword [rbp-8]
+	mov	r9, qword [rbp-16]
+	add	r8, r9
+	mov	rax, r8
 	jmp	.L0
 	xor	rax, rax
 .L0:
@@ -36,8 +36,8 @@ main:
 	mov	rsi, r10
 	lea	r10, [rel add]
 	call	r10
-	mov	r10, rax
-	mov	rdi, r10
+	mov	r8, rax
+	mov	rdi, r8
 	call	printi
 .L1:
 	xor	rax, rax

@@ -13,8 +13,8 @@ f1:
 	mov	rbp, rsp
 	sub	rsp, 16
 	mov	qword [rbp-8], rdi
-	mov	r10, qword [rbp-8]
-	mov	rax, r10
+	mov	r8, qword [rbp-8]
+	mov	rax, r8
 	jmp	.L0
 	xor	rax, rax
 .L0:
@@ -28,10 +28,10 @@ f2:
 	mov	rbp, rsp
 	sub	rsp, 16
 	mov	qword [rbp-8], rdi
-	mov	r10, qword [rbp-8]
-	mov	r11, 1
-	add	r10, r11
-	mov	rax, r10
+	mov	r8, qword [rbp-8]
+	mov	r9, 1
+	add	r8, r9
+	mov	rax, r8
 	jmp	.L1
 	xor	rax, rax
 .L1:
@@ -45,10 +45,10 @@ f3:
 	mov	rbp, rsp
 	sub	rsp, 16
 	mov	qword [rbp-8], rdi
-	mov	r10, qword [rbp-8]
-	mov	r11, 2
-	imul	r10, r11
-	mov	rax, r10
+	mov	r8, qword [rbp-8]
+	mov	r9, 2
+	imul	r8, r9
+	mov	rax, r8
 	jmp	.L2
 	xor	rax, rax
 .L2:
@@ -62,10 +62,10 @@ f4:
 	mov	rbp, rsp
 	sub	rsp, 16
 	mov	qword [rbp-8], rdi
-	mov	r10, qword [rbp-8]
-	mov	r11, qword [rbp-8]
-	imul	r10, r11
-	mov	rax, r10
+	mov	r8, qword [rbp-8]
+	mov	r9, qword [rbp-8]
+	imul	r8, r9
+	mov	rax, r8
 	jmp	.L3
 	xor	rax, rax
 .L3:
@@ -78,30 +78,30 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 32
-	lea	r10, [rel f1]
-	lea	r11, [rbp-32]
-	mov	r12, 0
-	imul	r12, 8
-	add	r11, r12
-	mov	qword [r11], r10
-	lea	r10, [rel f2]
-	lea	r11, [rbp-32]
-	mov	r12, 1
-	imul	r12, 8
-	add	r11, r12
-	mov	qword [r11], r10
-	lea	r10, [rel f3]
-	lea	r11, [rbp-32]
-	mov	r12, 2
-	imul	r12, 8
-	add	r11, r12
-	mov	qword [r11], r10
-	lea	r10, [rel f4]
-	lea	r11, [rbp-32]
-	mov	r12, 3
-	imul	r12, 8
-	add	r11, r12
-	mov	qword [r11], r10
+	lea	r8, [rel f1]
+	lea	r9, [rbp-32]
+	mov	r10, 0
+	imul	r10, 8
+	add	r9, r10
+	mov	qword [r9], r8
+	lea	r8, [rel f2]
+	lea	r9, [rbp-32]
+	mov	r10, 1
+	imul	r10, 8
+	add	r9, r10
+	mov	qword [r9], r8
+	lea	r8, [rel f3]
+	lea	r9, [rbp-32]
+	mov	r10, 2
+	imul	r10, 8
+	add	r9, r10
+	mov	qword [r9], r8
+	lea	r8, [rel f4]
+	lea	r9, [rbp-32]
+	mov	r10, 3
+	imul	r10, 8
+	add	r9, r10
+	mov	qword [r9], r8
 	mov	r10, 10
 	mov	rdi, r10
 	lea	r10, [rbp-32]
@@ -110,8 +110,8 @@ main:
 	add	r10, r11
 	mov	r10, qword [r10]
 	call	r10
-	mov	r10, rax
-	mov	rdi, r10
+	mov	r8, rax
+	mov	rdi, r8
 	call	printi
 	mov	r10, 10
 	mov	rdi, r10
@@ -121,8 +121,8 @@ main:
 	add	r10, r11
 	mov	r10, qword [r10]
 	call	r10
-	mov	r10, rax
-	mov	rdi, r10
+	mov	r8, rax
+	mov	rdi, r8
 	call	printi
 	mov	r10, 10
 	mov	rdi, r10
@@ -132,8 +132,8 @@ main:
 	add	r10, r11
 	mov	r10, qword [r10]
 	call	r10
-	mov	r10, rax
-	mov	rdi, r10
+	mov	r8, rax
+	mov	rdi, r8
 	call	printi
 	mov	r10, 10
 	mov	rdi, r10
@@ -143,8 +143,8 @@ main:
 	add	r10, r11
 	mov	r10, qword [r10]
 	call	r10
-	mov	r10, rax
-	mov	rdi, r10
+	mov	r8, rax
+	mov	rdi, r8
 	call	printi
 .L4:
 	xor	rax, rax

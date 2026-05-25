@@ -18,9 +18,9 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 16
-	mov	r10, 0
-	lea	r11, [rbp-8]
-	mov	qword [r11], r10
+	mov	r8, 0
+	lea	r9, [rbp-8]
+	mov	qword [r9], r8
 	jmp	.L2
 .L1:
 	mov	r10, qword [rel environ]
@@ -32,28 +32,28 @@ main:
 	lea	r10, [rel puts]
 	call	r10
 .L4:
-	lea	r10, [rbp-8]
-	mov	r11, qword [r10]
-	mov	r12, 1
-	add	r11, r12
-	mov	qword [r10], r11
+	lea	r8, [rbp-8]
+	mov	r9, qword [r8]
+	mov	r10, 1
+	add	r9, r10
+	mov	qword [r8], r9
 .L2:
-	mov	r10, qword [rel environ]
-	mov	r11, qword [rbp-8]
-	imul	r11, 8
-	add	r10, r11
-	mov	r10, qword [r10]
-	test	r10, r10
+	mov	r8, qword [rel environ]
+	mov	r9, qword [rbp-8]
+	imul	r9, 8
+	add	r8, r9
+	mov	r8, qword [r8]
+	test	r8, r8
 	jnz	.L1
 .L3:
-	mov	r10, qword [rel stdin]
-	mov	rdi, r10
+	mov	r8, qword [rel stdin]
+	mov	rdi, r8
 	call	printi
-	mov	r10, qword [rel stdout]
-	mov	rdi, r10
+	mov	r8, qword [rel stdout]
+	mov	rdi, r8
 	call	printi
-	mov	r10, qword [rel stderr]
-	mov	rdi, r10
+	mov	r8, qword [rel stderr]
+	mov	rdi, r8
 	call	printi
 	mov	r10, LS0
 	mov	rdi, r10
