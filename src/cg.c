@@ -659,8 +659,6 @@ cg_write_pop_register_id (struct cg *cg, enum cg_register_id r)
 }
 
 
-// TODO: Better register allocation (and spilling) strategy.
-
 // Register allocation boundaries
 enum
 {
@@ -1461,9 +1459,6 @@ cg_generate_node_cast (struct cg *cg, struct tree *tree)
 
   return cg_generate_cast (cg, r, type_a, type_b);
 }
-
-
-// TODO: Rewrite function calling code. It's wrong.
 
 
 static struct cg_register
